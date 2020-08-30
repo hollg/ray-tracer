@@ -101,10 +101,10 @@ impl Mul for Matrix {
     }
 }
 
-impl Mul<&Tuple> for Matrix {
+impl Mul<Tuple> for Matrix {
     type Output = Tuple;
 
-    fn mul(self, other: &Tuple) -> Tuple {
+    fn mul(self, other: Tuple) -> Tuple {
         let mut values = [0.0; 4];
         let Tuple { x, y, z, w } = other;
 
@@ -217,7 +217,7 @@ mod test {
         };
 
         assert!(
-            m * &t
+            m * t
                 == Tuple {
                     x: 18.0,
                     y: 24.0,
@@ -225,5 +225,48 @@ mod test {
                     w: 1.0
                 }
         )
+    }
+
+    #[test]
+    fn multiply_matrix_by_identity_matrix() {
+        let identity_matrix = Matrix::from([
+            [1.0, 0.0, 0.0, 0.0],
+            [0.0, 1.0, 0.0, 0.0],
+            [0.0, 0.0, 1.0, 0.0],
+            [0.0, 0.0, 0.0, 1.0],
+        ]);
+        let m = Matrix::from([
+            [1.0, 2.0, 3.0, 4.0],
+            [2.0, 4.0, 4.0, 2.0],
+            [8.0, 6.0, 4.0, 1.0],
+            [0.0, 0.0, 0.0, 1.0],
+        ]);
+
+        assert!(m * identity_matrix == Matrix::from([
+            [1.0, 2.0, 3.0, 4.0],
+            [2.0, 4.0, 4.0, 2.0],
+            [8.0, 6.0, 4.0, 1.0],
+            [0.0, 0.0, 0.0, 1.0],
+        ]));
+
+    }
+
+    #[test]
+    fn multiply_identity_matrix_by_tuple(){
+        let identity_matrix = Matrix::from([
+            [1.0, 0.0, 0.0, 0.0],
+            [0.0, 1.0, 0.0, 0.0],
+            [0.0, 0.0, 1.0, 0.0],
+            [0.0, 0.0, 0.0, 1.0],
+        ]);
+
+        let t = Tuple {
+            x: 1.0,
+            y: 2.0,
+            z: 3.0,
+            w: 1.0
+        };
+
+        assert!(identity_matrix * t == t);
     }
 }
