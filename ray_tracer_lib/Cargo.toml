@@ -1,5 +1,5 @@
 [package]
-name = "ray-tracer"
+name = "ray_tracer_lib"
 version = "0.1.0"
 authors = ["Gary Holland <garyhollandxyz@gmail.com>"]
 edition = "2018"

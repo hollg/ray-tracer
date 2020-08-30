@@ -1,6 +1,6 @@
 use std::ops::{Add, Div, Mul, Neg, Sub};
 
-#[derive(Debug)]
+#[derive(Copy, Clone, Debug)]
 pub struct Tuple {
     x: f32,
     y: f32,
@@ -15,6 +15,22 @@ impl Tuple {
 
     pub fn vector(x: f32, y: f32, z: f32) -> Self {
         Tuple { x, y, z, w: 0.0 }
+    }
+
+    pub fn x(&self) -> f32 {
+        self.x
+    }
+
+    pub fn y(&self) -> f32 {
+        self.y
+    }
+
+    pub fn z(&self) -> f32 {
+        self.z
+    }
+
+    pub fn w(&self) -> f32 {
+        self.w
     }
 
     pub fn is_point(&self) -> bool {

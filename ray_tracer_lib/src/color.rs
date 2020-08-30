@@ -1,7 +1,15 @@
 use std::ops::{Add, Mul, Sub};
 use crate::consts::EPSILON;
-#[derive(Clone, Copy, Debug, Default)]
+#[derive(Clone, Copy, Debug)]
 pub struct Color(pub f32, pub f32, pub f32);
+
+pub const BLACK: Color = Color(0.0, 0.0, 0.0);
+
+impl Default for Color {
+    fn default() -> Color {
+        BLACK
+    }
+}
 
 impl PartialEq for Color {
     fn eq(&self, other: &Self) -> bool {

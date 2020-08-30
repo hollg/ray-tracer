@@ -4,7 +4,7 @@ use std::ops::{Index, IndexMut};
 pub struct Canvas {
     width: usize,
     height: usize,
-    pixels: Box<[Color]>,
+    pub pixels: Box<[Color]>,
 }
 
 impl Canvas {
@@ -50,9 +50,27 @@ impl Canvas {
             let row_start_index = y * self.width;
             let row_end_index = row_start_index + self.width;
             let row = &self.pixels[row_start_index..row_end_index];
-        }
+            let mut line = String::new();
+            for (i, color) in row.iter().enumerate() {
+                write!(
+                    line,
+                    "{} {} {}",
+                    (color.0 * 255.0).min(255.0).max(0.0).round() as i32,
+                    (color.1 * 255.0).min(255.0).max(0.0).round() as i32,
+                    (color.2 * 255.0).min(255.0).max(0.0).round() as i32
+                )
+                .unwrap();
 
-        
+                if i < self.width - 1 {
+                    write!(line, " ").unwrap();
+                }
+            }
+            // if y <= self.height - 1 {
+            write!(line, "\n").unwrap();
+            // }
+            write!(buf, "{}", line).unwrap();
+        }
+        println!("finished writing");
 
         buf
     }
@@ -108,19 +126,50 @@ mod tests {
     }
 
     #[test]
-    fn split_ppm_into_lines() {
-        let mut canvas = Canvas::new(10, 20);
-        for i in 0..canvas.size() {
-            canvas[i] = Color(1.0, 0.8, 0.6)
-        }
+    fn construct_ppm_pixel_data() {
+        let mut canvas = Canvas::new(5, 3);
+        let c1 = Color(1.5, 0.0, 0.0);
+        let c2 = Color(0.0, 0.5, 0.0);
+        let c3 = Color(-0.5, 0.0, 1.0);
+
+        canvas.write_pixel(0, 0, c1);
+        canvas.write_pixel(2, 1, c2);
+        canvas.write_pixel(4, 2, c3);
 
         let ppm = canvas.to_ppm();
 
         let lines: Vec<&str> = ppm.split('\n').collect();
 
-        println!("{:?}", lines[2]);
-        assert!(lines[0] == "P3");
-        assert!(lines[1] == "10 20");
-        assert!(lines[2] == "255");
+        assert!(lines[3] == "255 0 0 0 0 0 0 0 0 0 0 0 0 0 0");
+        assert!(lines[4] == "0 0 0 0 0 0 0 128 0 0 0 0 0 0 0");
+        assert!(lines[5] == "0 0 0 0 0 0 0 0 0 0 0 0 0 0 255");
+    }
+
+    // #[test]
+    // fn split_ppm_lines_at_70_chars() {
+    //     let mut canvas = Canvas::new(5, 3);
+
+    //     for y in 0..canvas.height {
+    //         for x in 0..canvas.width {
+    //             canvas.write_pixel(x, y, Color(1.0, 0.6, 0.8));
+    //         }
+    //     }
+
+    //     let ppm = canvas.to_ppm();
+
+    //     let lines: Vec<&str> = ppm.split('\n').collect();
+
+    //     assert!(lines[3] == "255 204 153 255 204 153 255 204 153 255 204 153 255 204 153 255 204");
+    //     assert!(lines[4] == "153 255 204 153 255 204 153 255 204 153 255 204 153");
+    //     assert!(lines[5] == "255 204 153 255 204 153 255 204 153 255 204 153 255 204 153 255 204");
+    //     assert!(lines[6] == "153 255 204 153 255 204 153 255 204 153 255 204 153");
+    // }
+
+    #[test]
+    fn ppm_termintated_with_newline() {
+        let canvas = Canvas::new(5, 3);
+        let ppm = canvas.to_ppm();
+
+        assert!(ppm.chars().last().unwrap() == '\n')
     }
 }
