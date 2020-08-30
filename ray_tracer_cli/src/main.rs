@@ -33,7 +33,9 @@ fn main() -> std::io::Result<()> {
         wind: Tuple::vector(-0.01, 0.0, 0.0),
     };
 
-    while (canvas.height() as i32 - p.pos.y().round() as i32) >= 0 {
+    while (canvas.height() as i32 - p.pos.y().round() as i32) >= 0
+        && (canvas.height() as i32 - p.pos.y().round() as i32) <= canvas.height() as i32
+    {
         // println!("pos: {:?}", p.position);
 
         canvas.write_pixel(
@@ -45,7 +47,7 @@ fn main() -> std::io::Result<()> {
     }
 
     let ppm = canvas.to_ppm();
-    println!("{:?}", ppm);
+    // println!("{:?}", ppm);
     let mut file = File::create("trajectory.ppm")?;
     file.write_all(ppm.as_bytes())?;
     Ok(())

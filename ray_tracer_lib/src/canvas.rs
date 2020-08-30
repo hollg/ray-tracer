@@ -34,7 +34,7 @@ impl Canvas {
 
     pub fn write_pixel(&mut self, x: usize, y: usize, color: Color) {
         let width = self.width;
-        self[(width * y + x) as usize] = color;
+        self[width * y + x] = color;
     }
 
     pub fn to_ppm(&self) -> String {
