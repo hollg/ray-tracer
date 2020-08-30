@@ -199,4 +199,31 @@ mod test {
 
         assert!(m1 * m2 == res);
     }
+
+    #[test]
+    fn multiply_matrix_by_tuple() {
+        let m = Matrix::from([
+            [1.0, 2.0, 3.0, 4.0],
+            [2.0, 4.0, 4.0, 2.0],
+            [8.0, 6.0, 4.0, 1.0],
+            [0.0, 0.0, 0.0, 1.0],
+        ]);
+
+        let t = Tuple {
+            x: 1.0,
+            y: 2.0,
+            z: 3.0,
+            w: 1.0,
+        };
+
+        assert!(
+            m * &t
+                == Tuple {
+                    x: 18.0,
+                    y: 24.0,
+                    z: 33.0,
+                    w: 1.0
+                }
+        )
+    }
 }
