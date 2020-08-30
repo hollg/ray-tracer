@@ -1,10 +1,12 @@
 mod canvas;
 mod color;
 pub mod consts;
+mod matrix;
 mod tuple;
 
 pub use canvas::*;
 pub use color::*;
+pub use matrix::*;
 pub use tuple::*;
 #[cfg(test)]
 mod tests {

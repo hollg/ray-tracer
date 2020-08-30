@@ -22,7 +22,6 @@ fn tick(environment: Environment, projectile: Projectile) -> Projectile {
 
 fn main() -> std::io::Result<()> {
     let mut canvas = Canvas::new(900, 550);
-    // let mut canvas = Canvas::new(100, 100);
 
     let mut p = Projectile {
         pos: Tuple::point(0.0, 1.0, 0.0),
@@ -36,7 +35,6 @@ fn main() -> std::io::Result<()> {
     while (canvas.height() as i32 - p.pos.y().round() as i32) >= 0
         && (canvas.height() as i32 - p.pos.y().round() as i32) <= canvas.height() as i32
     {
-        // println!("pos: {:?}", p.position);
 
         canvas.write_pixel(
             p.pos.x().round() as usize,
@@ -47,7 +45,6 @@ fn main() -> std::io::Result<()> {
     }
 
     let ppm = canvas.to_ppm();
-    // println!("{:?}", ppm);
     let mut file = File::create("trajectory.ppm")?;
     file.write_all(ppm.as_bytes())?;
     Ok(())
