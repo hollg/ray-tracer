@@ -118,9 +118,11 @@ impl PartialEq for Matrix {
             return false;
         };
 
+        let epsilon = 0.0001;
+
         for (y, row) in self.values.iter().enumerate() {
             for (x, cell) in row.iter().enumerate() {
-                if *cell != other.at(y, x) {
+                if (*cell - other.at(y, x)).abs() > epsilon {
                     return false;
                 }
             }
