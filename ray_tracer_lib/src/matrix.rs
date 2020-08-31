@@ -39,15 +39,9 @@ impl Matrix {
     pub fn determinant(&self) -> f32 {
         match self.size {
             2 => self[0][0] * self[1][1] - self[0][1] * self[1][0],
-            _ => {
-                let mut value: f32 = 0.0;
-                for (c, num) in self[0].iter().enumerate() {
-                    value += num * self.cofactor(0, c);
-                }
-
-                value
-            }
-           
+            _ => (0..self.size).fold(0.0, |result, num| {
+                result + self.at(0, num) * self.cofactor(0, num)
+            }),
         }
     }
     pub fn submatrix(&self, row: usize, column: usize) -> Matrix {
