@@ -1,5 +1,6 @@
 use crate::tuple::*;
 use std::ops::Mul;
+#[derive(Debug)]
 pub struct Matrix {
     size: usize,
     values: [[f32; 4]; 4],
@@ -18,6 +19,21 @@ impl Matrix {
 
     pub fn at(&self, y: usize, x: usize) -> f32 {
         self.values[y][x]
+    }
+
+    pub fn transpose(&self) -> Matrix {
+        let mut values = [[0.0_f32; 4]; 4];
+
+        for r in 0..self.size {
+            for c in 0..self.size {
+                values[r][c] = self.values[c][r];
+            }
+        }
+
+        Matrix {
+            size: self.size,
+            values,
+        }
     }
 }
 
@@ -242,17 +258,19 @@ mod test {
             [0.0, 0.0, 0.0, 1.0],
         ]);
 
-        assert!(m * identity_matrix == Matrix::from([
-            [1.0, 2.0, 3.0, 4.0],
-            [2.0, 4.0, 4.0, 2.0],
-            [8.0, 6.0, 4.0, 1.0],
-            [0.0, 0.0, 0.0, 1.0],
-        ]));
-
+        assert!(
+            m * identity_matrix
+                == Matrix::from([
+                    [1.0, 2.0, 3.0, 4.0],
+                    [2.0, 4.0, 4.0, 2.0],
+                    [8.0, 6.0, 4.0, 1.0],
+                    [0.0, 0.0, 0.0, 1.0],
+                ])
+        );
     }
 
     #[test]
-    fn multiply_identity_matrix_by_tuple(){
+    fn multiply_identity_matrix_by_tuple() {
         let identity_matrix = Matrix::from([
             [1.0, 0.0, 0.0, 0.0],
             [0.0, 1.0, 0.0, 0.0],
@@ -264,9 +282,28 @@ mod test {
             x: 1.0,
             y: 2.0,
             z: 3.0,
-            w: 1.0
+            w: 1.0,
         };
 
         assert!(identity_matrix * t == t);
+    }
+
+    #[test]
+    fn transpose_matrix() {
+        let m = Matrix::from([
+            [0.0, 9.0, 3.0, 0.0],
+            [9.0, 8.0, 0.0, 8.0],
+            [1.0, 8.0, 5.0, 3.0],
+            [0.0, 0.0, 5.0, 8.0],
+        ]);
+
+        assert!(
+            m.transpose() == Matrix::from([
+                [0.0, 9.0, 1.0, 0.0],
+                [9.0, 8.0, 8.0, 0.0],
+                [3.0, 0.0, 5.0, 5.0],
+                [0.0, 8.0, 3.0, 8.0]
+            ])
+        );
     }
 }
