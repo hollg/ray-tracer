@@ -18,6 +18,15 @@ pub fn transform(x: f64, y: f64, z: f64) -> Matrix {
     ])
 }
 
+pub fn scaling(x: f64, y: f64, z: f64) -> Matrix {
+    Matrix::from([
+        [x, 0.0, 0.0, 0.0],
+        [0.0, y, 0.0, 0.0],
+        [0.0, 0.0, z, 0.0],
+        [0.0, 0.0, 0.0, 1.0],
+    ])
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -43,5 +52,37 @@ mod tests {
         let v = Tuple::vector(-3.0, 4.0, 5.0);
 
         assert!(t * v == v)
+    }
+
+    #[test]
+    fn apply_scale_to_point() {
+        let s = scaling(2.0, 3.0, 4.0);
+        let p = Tuple::point(-4.0, 6.0, 8.0);
+
+        assert!(s * p == Tuple::point(-8.0, 18.0, 32.0));
+    }
+
+    #[test]
+    fn apply_scale_to_vector() {
+        let t = scaling(2.0, 3.0, 4.0);
+        let v = Tuple::vector(-4.0, 6.0, 8.0);
+
+        assert!(t * v == Tuple::vector(-8.0, 18.0, 32.0));
+    }
+
+    #[test]
+    fn apply_inverse_of_scaling_matrix() {
+        let t = scaling(2.0, 3.0, 4.0);
+        let v = Tuple::vector(-4.0, 6.0, 8.0);
+
+        assert!(t.inverse().unwrap() * v == Tuple::vector(-2.0, 2.0, 2.0));
+    }
+
+    #[test]
+    fn reflection_is_scaling_by_negative_value() {
+        let t = scaling(-1.0, 1.0, 1.0);
+        let p = Tuple::point(2.0, 3.0, 4.0);
+
+        assert!(t * p == Tuple::point(-2.0, 3.0, 4.0));
     }
 }

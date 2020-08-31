@@ -1,5 +1,4 @@
 use crate::consts::EPSILON;
-use crate::matrix::*;
 use std::ops::{Add, Div, Mul, Neg, Sub};
 
 #[derive(Copy, Clone, Debug)]

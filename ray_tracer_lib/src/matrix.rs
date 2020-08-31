@@ -538,4 +538,5 @@ mod test {
 
         assert!(c * b.inverse().unwrap() == a);
     }
+
 }
