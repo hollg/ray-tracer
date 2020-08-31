@@ -1,6 +1,6 @@
 use crate::tuple::*;
 use std::ops::{Index, Mul};
-#[derive(Debug)]
+#[derive(Copy, Clone, Debug)]
 pub struct Matrix {
     size: usize,
     values: [[f64; 4]; 4],
@@ -516,5 +516,26 @@ mod test {
         ]);
 
         assert_eq!(expected, b);
+    }
+
+    #[test]
+    fn multiple_matrix_by_its_inverse() {
+        let a = Matrix::from([
+            [3.0, -9.0, 7.0, 3.0],
+            [3.0, -8.0, 2.0, -9.0],
+            [-4.0, 4.0, 4.0, 1.0],
+            [-6.0, 5.0, -1.0, 1.0],
+        ]);
+
+        let b = Matrix::from([
+            [8.0, 2.0, 2.0, 2.0],
+            [3.0, -1.0, 7.0, 0.0],
+            [7.0, 0.0, 5.0, 4.0],
+            [6.0, -2.0, 0.0, 5.0],
+        ]);
+
+        let c = a * b;
+
+        assert!(c * b.inverse().unwrap() == a);
     }
 }
