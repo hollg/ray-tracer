@@ -1,5 +1,5 @@
 use crate::{matrix::*, tuple::*};
-
+use std::f64::consts::PI;
 pub fn identity() -> Matrix {
     Matrix::from([
         [1.0, 0.0, 0.0, 0.0],
@@ -23,6 +23,15 @@ pub fn scaling(x: f64, y: f64, z: f64) -> Matrix {
         [x, 0.0, 0.0, 0.0],
         [0.0, y, 0.0, 0.0],
         [0.0, 0.0, z, 0.0],
+        [0.0, 0.0, 0.0, 1.0],
+    ])
+}
+
+pub fn rotation_x(r: f64) -> Matrix {
+    Matrix::from([
+        [1.0, 0.0, 0.0, 0.0],
+        [0.0, r.cos(), -r.sin(), 0.0],
+        [0.0, r.sin(), r.cos(), 0.0],
         [0.0, 0.0, 0.0, 1.0],
     ])
 }
@@ -84,5 +93,15 @@ mod tests {
         let p = Tuple::point(2.0, 3.0, 4.0);
 
         assert!(t * p == Tuple::point(-2.0, 3.0, 4.0));
+    }
+
+    #[test]
+    fn rotation_on_x_axis() {
+        let p = Tuple::point(0.0, 1.0, 0.0);
+        let half_quarter = rotation_x(PI / 4.0);
+        let full_quarter = rotation_x(PI / 2.0);
+
+        assert!(half_quarter * p == Tuple::point(0.0, 2_f64.sqrt() / 2.0, 2_f64.sqrt() / 2.0));
+        assert!(full_quarter * p == Tuple::point(0.0, 0.0, 1.0));
     }
 }
