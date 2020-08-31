@@ -306,4 +306,17 @@ mod test {
             ])
         );
     }
+
+
+    #[test]
+    fn transpose_identity_matrix() {
+        let identity_matrix = Matrix::from([
+            [1.0, 0.0, 0.0, 0.0],
+            [0.0, 1.0, 0.0, 0.0],
+            [0.0, 0.0, 1.0, 0.0],
+            [0.0, 0.0, 0.0, 1.0],
+        ]);
+
+        assert!(identity_matrix.transpose() == identity_matrix);
+    }
 }
