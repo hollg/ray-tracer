@@ -1,7 +1,7 @@
 use std::ops::{Add, Mul, Sub};
 use crate::consts::EPSILON;
 #[derive(Clone, Copy, Debug)]
-pub struct Color(pub f32, pub f32, pub f32);
+pub struct Color(pub f64, pub f64, pub f64);
 
 pub const BLACK: Color = Color(0.0, 0.0, 0.0);
 
@@ -13,9 +13,9 @@ impl Default for Color {
 
 impl PartialEq for Color {
     fn eq(&self, other: &Self) -> bool {
-        f32::abs(self.0 - other.0) < EPSILON
-            && f32::abs(self.1 - other.1) < EPSILON
-            && f32::abs(self.2 - other.2) < EPSILON
+        f64::abs(self.0 - other.0) < EPSILON
+            && f64::abs(self.1 - other.1) < EPSILON
+            && f64::abs(self.2 - other.2) < EPSILON
     }
 }
 
@@ -43,10 +43,10 @@ impl Mul for Color {
     }
 }
 
-impl Mul<f32> for Color {
+impl Mul<f64> for Color {
     type Output = Color;
 
-    fn mul(self, other: f32) -> Color {
+    fn mul(self, other: f64) -> Color {
         Color(self.0 * other, self.1 * other, self.2 * other)
     }
 }

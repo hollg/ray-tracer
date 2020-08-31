@@ -3,11 +3,11 @@ use std::ops::{Index, Mul};
 #[derive(Debug)]
 pub struct Matrix {
     size: usize,
-    values: [[f32; 4]; 4],
+    values: [[f64; 4]; 4],
 }
 
 impl Matrix {
-    fn build(size: usize, v: [f32; 4 * 4]) -> Matrix {
+    fn build(size: usize, v: [f64; 4 * 4]) -> Matrix {
         let mut values = [[0.0; 4]; 4];
         for r in 0..size {
             for c in 0..size {
@@ -17,12 +17,12 @@ impl Matrix {
         Matrix { size, values }
     }
 
-    pub fn at(&self, y: usize, x: usize) -> f32 {
+    pub fn at(&self, y: usize, x: usize) -> f64 {
         self.values[y][x]
     }
 
     pub fn transpose(&self) -> Matrix {
-        let mut values = [[0.0_f32; 4]; 4];
+        let mut values = [[0.0_f64; 4]; 4];
 
         for r in 0..self.size {
             for c in 0..self.size {
@@ -36,7 +36,7 @@ impl Matrix {
         }
     }
 
-    pub fn determinant(&self) -> f32 {
+    pub fn determinant(&self) -> f64 {
         match self.size {
             2 => self[0][0] * self[1][1] - self[0][1] * self[1][0],
             _ => (0..self.size).fold(0.0, |result, num| {
@@ -44,6 +44,7 @@ impl Matrix {
             }),
         }
     }
+
     pub fn submatrix(&self, row: usize, column: usize) -> Matrix {
         let mut values = [[0.0; 4]; 4];
         let size = self.size - 1;
@@ -67,11 +68,11 @@ impl Matrix {
         Matrix { size, values }
     }
 
-    pub fn minor(&self, r: usize, c: usize) -> f32 {
+    pub fn minor(&self, r: usize, c: usize) -> f64 {
         self.submatrix(r, c).determinant()
     }
 
-    pub fn cofactor(&self, r: usize, c: usize) -> f32 {
+    pub fn cofactor(&self, r: usize, c: usize) -> f64 {
         let minor = self.minor(r, c);
 
         match (r + c) % 2 {
@@ -79,11 +80,34 @@ impl Matrix {
             _ => -minor,
         }
     }
+
+    pub fn is_invertible(&self) -> bool {
+        self.determinant() != 0.0
+    }
+
+    pub fn inverse(&self) -> Result<Matrix, ()> {
+        if !self.is_invertible() {
+            return Err(());
+        }
+        let determinant = self.determinant();
+        let mut values = [[0.0; 4]; 4];
+
+        for r in 0..self.size {
+            for c in 0..self.size {
+                values[c][r] = self.cofactor(r, c) / determinant;
+            }
+        }
+
+        Ok(Matrix {
+            size: self.size,
+            values,
+        })
+    }
 }
 
 impl Index<usize> for Matrix {
-    type Output = [f32; 4];
-    fn index(&self, i: usize) -> &[f32; 4] {
+    type Output = [f64; 4];
+    fn index(&self, i: usize) -> &[f64; 4] {
         &self.values[i]
     }
 }
@@ -106,8 +130,8 @@ impl PartialEq for Matrix {
     }
 }
 
-impl From<[[f32; 4]; 4]> for Matrix {
-    fn from(m: [[f32; 4]; 4]) -> Matrix {
+impl From<[[f64; 4]; 4]> for Matrix {
+    fn from(m: [[f64; 4]; 4]) -> Matrix {
         let mut values = [0.0; 16];
 
         for r in 0..4 {
@@ -120,8 +144,8 @@ impl From<[[f32; 4]; 4]> for Matrix {
     }
 }
 
-impl From<[[f32; 3]; 3]> for Matrix {
-    fn from(m: [[f32; 3]; 3]) -> Matrix {
+impl From<[[f64; 3]; 3]> for Matrix {
+    fn from(m: [[f64; 3]; 3]) -> Matrix {
         let mut values = [0.0; 16];
 
         for r in 0..3 {
@@ -134,8 +158,8 @@ impl From<[[f32; 3]; 3]> for Matrix {
     }
 }
 
-impl From<[[f32; 2]; 2]> for Matrix {
-    fn from(m: [[f32; 2]; 2]) -> Matrix {
+impl From<[[f64; 2]; 2]> for Matrix {
+    fn from(m: [[f64; 2]; 2]) -> Matrix {
         let mut values = [0.0; 16];
 
         for r in 0..2 {
@@ -443,5 +467,52 @@ mod test {
         assert!(m.cofactor(0, 2) == 210.0);
         assert!(m.cofactor(0, 3) == 51.0);
         assert!(m.determinant() == -4071.0);
+    }
+
+    #[test]
+    fn is_invertible() {
+        let m_invertible = Matrix::from([
+            [6.0, 4.0, 4.0, 4.0],
+            [5.0, 5.0, 7.0, 6.0],
+            [4.0, -9.0, 3.0, -7.0],
+            [9.0, 1.0, 7.0, -6.0],
+        ]);
+
+        let m_uninvertible = Matrix::from([
+            [-4.0, 2.0, -2.0, 3.0],
+            [9.0, 6.0, 2.0, 6.0],
+            [0.0, -5.0, 1.0, -5.0],
+            [0.0, 0.0, 0.0, 0.0],
+        ]);
+
+        assert!(m_invertible.determinant() == -2120.0 && m_invertible.is_invertible());
+        assert!(m_uninvertible.determinant() == -0.0 && !m_uninvertible.is_invertible())
+    }
+
+    #[test]
+    fn calculate_inverse() {
+        let a = Matrix::from([
+            [-5.0, 2.0, 6.0, -8.0],
+            [1.0, -5.0, 1.0, 8.0],
+            [7.0, 7.0, -6.0, -7.0],
+            [1.0, -3.0, 7.0, 4.0],
+        ]);
+
+        let b = a.inverse().unwrap();
+
+        assert_eq!(532.0, a.determinant());
+        assert_eq!(-160.0, a.cofactor(2, 3));
+        assert_eq!(-160.0 / 532.0, b[3][2]);
+        assert_eq!(105.0, a.cofactor(3, 2));
+        assert_eq!(105.0 / 532.0, b[2][3]);
+
+        let expected = Matrix::from([
+            [0.21805, 0.45113, 0.24060, -0.04511],
+            [-0.80827, -1.45677, -0.44361, 0.52068],
+            [-0.07895, -0.22368, -0.05263, 0.19737],
+            [-0.52256, -0.81391, -0.30075, 0.30639],
+        ]);
+
+        assert_eq!(expected, b);
     }
 }

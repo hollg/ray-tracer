@@ -1,35 +1,35 @@
+use crate::consts::EPSILON;
 use std::ops::{Add, Div, Mul, Neg, Sub};
-
 #[derive(Copy, Clone, Debug)]
 pub struct Tuple {
-    pub x: f32,
-    pub y: f32,
-    pub z: f32,
-    pub w: f32,
+    pub x: f64,
+    pub y: f64,
+    pub z: f64,
+    pub w: f64,
 }
 
 impl Tuple {
-    pub fn point(x: f32, y: f32, z: f32) -> Self {
+    pub fn point(x: f64, y: f64, z: f64) -> Self {
         Tuple { x, y, z, w: 1.0 }
     }
 
-    pub fn vector(x: f32, y: f32, z: f32) -> Self {
+    pub fn vector(x: f64, y: f64, z: f64) -> Self {
         Tuple { x, y, z, w: 0.0 }
     }
 
-    pub fn x(&self) -> f32 {
+    pub fn x(&self) -> f64 {
         self.x
     }
 
-    pub fn y(&self) -> f32 {
+    pub fn y(&self) -> f64 {
         self.y
     }
 
-    pub fn z(&self) -> f32 {
+    pub fn z(&self) -> f64 {
         self.z
     }
 
-    pub fn w(&self) -> f32 {
+    pub fn w(&self) -> f64 {
         self.w
     }
 
@@ -41,7 +41,7 @@ impl Tuple {
         self.w == 0.0
     }
 
-    pub fn magnitude(&self) -> f32 {
+    pub fn magnitude(&self) -> f64 {
         (self.x * self.x + self.y * self.y + self.z * self.z + self.w * self.w).sqrt()
     }
 
@@ -55,7 +55,7 @@ impl Tuple {
         }
     }
 
-    pub fn dot(&self, rhs: Tuple) -> f32 {
+    pub fn dot(&self, rhs: Tuple) -> f64 {
         self.x * rhs.x + self.y * rhs.y + self.z * rhs.z + self.w * rhs.w
     }
 
@@ -71,10 +71,10 @@ impl Tuple {
 
 impl PartialEq for Tuple {
     fn eq(&self, other: &Self) -> bool {
-        f32::abs(self.x - other.x) < f32::EPSILON
-            && f32::abs(self.y - other.y) < f32::EPSILON
-            && f32::abs(self.z - other.z) < f32::EPSILON
-            && f32::abs(self.w - other.w) < f32::EPSILON
+        f64::abs(self.x - other.x) < EPSILON
+            && f64::abs(self.y - other.y) < EPSILON
+            && f64::abs(self.z - other.z) < EPSILON
+            && f64::abs(self.w - other.w) < EPSILON
     }
 }
 
@@ -114,9 +114,9 @@ impl Neg for Tuple {
     }
 }
 
-impl Mul<f32> for Tuple {
+impl Mul<f64> for Tuple {
     type Output = Self;
-    fn mul(self, rhs: f32) -> Self {
+    fn mul(self, rhs: f64) -> Self {
         Tuple {
             x: self.x * rhs,
             y: self.y * rhs,
@@ -126,9 +126,9 @@ impl Mul<f32> for Tuple {
     }
 }
 
-impl Div<f32> for Tuple {
+impl Div<f64> for Tuple {
     type Output = Self;
-    fn div(self, rhs: f32) -> Self {
+    fn div(self, rhs: f64) -> Self {
         Tuple {
             x: self.x / rhs,
             y: self.y / rhs,
@@ -324,8 +324,8 @@ mod tests {
         assert!(v1.magnitude() == 1.0);
         assert!(v2.magnitude() == 1.0);
         assert!(v3.magnitude() == 1.0);
-        assert!(v4.magnitude() == (14.0f32).sqrt());
-        assert!(v5.magnitude() == (14.0f32).sqrt());
+        assert!(v4.magnitude() == (14.0f64).sqrt());
+        assert!(v5.magnitude() == (14.0f64).sqrt());
     }
 
     #[test]
@@ -337,9 +337,9 @@ mod tests {
         assert!(
             v2.normalize()
                 == Tuple::vector(
-                    1.0 / f32::sqrt(14.0),
-                    2.0 / f32::sqrt(14.0),
-                    3.0 / f32::sqrt(14.0)
+                    1.0 / f64::sqrt(14.0),
+                    2.0 / f64::sqrt(14.0),
+                    3.0 / f64::sqrt(14.0)
                 )
         );
     }
