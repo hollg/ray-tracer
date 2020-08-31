@@ -1,5 +1,5 @@
 use crate::tuple::*;
-use std::ops::Mul;
+use std::ops::{Index, Mul};
 #[derive(Debug)]
 pub struct Matrix {
     size: usize,
@@ -34,6 +34,63 @@ impl Matrix {
             size: self.size,
             values,
         }
+    }
+
+    pub fn determinant(&self) -> f32 {
+        match self.size {
+            2 => self[0][0] * self[1][1] - self[0][1] * self[1][0],
+            _ => {
+                let mut value: f32 = 0.0;
+                for (c, num) in self[0].iter().enumerate() {
+                    value += num * self.cofactor(0, c);
+                }
+
+                value
+            }
+           
+        }
+    }
+    pub fn submatrix(&self, row: usize, column: usize) -> Matrix {
+        let mut values = [[0.0; 4]; 4];
+        let size = self.size - 1;
+
+        for y in 0..size {
+            for x in 0..size {
+                let y2 = match y < row {
+                    true => y,
+                    false => y + 1,
+                };
+
+                let x2 = match x < column {
+                    true => x,
+                    false => x + 1,
+                };
+
+                values[y][x] = self.values[y2][x2];
+            }
+        }
+
+        Matrix { size, values }
+    }
+
+    pub fn minor(&self, r: usize, c: usize) -> f32 {
+        self.submatrix(r, c).determinant()
+    }
+
+    pub fn cofactor(&self, r: usize, c: usize) -> f32 {
+        let minor = self.minor(r, c);
+
+        match (r + c) % 2 {
+            0 => minor,
+            _ => -minor,
+        }
+    }
+}
+
+impl Index<usize> for Matrix {
+    type Output = [f32; 4];
+    fn index(&self, i: usize) -> &[f32; 4] {
+        &self.values[i]
     }
 }
 
@@ -298,15 +355,15 @@ mod test {
         ]);
 
         assert!(
-            m.transpose() == Matrix::from([
-                [0.0, 9.0, 1.0, 0.0],
-                [9.0, 8.0, 8.0, 0.0],
-                [3.0, 0.0, 5.0, 5.0],
-                [0.0, 8.0, 3.0, 8.0]
-            ])
+            m.transpose()
+                == Matrix::from([
+                    [0.0, 9.0, 1.0, 0.0],
+                    [9.0, 8.0, 8.0, 0.0],
+                    [3.0, 0.0, 5.0, 5.0],
+                    [0.0, 8.0, 3.0, 8.0]
+                ])
         );
     }
-
 
     #[test]
     fn transpose_identity_matrix() {
@@ -318,5 +375,79 @@ mod test {
         ]);
 
         assert!(identity_matrix.transpose() == identity_matrix);
+    }
+
+    #[test]
+    fn calculate_determinant_of_2x2_matrix() {
+        let m = Matrix::from([[1.0, 5.0], [-3.0, 2.0]]);
+
+        assert!(m.determinant() == 17.0);
+    }
+
+    #[test]
+    fn submatrix_of_3x3_matrix_is_2x2_matrix() {
+        let m = Matrix::from([[1.0, 5.0, 0.0], [-3.0, 2.0, 7.0], [0.0, 6.0, -3.0]]);
+
+        assert!(m.submatrix(0, 2) == Matrix::from([[-3.0, 2.0], [0.0, 6.0]]));
+    }
+
+    #[test]
+    fn submatrix_of_4x4_matrix_is_3x3_matrix() {
+        let m = Matrix::from([
+            [-6.0, 1.0, 1.0, 6.0],
+            [-8.0, 5.0, 8.0, 6.0],
+            [-1.0, 0.0, 8.0, 2.0],
+            [-7.0, 1.0, -1.0, 1.0],
+        ]);
+
+        assert!(
+            m.submatrix(2, 1)
+                == Matrix::from([[-6.0, 1.0, 6.0], [-8.0, 8.0, 6.0], [-7.0, -1.0, 1.0]])
+        );
+    }
+
+    #[test]
+    fn calculate_minor_of_3x3_matrix() {
+        let m = Matrix::from([[3.0, 5.0, 0.0], [2.0, -1.0, -7.0], [6.0, -1.0, 5.0]]);
+        let s = m.submatrix(1, 0);
+
+        assert!(s.determinant() == 25.0);
+        assert!(m.minor(1, 0) == 25.0);
+    }
+
+    #[test]
+    fn cofactor_of_3x3_matrix() {
+        let m = Matrix::from([[3.0, 5.0, 0.0], [2.0, -1.0, -7.0], [6.0, -1.0, 5.0]]);
+
+        assert!(m.minor(0, 0) == -12.0);
+        assert!(m.cofactor(0, 0) == -12.0);
+        assert!(m.minor(1, 0) == 25.0);
+        assert!(m.cofactor(1, 0) == -25.0);
+    }
+
+    #[test]
+    fn determinant_of_3x3_matrix() {
+        let m = Matrix::from([[1.0, 2.0, 6.0], [-5.0, 8.0, -4.0], [2.0, 6.0, 4.0]]);
+
+        assert!(m.cofactor(0, 0) == 56.0);
+        assert!(m.cofactor(0, 1) == 12.0);
+        assert!(m.cofactor(0, 2) == -46.0);
+        assert!(m.determinant() == -196.0);
+    }
+
+    #[test]
+    fn determinant_of_4x4_matrix() {
+        let m = Matrix::from([
+            [-2.0, -8.0, 3.0, 5.0],
+            [-3.0, 1.0, 7.0, 3.0],
+            [1.0, 2.0, -9.0, 6.0],
+            [-6.0, 7.0, 7.0, -9.0],
+        ]);
+
+        assert!(m.cofactor(0, 0) == 690.0);
+        assert!(m.cofactor(0, 1) == 447.0);
+        assert!(m.cofactor(0, 2) == 210.0);
+        assert!(m.cofactor(0, 3) == 51.0);
+        assert!(m.determinant() == -4071.0);
     }
 }
