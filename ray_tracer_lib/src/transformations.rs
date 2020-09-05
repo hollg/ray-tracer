@@ -36,6 +36,24 @@ pub fn rotation_x(r: f64) -> Matrix {
     ])
 }
 
+pub fn rotation_y(r: f64) -> Matrix {
+    Matrix::from([
+        [r.cos(), 0.0, r.sin(), 0.0],
+        [0.0, 1.0, 0.0, 0.0],
+        [-r.sin(), 0.0, r.cos(), 0.0],
+        [0.0, 0.0, 0.0, 1.0],
+    ])
+}
+
+pub fn rotation_z(r: f64) -> Matrix {
+    Matrix::from([
+        [r.cos(), -r.sin(), 0.0, 0.0],
+        [r.sin(), r.cos(), 0.0, 0.0],
+        [0.0, 0.0, 1.0, 0.0],
+        [0.0, 0.0, 0.0, 1.0],
+    ])
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -103,5 +121,29 @@ mod tests {
 
         assert!(half_quarter * p == Tuple::point(0.0, 2_f64.sqrt() / 2.0, 2_f64.sqrt() / 2.0));
         assert!(full_quarter * p == Tuple::point(0.0, 0.0, 1.0));
+    }
+
+    #[test]
+    fn opposite_rotation_on_x_axis() {
+        let p = Tuple::point(0.0, 1.0, 0.0);
+        let half_quarter = rotation_x(PI / 4.0).inverse().unwrap();
+
+        assert!(half_quarter * p == Tuple::point(0.0, 2_f64.sqrt() / 2.0, -(2_f64.sqrt() / 2.0)));
+    }
+
+    #[test]
+    fn rotation_on_y_axis() {
+        let p = Tuple::point(0.0, 0.0, 1.0);
+        let half_quarter = rotation_y(PI / 4.0);
+
+        assert!(half_quarter * p == Tuple::point(2_f64.sqrt() / 2.0, 0.0, 2_f64.sqrt() / 2.0));
+    }
+
+    #[test]
+    fn rotation_on_z_axis() {
+        let p = Tuple::point(0.0, 1.0, 0.0);
+        let half_quarter = rotation_z(PI / 4.0);
+
+        assert!(half_quarter * p == Tuple::point(-(2_f64.sqrt() / 2.0), 2_f64.sqrt() / 2.0, 0.0));
     }
 }
