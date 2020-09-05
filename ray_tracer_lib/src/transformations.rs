@@ -54,6 +54,15 @@ pub fn rotation_z(r: f64) -> Matrix {
     ])
 }
 
+pub fn shearing(xy: f64, xz: f64, yx: f64, yz: f64, zx: f64, zy: f64) -> Matrix {
+    Matrix::from([
+        [1.0, xy, xz, 0.0],
+        [yx, 1.0, yz, 0.0],
+        [zx, zy, 1.0, 0.0],
+        [0.0, 0.0, 0.0, 1.0],
+    ])
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -145,5 +154,51 @@ mod tests {
         let half_quarter = rotation_z(PI / 4.0);
 
         assert!(half_quarter * p == Tuple::point(-(2_f64.sqrt() / 2.0), 2_f64.sqrt() / 2.0, 0.0));
+    }
+
+    #[test]
+    fn shearing_moves_x_in_proportion_to_y() {
+        let t = shearing(1.0, 0.0, 0.0, 0.0, 0.0, 0.0);
+        let p = Tuple::point(2.0, 3.0, 4.0);
+
+        assert!(t * p == Tuple::point(5.0, 3.0, 4.0))
+    }
+    #[test]
+    fn shearing_moves_x_in_proportion_to_z() {
+        let t = shearing(0.0, 1.0, 0.0, 0.0, 0.0, 0.0);
+        let p = Tuple::point(2.0, 3.0, 4.0);
+
+        assert!(t * p == Tuple::point(6.0, 3.0, 4.0))
+    }
+    #[test]
+    fn shearing_moves_y_in_proportion_to_x() {
+        let t = shearing(0.0, 0.0, 1.0, 0.0, 0.0, 0.0);
+        let p = Tuple::point(2.0, 3.0, 4.0);
+
+        assert!(t * p == Tuple::point(2.0, 5.0, 4.0))
+    }
+
+    #[test]
+    fn shearing_moves_y_in_proportion_to_z() {
+        let t = shearing(0.0, 0.0, 0.0, 1.0, 0.0, 0.0);
+        let p = Tuple::point(2.0, 3.0, 4.0);
+
+        assert!(t * p == Tuple::point(2.0, 7.0, 4.0))
+    }
+
+    #[test]
+    fn shearing_moves_z_in_proportion_to_x() {
+        let t = shearing(0.0, 0.0, 0.0, 0.0, 1.0, 0.0);
+        let p = Tuple::point(2.0, 3.0, 4.0);
+
+        assert!(t * p == Tuple::point(2.0, 3.0, 6.0))
+    }
+
+    #[test]
+    fn shearing_moves_z_in_proportion_to_y() {
+        let t = shearing(0.0, 0.0, 0.0, 0.0, 0.0, 1.0);
+        let p = Tuple::point(2.0, 3.0, 4.0);
+
+        assert!(t * p == Tuple::point(2.0, 3.0, 7.0))
     }
 }
