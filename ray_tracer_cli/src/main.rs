@@ -24,12 +24,12 @@ fn main() -> std::io::Result<()> {
     let mut canvas = Canvas::new(900, 550);
 
     let mut p = Projectile {
-        pos: Tuple::point(0.0, 1.0, 0.0),
-        velocity: Tuple::vector(1.0, 1.8, 0.0).normalize() * 11.25,
+        pos: point(0.0, 1.0, 0.0),
+        velocity: vector(1.0, 1.8, 0.0).normalize() * 11.25,
     };
     let e = Environment {
-        gravity: Tuple::vector(0.0, -0.1, 0.0),
-        wind: Tuple::vector(-0.01, 0.0, 0.0),
+        gravity: vector(0.0, -0.1, 0.0),
+        wind: vector(-0.01, 0.0, 0.0),
     };
 
     while (canvas.height() as i32 - p.pos.y().round() as i32) >= 0

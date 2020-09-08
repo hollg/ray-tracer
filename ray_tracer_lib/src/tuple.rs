@@ -139,6 +139,18 @@ impl Div<f64> for Tuple {
     }
 }
 
+pub fn tuple(x: f64, y: f64, z: f64, w: f64) -> Tuple {
+    Tuple { x, y, z, w }
+}
+
+pub fn point(x: f64, y: f64, z: f64) -> Tuple {
+    tuple(x, y, z, 1.0)
+}
+
+pub fn vector(x: f64, y: f64, z: f64) -> Tuple {
+    tuple(x, y, z, 0.0)
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -167,20 +179,20 @@ mod tests {
 
     #[test]
     fn point_creates_tuple_with_w1() {
-        let tuple = Tuple::point(1.0, 1.0, 1.0);
+        let tuple = point(1.0, 1.0, 1.0);
         assert!(tuple.w == 1.0)
     }
 
     #[test]
     fn vector_creates_tuple_with_w0() {
-        let tuple = Tuple::vector(1.0, 1.0, 1.0);
+        let tuple = vector(1.0, 1.0, 1.0);
         assert!(tuple.w == 0.0)
     }
 
     #[test]
     fn equivalent_tuples_are_equal() {
-        let tuple_a = Tuple::vector(1.0, 1.0, 1.0);
-        let tuple_b = Tuple::vector(1.0, 1.0, 1.0);
+        let tuple_a = vector(1.0, 1.0, 1.0);
+        let tuple_b = vector(1.0, 1.0, 1.0);
         assert!(tuple_a == tuple_b)
     }
     #[test]
@@ -209,8 +221,8 @@ mod tests {
     }
     #[test]
     fn subtract_two_points() {
-        let point_a = Tuple::point(1.0, 1.0, 1.0);
-        let point_b = Tuple::point(2.0, 2.0, 2.0);
+        let point_a = point(1.0, 1.0, 1.0);
+        let point_b = point(2.0, 2.0, 2.0);
 
         assert!(
             point_a - point_b
@@ -225,16 +237,16 @@ mod tests {
 
     #[test]
     fn subtract_vector_from_point_is_point() {
-        let point = Tuple::point(1.0, 1.0, 1.0);
-        let vector = Tuple::vector(1.0, 1.0, 1.0);
+        let point = point(1.0, 1.0, 1.0);
+        let vector = vector(1.0, 1.0, 1.0);
 
         assert!((point - vector).is_point())
     }
 
     #[test]
     fn subtract_vector_from_vector_is_vector() {
-        let vector_1 = Tuple::vector(1.0, 1.0, 1.0);
-        let vector_2 = Tuple::vector(2.0, 2.0, 1.0);
+        let vector_1 = vector(1.0, 1.0, 1.0);
+        let vector_2 = vector(2.0, 2.0, 1.0);
 
         assert!((vector_1 - vector_2).is_vector())
     }
@@ -316,11 +328,11 @@ mod tests {
     }
     #[test]
     fn magnitude_of_vectors() {
-        let v1 = Tuple::vector(0.0, 1.0, 0.0);
-        let v2 = Tuple::vector(0.0, 0.0, 1.0);
-        let v3 = Tuple::vector(0.0, 1.0, 0.0);
-        let v4 = Tuple::vector(1.0, 2.0, 3.0);
-        let v5 = Tuple::vector(-1.0, -2.0, -3.0);
+        let v1 = vector(0.0, 1.0, 0.0);
+        let v2 = vector(0.0, 0.0, 1.0);
+        let v3 = vector(0.0, 1.0, 0.0);
+        let v4 = vector(1.0, 2.0, 3.0);
+        let v5 = vector(-1.0, -2.0, -3.0);
 
         assert!(v1.magnitude() == 1.0);
         assert!(v2.magnitude() == 1.0);
@@ -331,13 +343,13 @@ mod tests {
 
     #[test]
     fn normalize_vectors() {
-        let v1 = Tuple::vector(4.0, 0.0, 0.0);
-        let v2 = Tuple::vector(1.0, 2.0, 3.0);
+        let v1 = vector(4.0, 0.0, 0.0);
+        let v2 = vector(1.0, 2.0, 3.0);
 
-        assert!(v1.normalize() == Tuple::vector(1.0, 0.0, 0.0));
+        assert!(v1.normalize() == vector(1.0, 0.0, 0.0));
         assert!(
             v2.normalize()
-                == Tuple::vector(
+                == vector(
                     1.0 / f64::sqrt(14.0),
                     2.0 / f64::sqrt(14.0),
                     3.0 / f64::sqrt(14.0)
@@ -347,17 +359,17 @@ mod tests {
 
     #[test]
     fn dot_product_of_two_tuples() {
-        let t1 = Tuple::vector(1.0, 2.0, 3.0);
-        let t2 = Tuple::vector(2.0, 3.0, 4.0);
+        let t1 = vector(1.0, 2.0, 3.0);
+        let t2 = vector(2.0, 3.0, 4.0);
         assert!(t1.dot(t2) == 20.0)
     }
 
     #[test]
     fn cross_product_of_two_vectors() {
-        let t1 = Tuple::vector(1.0, 2.0, 3.0);
-        let t2 = Tuple::vector(2.0, 3.0, 4.0);
+        let t1 = vector(1.0, 2.0, 3.0);
+        let t2 = vector(2.0, 3.0, 4.0);
 
-        assert!(t1.cross(&t2) == Tuple::vector(-1.0, 2.0, -1.0));
-        assert!(t2.cross(&t1) == Tuple::vector(1.0, -2.0, 1.0));
+        assert!(t1.cross(&t2) == vector(-1.0, 2.0, -1.0));
+        assert!(t2.cross(&t1) == vector(1.0, -2.0, 1.0));
     }
 }
