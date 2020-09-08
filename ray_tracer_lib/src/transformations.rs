@@ -66,57 +66,27 @@ pub fn identity() -> Matrix {
 }
 
 pub fn translate(x: f64, y: f64, z: f64) -> Matrix {
-    Matrix::from([
-        [1.0, 0.0, 0.0, x],
-        [0.0, 1.0, 0.0, y],
-        [0.0, 0.0, 1.0, z],
-        [0.0, 0.0, 0.0, 1.0],
-    ])
+    identity().translate(x, y, z)
 }
 
 pub fn scale(x: f64, y: f64, z: f64) -> Matrix {
-    Matrix::from([
-        [x, 0.0, 0.0, 0.0],
-        [0.0, y, 0.0, 0.0],
-        [0.0, 0.0, z, 0.0],
-        [0.0, 0.0, 0.0, 1.0],
-    ])
+    identity().scale(x, y, z)
 }
 
 pub fn rotate_x(r: f64) -> Matrix {
-    Matrix::from([
-        [1.0, 0.0, 0.0, 0.0],
-        [0.0, r.cos(), -r.sin(), 0.0],
-        [0.0, r.sin(), r.cos(), 0.0],
-        [0.0, 0.0, 0.0, 1.0],
-    ])
+    identity().rotate_x(r)
 }
 
 pub fn rotate_y(r: f64) -> Matrix {
-    Matrix::from([
-        [r.cos(), 0.0, r.sin(), 0.0],
-        [0.0, 1.0, 0.0, 0.0],
-        [-r.sin(), 0.0, r.cos(), 0.0],
-        [0.0, 0.0, 0.0, 1.0],
-    ])
+    identity().rotate_y(r)
 }
 
 pub fn rotate_z(r: f64) -> Matrix {
-    Matrix::from([
-        [r.cos(), -r.sin(), 0.0, 0.0],
-        [r.sin(), r.cos(), 0.0, 0.0],
-        [0.0, 0.0, 1.0, 0.0],
-        [0.0, 0.0, 0.0, 1.0],
-    ])
+    identity().rotate_z(r)
 }
 
 pub fn shear(xy: f64, xz: f64, yx: f64, yz: f64, zx: f64, zy: f64) -> Matrix {
-    Matrix::from([
-        [1.0, xy, xz, 0.0],
-        [yx, 1.0, yz, 0.0],
-        [zx, zy, 1.0, 0.0],
-        [0.0, 0.0, 0.0, 1.0],
-    ])
+    identity().shear(xy, xz, yx, yz, zx, zy)
 }
 
 #[cfg(test)]
