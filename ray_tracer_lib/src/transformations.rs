@@ -9,7 +9,7 @@ pub fn identity() -> Matrix {
     ])
 }
 
-pub fn transform(x: f64, y: f64, z: f64) -> Matrix {
+pub fn translation(x: f64, y: f64, z: f64) -> Matrix {
     Matrix::from([
         [1.0, 0.0, 0.0, x],
         [0.0, 1.0, 0.0, y],
@@ -68,7 +68,7 @@ mod tests {
     use super::*;
     #[test]
     fn multiply_point_by_translation() {
-        let t = transform(5.0, -3.0, 2.0);
+        let t = translation(5.0, -3.0, 2.0);
         let p = Tuple::point(-3.0, 4.0, 5.0);
 
         assert!(t * p == Tuple::point(2.0, 1.0, 7.0));
@@ -76,7 +76,7 @@ mod tests {
 
     #[test]
     fn multiply_point_by_inverse_of_translation() {
-        let t = transform(5.0, -3.0, 2.0);
+        let t = translation(5.0, -3.0, 2.0);
         let p = Tuple::point(-3.0, 4.0, 5.0);
 
         assert!(t.inverse().unwrap() * p == Tuple::point(-8.0, 7.0, 3.0));
@@ -84,7 +84,7 @@ mod tests {
 
     #[test]
     fn translation_doesnt_affect_vectors() {
-        let t = transform(5.0, -3.0, 2.0);
+        let t = translation(5.0, -3.0, 2.0);
         let v = Tuple::vector(-3.0, 4.0, 5.0);
 
         assert!(t * v == v)
@@ -200,5 +200,32 @@ mod tests {
         let p = Tuple::point(2.0, 3.0, 4.0);
 
         assert!(t * p == Tuple::point(2.0, 3.0, 7.0))
+    }
+
+    #[test]
+    fn individual_transformations_are_applied_in_order() {
+        let p = Tuple::point(1.0, 0.0, 1.0);
+        let a = rotation_x(PI / 2.0);
+        let b = scaling(5.0, 5.0, 5.0);
+        let c = translation(10.0, 5.0, 7.0);
+
+        let p2 = a * p;
+        assert!(p2 == Tuple::point(1.0, -1.0, 0.0));
+
+        let p3 = b * p2;
+        assert!(p3 == Tuple::point(5.0, -5.0, 0.0));
+
+        let p4 = c * p3;
+        assert!(p4 == Tuple::point(15.0, 0.0, 7.0));
+    }
+
+    #[test]
+    fn chained_transformations_are_applied_in_reverse_order() {
+        let p = Tuple::point(1.0, 0.0, 1.0);
+        let a = rotation_x(PI / 2.0);
+        let b = scaling(5.0, 5.0, 5.0);
+        let c = translation(10.0, 5.0, 7.0);
+
+        assert!(c * b * a * p == Tuple::point(15.0, 0.0, 7.0))
     }
 }
