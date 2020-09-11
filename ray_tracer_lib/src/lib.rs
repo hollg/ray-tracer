@@ -2,14 +2,16 @@ mod canvas;
 mod color;
 pub mod consts;
 mod matrix;
+mod ray;
+mod sphere;
 mod transformations;
 mod tuple;
-mod ray;
 
-pub use ray::*;
 pub use canvas::*;
 pub use color::*;
 pub use matrix::*;
+pub use ray::*;
+pub use sphere::*;
 pub use transformations::*;
 pub use tuple::*;
 #[cfg(test)]

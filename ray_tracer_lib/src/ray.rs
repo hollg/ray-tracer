@@ -10,6 +10,14 @@ impl Ray {
         Ray { origin, direction }
     }
 
+    pub fn origin(&self) -> Tuple {
+        self.origin
+    }
+
+    pub fn direction(&self) -> Tuple {
+        self.direction
+    }
+
     pub fn position(&self, t: f64) -> Tuple {
         self.origin + self.direction * t
     }
@@ -42,4 +50,6 @@ mod tests {
         assert!(r.position(-1.0) == point(1.0, 3.0, 4.0));
         assert!(r.position(2.5) == point(4.5, 3.0, 4.0));
     }
+
+   
 }
