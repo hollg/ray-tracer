@@ -4,7 +4,9 @@ pub mod consts;
 mod matrix;
 mod transformations;
 mod tuple;
+mod ray;
 
+pub use ray::*;
 pub use canvas::*;
 pub use color::*;
 pub use matrix::*;
