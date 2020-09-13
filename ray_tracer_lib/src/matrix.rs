@@ -16,7 +16,14 @@ impl Matrix {
         }
         Matrix { size, values }
     }
-
+    pub fn identity() -> Matrix {
+        Matrix::from([
+            [1.0, 0.0, 0.0, 0.0],
+            [0.0, 1.0, 0.0, 0.0],
+            [0.0, 0.0, 1.0, 0.0],
+            [0.0, 0.0, 0.0, 1.0],
+        ])
+    }
     pub fn at(&self, y: usize, x: usize) -> f64 {
         self.values[y][x]
     }
@@ -538,5 +545,4 @@ mod test {
 
         assert!(c * b.inverse().unwrap() == a);
     }
-
 }

@@ -1,5 +1,6 @@
+use crate::matrix::*;
 use crate::tuple::*;
-
+use crate::transformations::*;
 pub struct Ray {
     origin: Tuple,
     direction: Tuple,
@@ -20,6 +21,13 @@ impl Ray {
 
     pub fn position(&self, t: f64) -> Tuple {
         self.origin + self.direction * t
+    }
+
+    pub fn transform(&self, m: Matrix)  -> Ray {
+        Ray {
+            origin: m * self.origin ,
+            direction: m * self.direction
+        }
     }
 }
 
@@ -51,5 +59,27 @@ mod tests {
         assert!(r.position(2.5) == point(4.5, 3.0, 4.0));
     }
 
-   
+    #[test]
+    fn translate_a_ray() {
+        let r = ray(point(1.0, 2.0, 3.0), vector(0.0, 1.0, 0.0));
+        let m = translate(3.0, 4.0, 5.0);
+
+        let r2 = r.transform(m);
+
+        assert!(r2.origin() == point(4.0, 6.0, 8.0));
+        assert!(r2.direction() == vector(0.0, 1.0, 0.0));
+
+    }
+
+    #[test]
+    fn scale_a_ray() {
+        let r = ray(point(1.0, 2.0, 3.0), vector(0.0, 1.0, 0.0));
+        let m = scale(2.0, 3.0, 4.0);
+
+        let r2 = r.transform(m);
+
+        assert!(r2.origin() == point(2.0, 6.0, 12.0));
+        assert!(r2.direction() == vector(0.0, 3.0, 0.0));
+
+    }
 }
