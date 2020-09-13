@@ -1,6 +1,5 @@
 use crate::matrix::*;
 use crate::tuple::*;
-use crate::transformations::*;
 pub struct Ray {
     origin: Tuple,
     direction: Tuple,
@@ -23,10 +22,10 @@ impl Ray {
         self.origin + self.direction * t
     }
 
-    pub fn transform(&self, m: Matrix)  -> Ray {
+    pub fn transform(&self, m: Matrix) -> Ray {
         Ray {
-            origin: m * self.origin ,
-            direction: m * self.direction
+            origin: m * self.origin,
+            direction: m * self.direction,
         }
     }
 }
@@ -37,7 +36,9 @@ pub fn ray(origin: Tuple, direction: Tuple) -> Ray {
 
 #[cfg(test)]
 mod tests {
+
     use super::*;
+    use crate::transformations::*;
 
     #[test]
     fn create_and_query_ray() {
@@ -68,7 +69,6 @@ mod tests {
 
         assert!(r2.origin() == point(4.0, 6.0, 8.0));
         assert!(r2.direction() == vector(0.0, 1.0, 0.0));
-
     }
 
     #[test]
@@ -80,6 +80,5 @@ mod tests {
 
         assert!(r2.origin() == point(2.0, 6.0, 12.0));
         assert!(r2.direction() == vector(0.0, 3.0, 0.0));
-
     }
 }

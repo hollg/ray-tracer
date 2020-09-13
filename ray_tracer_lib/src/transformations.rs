@@ -1,5 +1,4 @@
-use crate::{matrix::*, *};
-use std::f64::consts::PI;
+use crate::matrix::*;
 
 impl Matrix {
     pub fn translate(self, x: f64, y: f64, z: f64) -> Matrix {
@@ -92,6 +91,9 @@ pub fn shear(xy: f64, xz: f64, yx: f64, yz: f64, zx: f64, zy: f64) -> Matrix {
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    use crate::tuple::*;
+    use std::f64::consts::PI;
     #[test]
     fn multiply_point_by_translation() {
         let t = translate(5.0, -3.0, 2.0);

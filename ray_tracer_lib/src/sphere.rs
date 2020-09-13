@@ -1,7 +1,6 @@
 use crate::intersection::*;
 use crate::matrix::*;
 use crate::ray::*;
-use crate::transformations::*;
 use crate::tuple::*;
 
 #[derive(PartialEq)]
@@ -41,10 +40,9 @@ impl Sphere {
                     let t2 = intersection((-b + (discriminant).sqrt()) / (2.0 * a), self);
                     Ok(vec![t1, t2])
                 }
-            },
-            _ => Err(())
+            }
+            _ => Err(()),
         }
-        
     }
 }
 
@@ -56,7 +54,9 @@ pub fn sphere() -> Sphere {
 
 #[cfg(test)]
 mod tests {
+
     use super::*;
+    use crate::transformations::*;
 
     #[test]
     fn ray_intersects_sphere_at_two_points() {
