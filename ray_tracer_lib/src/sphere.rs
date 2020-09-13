@@ -6,7 +6,7 @@ use crate::tuple::*;
 pub struct Sphere;
 
 impl Sphere {
-    pub fn intersects(&self, r: Ray) -> Vec<Intersection> {
+    pub fn intersect(&self, r: Ray) -> Vec<Intersection> {
         // the vector from the sphere's center, to the ray origin
         // remember: the sphere is centered at the world origin
         let sphere_to_ray = r.origin() - point(0.0, 0.0, 0.0);
@@ -40,7 +40,7 @@ mod tests {
         let r = ray(point(0.0, 0.0, -5.0), vector(0.0, 0.0, 1.0));
         let s = sphere();
 
-        let xs = s.intersects(r);
+        let xs = s.intersect(r);
         assert!(xs.len() == 2);
         assert!(xs[0] == intersection(4.0, &s));
         assert!(xs[1] == intersection(6.0, &s));
@@ -51,7 +51,7 @@ mod tests {
         let r = ray(point(0.0, 1.0, -5.0), vector(0.0, 0.0, 1.0));
         let s = sphere();
 
-        let xs = s.intersects(r);
+        let xs = s.intersect(r);
         assert!(xs.len() == 2);
         assert!(xs[0] == intersection(5.0, &s));
         assert!(xs[1] == intersection(5.0, &s));
@@ -62,7 +62,7 @@ mod tests {
         let r = ray(point(0.0, 2.0, -5.0), vector(0.0, 0.0, 1.0));
         let s = sphere();
 
-        let xs = s.intersects(r);
+        let xs = s.intersect(r);
         assert!(xs.len() == 0);
     }
 
@@ -71,7 +71,7 @@ mod tests {
         let r = ray(point(0.0, 0.0, 0.0), vector(0.0, 0.0, 1.0));
         let s = sphere();
 
-        let xs = s.intersects(r);
+        let xs = s.intersect(r);
 
         assert!(xs.len() == 2);
         assert!(xs[0] == intersection(-1.0, &s));
@@ -83,9 +83,20 @@ mod tests {
         let r = ray(point(0.0, 0.0, 5.0), vector(0.0, 0.0, 1.0));
         let s = sphere();
 
-        let xs = s.intersects(r);
+        let xs = s.intersect(r);
         assert!(xs.len() == 2);
         assert!(xs[0] == intersection(-6.0, &s));
         assert!(xs[1] == intersection(-4.0, &s));
+    }
+
+    #[test]
+    fn intsersect_sets_the_object_on_the_intersection() {
+        let r = ray(point(0.0, 0.0, -0.5), vector(0.0, 0.0, 1.0));
+        let s = sphere();
+
+        let xs = s.intersect(r);
+        assert!(xs.len() == 2);
+        assert!(xs[0].object() == &s);
+        assert!(xs[1].object() == &s);
     }
 }

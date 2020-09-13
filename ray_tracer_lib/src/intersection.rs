@@ -6,6 +6,16 @@ pub struct Intersection<'a> {
     object: &'a Sphere,
 }
 
+impl<'a> Intersection<'a> {
+    pub fn t(&self) -> f64 {
+        self.t
+    }
+
+    pub fn object(&self) -> &Sphere {
+        self.object
+    }
+}
+
 pub fn intersection(t: f64, object: &Sphere) -> Intersection {
     Intersection { t, object }
 }
