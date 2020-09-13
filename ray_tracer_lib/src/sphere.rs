@@ -1,9 +1,12 @@
+use crate::intersection::*;
 use crate::ray::*;
 use crate::tuple::*;
+
+#[derive(PartialEq)]
 pub struct Sphere;
 
 impl Sphere {
-    pub fn intersects(&self, r: Ray) -> Vec<f64> {
+    pub fn intersects(&self, r: Ray) -> Vec<Intersection> {
         // the vector from the sphere's center, to the ray origin
         // remember: the sphere is centered at the world origin
         let sphere_to_ray = r.origin() - point(0.0, 0.0, 0.0);
@@ -17,14 +20,14 @@ impl Sphere {
         if discriminant < 0.0 {
             return vec![];
         } else {
-            let t1 = (-b - (discriminant).sqrt()) / (2.0 * a);
-            let t2 = (-b + (discriminant).sqrt()) / (2.0 * a);
+            let t1 = intersection((-b - (discriminant).sqrt()) / (2.0 * a), self);
+            let t2 = intersection((-b + (discriminant).sqrt()) / (2.0 * a), self);
             return vec![t1, t2];
         }
     }
 }
 
-fn sphere() -> Sphere {
+pub fn sphere() -> Sphere {
     Sphere {}
 }
 
@@ -39,8 +42,8 @@ mod tests {
 
         let xs = s.intersects(r);
         assert!(xs.len() == 2);
-        assert!(xs[0] == 4.0);
-        assert!(xs[1] == 6.0);
+        assert!(xs[0] == intersection(4.0, &s));
+        assert!(xs[1] == intersection(6.0, &s));
     }
 
     #[test]
@@ -50,8 +53,8 @@ mod tests {
 
         let xs = s.intersects(r);
         assert!(xs.len() == 2);
-        assert!(xs[0] == 5.0);
-        assert!(xs[1] == 5.0);
+        assert!(xs[0] == intersection(5.0, &s));
+        assert!(xs[1] == intersection(5.0, &s));
     }
 
     #[test]
@@ -71,8 +74,8 @@ mod tests {
         let xs = s.intersects(r);
 
         assert!(xs.len() == 2);
-        assert!(xs[0] == -1.0);
-        assert!(xs[1] == 1.0);
+        assert!(xs[0] == intersection(-1.0, &s));
+        assert!(xs[1] == intersection(1.0, &s));
     }
 
     #[test]
@@ -82,7 +85,7 @@ mod tests {
 
         let xs = s.intersects(r);
         assert!(xs.len() == 2);
-        assert!(xs[0] == -6.0);
-        assert!(xs[1] == -4.0);
+        assert!(xs[0] == intersection(-6.0, &s));
+        assert!(xs[1] == intersection(-4.0, &s));
     }
 }
