@@ -3,7 +3,7 @@ use std::fs::File;
 use std::io::prelude::*;
 
 fn main() -> std::io::Result<()> {
-    let ray_origin = point(0.0, 0.0, -5.0);
+    let ray_origin = point(0, 0, -5);
     let wall_z = 10.0;
 
     let wall_size = 7.0;
