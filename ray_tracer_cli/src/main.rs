@@ -2,50 +2,43 @@ use ray_tracer_lib::*;
 use std::fs::File;
 use std::io::prelude::*;
 
-#[derive(Debug)]
-struct Projectile {
-    pos: Tuple,
-    velocity: Tuple,
-}
-#[derive(Copy, Clone, Debug)]
-struct Environment {
-    gravity: Tuple,
-    wind: Tuple,
-}
-
-fn tick(environment: Environment, projectile: Projectile) -> Projectile {
-    Projectile {
-        pos: projectile.pos + projectile.velocity,
-        velocity: projectile.velocity + environment.gravity + environment.wind,
-    }
-}
-
 fn main() -> std::io::Result<()> {
-    let mut canvas = Canvas::new(900, 550);
+    let ray_origin = point(0.0, 0.0, -5.0);
+    let wall_z = 10.0;
 
-    let mut p = Projectile {
-        pos: point(0.0, 1.0, 0.0),
-        velocity: vector(1.0, 1.8, 0.0).normalize() * 11.25,
-    };
-    let e = Environment {
-        gravity: vector(0.0, -0.1, 0.0),
-        wind: vector(-0.01, 0.0, 0.0),
-    };
+    let wall_size = 7.0;
+    let canvas_pixels = 100;
 
-    while (canvas.height() as i32 - p.pos.y().round() as i32) >= 0
-        && (canvas.height() as i32 - p.pos.y().round() as i32) <= canvas.height() as i32
-    {
+    let pixel_size = wall_size / canvas_pixels as f64;
+    let half = wall_size / 2.0;
 
-        canvas.write_pixel(
-            p.pos.x().round() as usize,
-            (canvas.height() as i32 - p.pos.y().round() as i32) as usize,
-            Color(1.0, 0.0, 0.0),
-        );
-        p = tick(e, p);
+    let mut canvas = Canvas::new(canvas_pixels, canvas_pixels);
+    let color = Color(1.0, 0.0, 0.0);
+    let shape = sphere();
+
+    for y in 0..canvas_pixels {
+        let world_y = half - pixel_size * y as f64;
+
+        for x in 0..canvas_pixels {
+            let world_x = -half + pixel_size * x as f64;
+
+            let position = point(world_x, world_y, wall_z);
+            let r = ray(ray_origin, (position - ray_origin).normalize());
+            println!("ray: {:?}", r);
+            let mut xs = shape.intersect(r).unwrap();
+
+            println!("xs: {:?}", xs);
+            if let Some(hit) = xs.hit() {
+                println!("{}", hit.t());
+                canvas.write_pixel(x, y, color)
+            } else {
+                println!("no hit!")
+            }
+        }
     }
 
     let ppm = canvas.to_ppm();
-    let mut file = File::create("trajectory.ppm")?;
+    let mut file = File::create("shadow.ppm")?;
     file.write_all(ppm.as_bytes())?;
     Ok(())
 }
