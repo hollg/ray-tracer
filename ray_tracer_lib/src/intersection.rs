@@ -1,6 +1,6 @@
 use crate::sphere::*;
 
-#[derive(PartialEq, Copy, Clone)]
+#[derive(PartialEq, Copy, Clone, Debug)]
 pub struct Intersection<'a> {
     t: f64,
     object: &'a Sphere,
@@ -16,8 +16,8 @@ impl<'a> Intersection<'a> {
     }
 }
 
-pub fn intersection(t: f64, object: &Sphere) -> Intersection {
-    Intersection { t, object }
+pub fn intersection<A: Into<f64>>(t: A, object: &Sphere) -> Intersection {
+    Intersection { t: t.into(), object }
 }
 
 pub trait Hit {

@@ -1,5 +1,6 @@
 use crate::matrix::*;
 use crate::tuple::*;
+#[derive(Debug)]
 pub struct Ray {
     origin: Tuple,
     direction: Tuple,
@@ -42,8 +43,8 @@ mod tests {
 
     #[test]
     fn create_and_query_ray() {
-        let origin = point(1.0, 2.0, 3.0);
-        let direction = vector(4.0, 5.0, 6.0);
+        let origin = point(1, 2, 3);
+        let direction = vector(4, 5, 6);
 
         let r = ray(origin, direction);
 

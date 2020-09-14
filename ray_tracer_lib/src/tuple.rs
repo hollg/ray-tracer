@@ -143,12 +143,12 @@ pub fn tuple(x: f64, y: f64, z: f64, w: f64) -> Tuple {
     Tuple { x, y, z, w }
 }
 
-pub fn point(x: f64, y: f64, z: f64) -> Tuple {
-    tuple(x, y, z, 1.0)
+pub fn point<A: Into<f64>, B: Into<f64>, C: Into<f64>>(x: A, y: B, z: C) -> Tuple {
+    tuple(x.into(), y.into(), z.into(), 1.0)
 }
 
-pub fn vector(x: f64, y: f64, z: f64) -> Tuple {
-    tuple(x, y, z, 0.0)
+pub fn vector<A: Into<f64>, B: Into<f64>, C: Into<f64>>(x: A, y: B, z: C) -> Tuple {
+    tuple(x.into(),y.into(), z.into(), 0.0)
 }
 
 #[cfg(test)]

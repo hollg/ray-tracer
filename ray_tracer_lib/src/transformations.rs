@@ -64,28 +64,42 @@ pub fn identity() -> Matrix {
     ])
 }
 
-pub fn translate(x: f64, y: f64, z: f64) -> Matrix {
-    identity().translate(x, y, z)
+pub fn translate<A: Into<f64>, B: Into<f64>, C: Into<f64>>(x: A, y: B, z: C) -> Matrix {
+    identity().translate(x.into(), y.into(), z.into())
 }
 
-pub fn scale(x: f64, y: f64, z: f64) -> Matrix {
-    identity().scale(x, y, z)
+pub fn scale<A: Into<f64>, B: Into<f64>, C: Into<f64>>(x: A, y: B, z: C) -> Matrix {
+    identity().scale(x.into(), y.into(), z.into())
 }
 
-pub fn rotate_x(r: f64) -> Matrix {
-    identity().rotate_x(r)
+pub fn rotate_x<A: Into<f64>>(r: A) -> Matrix {
+    identity().rotate_x(r.into())
 }
 
-pub fn rotate_y(r: f64) -> Matrix {
-    identity().rotate_y(r)
+pub fn rotate_y<A: Into<f64>>(r: A) -> Matrix {
+    identity().rotate_y(r.into())
 }
 
-pub fn rotate_z(r: f64) -> Matrix {
-    identity().rotate_z(r)
+pub fn rotate_z<A: Into<f64>>(r: A) -> Matrix {
+    identity().rotate_z(r.into())
 }
 
-pub fn shear(xy: f64, xz: f64, yx: f64, yz: f64, zx: f64, zy: f64) -> Matrix {
-    identity().shear(xy, xz, yx, yz, zx, zy)
+pub fn shear<A: Into<f64>, B: Into<f64>, C: Into<f64>, D: Into<f64>, E: Into<f64>, F: Into<f64>>(
+    xy: A,
+    xz: B,
+    yx: C,
+    yz: D,
+    zx: E,
+    zy: F,
+) -> Matrix {
+    identity().shear(
+        xy.into(),
+        xz.into(),
+        yx.into(),
+        yz.into(),
+        zx.into(),
+        zy.into(),
+    )
 }
 
 #[cfg(test)]
