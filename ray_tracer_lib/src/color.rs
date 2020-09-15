@@ -1,5 +1,6 @@
 use std::ops::{Add, Mul, Sub};
 use crate::consts::EPSILON;
+
 #[derive(Clone, Copy, Debug)]
 pub struct Color(pub f64, pub f64, pub f64);
 

@@ -10,18 +10,10 @@ pub struct Sphere {
 }
 
 impl Sphere {
-    pub fn transform(&self) -> Matrix {
-        self.transform
-    }
-
-    pub fn set_transform(&mut self, m: Matrix) {
-        self.transform = m;
-    }
-
     pub fn intersect(&self, ray: Ray) -> Result<Vec<Intersection>, ()> {
         // the vector from the sphere's center, to the ray origin
         // remember: the sphere is centered at the world origin
-        let matrix = self.transform().inverse();
+        let matrix = self.transform.inverse();
 
         match matrix {
             Ok(matrix) => {
@@ -154,7 +146,7 @@ mod tests {
         let mut s = sphere();
         let t = translate(2.0, 3.0, 4.0);
 
-        s.set_transform(t);
+        s.transform = t;
 
         assert!(s.transform == t)
     }
@@ -164,7 +156,7 @@ mod tests {
         let r = ray(point(0.0, 0.0, -5.0), vector(0.0, 0.0, 1.0));
         let mut s = sphere();
 
-        s.set_transform(scale(2.0, 2.0, 2.0));
+        s.transform = scale(2.0, 2.0, 2.0);
         let xs = s.intersect(r).unwrap();
 
         assert!(xs.len() == 2);
@@ -177,7 +169,7 @@ mod tests {
         let r = ray(point(0.0, 0.0, -5.0), vector(0.0, 0.0, 1.0));
         let mut s = sphere();
 
-        s.set_transform(translate(5.0, 0.0, 0.0));
+        s.transform = translate(5.0, 0.0, 0.0);
         let xs = s.intersect(r).unwrap();
 
         assert!(xs.len() == 0);
@@ -232,7 +224,7 @@ mod tests {
     #[test]
     fn compute_normal_on_translated_sphere() {
         let mut s = sphere();
-        s.set_transform(translate(0, 1, 0));
+        s.transform = translate(0, 1, 0);
 
         let n = s.normal_at(point(0, 1.70711, -0.70711));
         assert!(n == vector(0, 0.70711, -0.70711));
@@ -242,7 +234,7 @@ mod tests {
     fn compute_normal_on_transformed_sphere() {
         let mut s = sphere();
         let m = scale(1, 0.5, 1) * rotate_z(PI / 5.0);
-        s.set_transform(m);
+        s.transform = m;
 
         let root_2 = PI.sqrt();
         let n = s.normal_at(point(0, root_2 / 2.0, -root_2 / 2.0));

@@ -1,9 +1,10 @@
 use super::color::*;
 use std::fmt::Write;
 use std::ops::{Index, IndexMut};
+
 pub struct Canvas {
-    width: usize,
-    height: usize,
+    pub width: usize,
+    pub height: usize,
     pub pixels: Box<[Color]>,
 }
 
@@ -16,13 +17,6 @@ impl Canvas {
         }
     }
 
-    pub fn width(&self) -> usize {
-        self.width
-    }
-
-    pub fn height(&self) -> usize {
-        self.height
-    }
 
     pub fn size(&self) -> usize {
         self.width * self.height
