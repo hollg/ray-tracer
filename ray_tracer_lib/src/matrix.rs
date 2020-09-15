@@ -31,9 +31,9 @@ impl Matrix {
     pub fn transpose(&self) -> Matrix {
         let mut values = [[0.0_f64; 4]; 4];
 
-        for r in 0..self.size {
-            for c in 0..self.size {
-                values[r][c] = self.values[c][r];
+        for (r, row) in values.iter_mut().enumerate().take(self.size) {
+            for (c, value) in row.iter_mut().enumerate().take(self.size) {
+                *value = self.values[c][r];
             }
         }
 
@@ -52,23 +52,24 @@ impl Matrix {
         }
     }
 
-    pub fn submatrix(&self, row: usize, column: usize) -> Matrix {
+    pub fn submatrix(&self, row_num: usize, column_num: usize) -> Matrix {
         let mut values = [[0.0; 4]; 4];
         let size = self.size - 1;
 
-        for y in 0..size {
-            for x in 0..size {
-                let y2 = match y < row {
+        // for y in 0..size {
+        for (y, row) in values.iter_mut().enumerate().take(size) {
+            for (x, value) in row.iter_mut().enumerate().take(size) {
+                let y2 = match y < row_num {
                     true => y,
                     false => y + 1,
                 };
 
-                let x2 = match x < column {
+                let x2 = match x < column_num {
                     true => x,
                     false => x + 1,
                 };
 
-                values[y][x] = self.values[y2][x2];
+                *value = self.values[y2][x2];
             }
         }
 
@@ -100,8 +101,8 @@ impl Matrix {
         let mut values = [[0.0; 4]; 4];
 
         for r in 0..self.size {
-            for c in 0..self.size {
-                values[c][r] = self.cofactor(r, c) / determinant;
+            for (c, row) in values.iter_mut().enumerate().take(self.size) {
+                row[r] = self.cofactor(r, c) / determinant;
             }
         }
 
@@ -184,13 +185,12 @@ impl From<[[f64; 2]; 2]> for Matrix {
 impl Mul for Matrix {
     type Output = Matrix;
     fn mul(self, rhs: Matrix) -> Matrix {
-        let mut values = self.values.clone();
+        let mut values = self.values;
 
-        for y in 0..self.size {
-            for x in 0..self.size {
+        for (y, row) in values.iter_mut().enumerate().take(self.size) {
+            for (x, column) in row.iter_mut().enumerate().take(self.size) {
                 // TODO: wrap head around why this works
-                values[y][x] =
-                    (0..self.size).fold(0.0, |acc, i| acc + self.at(y, i) * rhs.at(i, x));
+                *column = (0..self.size).fold(0.0, |acc, i| acc + self.at(y, i) * rhs.at(i, x));
             }
         }
 
@@ -208,9 +208,9 @@ impl Mul<Tuple> for Matrix {
         let mut values = [0.0; 4];
         let Tuple { x, y, z, w } = other;
 
-        for n in 0..self.size {
-            values[n] =
-                self.at(n, 0) * x + self.at(n, 1) * y + self.at(n, 2) * z + self.at(n, 3) * w;
+        // for n in 0..self.size {
+        for (n, item) in values.iter_mut().enumerate().take(self.size) {
+            *item = self.at(n, 0) * x + self.at(n, 1) * y + self.at(n, 2) * z + self.at(n, 3) * w;
         }
 
         Tuple {

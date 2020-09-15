@@ -42,8 +42,8 @@ impl Canvas {
 
         // header
         buf += "P3\n";
-        write!(buf, "{} {}\n", self.width, self.height).unwrap();
-        write!(buf, "255\n").unwrap();
+        writeln!(buf, "{} {}", self.width, self.height).unwrap();
+        writeln!(buf, "255").unwrap();
 
         // body
         for y in 0..self.height {
@@ -66,7 +66,7 @@ impl Canvas {
                 }
             }
             // if y <= self.height - 1 {
-            write!(line, "\n").unwrap();
+            writeln!(line).unwrap();
             // }
             write!(buf, "{}", line).unwrap();
         }

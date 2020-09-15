@@ -35,7 +35,7 @@ impl Tuple {
     }
 
     pub fn is_point(&self) -> bool {
-        self.w == 1.0
+        (self.w - 1.0).abs() < EPSILON
     }
 
     pub fn is_vector(&self) -> bool {
@@ -152,7 +152,7 @@ pub fn point<A: Into<f64>, B: Into<f64>, C: Into<f64>>(x: A, y: B, z: C) -> Tupl
 }
 
 pub fn vector<A: Into<f64>, B: Into<f64>, C: Into<f64>>(x: A, y: B, z: C) -> Tuple {
-    tuple(x.into(),y.into(), z.into(), 0.0)
+    tuple(x.into(), y.into(), z.into(), 0.0)
 }
 
 #[cfg(test)]
@@ -390,7 +390,7 @@ mod tests {
     fn reflect_vector_off_slanted_surface() {
         let v = vector(0, -1, 0);
         let root_2 = f64::sqrt(2.0);
-        let n = vector(root_2/2.0, root_2/2.0, 0);
+        let n = vector(root_2 / 2.0, root_2 / 2.0, 0);
 
         let r = v.reflect(n);
         assert!(r == vector(1, 0, 0));

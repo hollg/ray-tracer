@@ -18,18 +18,18 @@ impl Sphere {
         self.transform = m;
     }
 
-    pub fn intersect(&self, r: Ray) -> Result<Vec<Intersection>, ()> {
+    pub fn intersect(&self, ray: Ray) -> Result<Vec<Intersection>, ()> {
         // the vector from the sphere's center, to the ray origin
         // remember: the sphere is centered at the world origin
-        let m = self.transform().inverse();
+        let matrix = self.transform().inverse();
 
-        match m {
+        match matrix {
             Ok(matrix) => {
-                let r2 = r.transform(matrix);
-                let sphere_to_ray = r2.origin() - point(0.0, 0.0, 0.0);
+                let ray2 = ray.transform(matrix);
+                let sphere_to_ray = ray2.origin() - point(0.0, 0.0, 0.0);
 
-                let a = r2.direction().dot(r2.direction());
-                let b = 2.0 * r2.direction().dot(sphere_to_ray);
+                let a = ray2.direction().dot(ray2.direction());
+                let b = 2.0 * ray2.direction().dot(sphere_to_ray);
                 let c = sphere_to_ray.dot(sphere_to_ray) - 1.0;
 
                 let discriminant = b.powi(2) - 4.0 * a * c;
@@ -56,7 +56,7 @@ impl Sphere {
             z: world_normal_t.z,
             w: 0.0,
         };
-        return world_normal.normalize();
+        world_normal.normalize()
     }
 
     pub fn set_material(&mut self, m: Material) {
@@ -67,7 +67,7 @@ impl Sphere {
 pub fn sphere() -> Sphere {
     Sphere {
         transform: Matrix::identity(),
-        material: material()
+        material: material(),
     }
 }
 
