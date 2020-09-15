@@ -7,14 +7,20 @@ fn main() -> std::io::Result<()> {
     let wall_z = 10.0;
 
     let wall_size = 7.0;
-    let canvas_pixels = 100;
+    let canvas_pixels = 300;
 
     let pixel_size = wall_size / canvas_pixels as f64;
     let half = wall_size / 2.0;
 
     let mut canvas = Canvas::new(canvas_pixels, canvas_pixels);
-    let color = Color(1.0, 0.0, 0.0);
-    let shape = sphere();
+    let mut m = material();
+    m.set_color(color(1, 0.2, 1));
+    let mut shape = sphere();
+    shape.set_material(m);
+
+    let light_position = point(-10, 10, -10);
+    let light_color = color(1, 1, 1);
+    let light = point_light(light_position, light_color);
 
     for y in 0..canvas_pixels {
         let world_y = half - pixel_size * y as f64;
@@ -24,21 +30,22 @@ fn main() -> std::io::Result<()> {
 
             let position = point(world_x, world_y, wall_z);
             let r = ray(ray_origin, (position - ray_origin).normalize());
-            println!("ray: {:?}", r);
+
             let mut xs = shape.intersect(r).unwrap();
 
-            println!("xs: {:?}", xs);
             if let Some(hit) = xs.hit() {
-                println!("{}", hit.t());
+                let p = r.position(hit.t());
+                let normal = hit.object().normal_at(p);
+                let eye = -r.direction();
+
+                let color = hit.object().material.lighting(light, p, eye, normal);
                 canvas.write_pixel(x, y, color)
-            } else {
-                println!("no hit!")
             }
         }
     }
 
     let ppm = canvas.to_ppm();
-    let mut file = File::create("shadow.ppm")?;
+    let mut file = File::create("sphere.ppm")?;
     file.write_all(ppm.as_bytes())?;
     Ok(())
 }
