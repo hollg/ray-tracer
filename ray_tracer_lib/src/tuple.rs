@@ -68,6 +68,10 @@ impl Tuple {
             w: 0.0,
         }
     }
+
+    pub fn reflect(&self, normal: Tuple) -> Tuple {
+        *self - normal * 2.0 * self.dot(normal)
+    }
 }
 
 impl PartialEq for Tuple {
@@ -371,5 +375,24 @@ mod tests {
 
         assert!(t1.cross(&t2) == vector(-1.0, 2.0, -1.0));
         assert!(t2.cross(&t1) == vector(1.0, -2.0, 1.0));
+    }
+
+    #[test]
+    fn reflect_vector_approaching_at_45_degs() {
+        let v = vector(1, -1, 0);
+        let n = vector(0, 1, 0);
+
+        let r = v.reflect(n);
+        assert!(r == vector(1, 1, 0));
+    }
+
+    #[test]
+    fn reflect_vector_off_slanted_surface() {
+        let v = vector(0, -1, 0);
+        let root_2 = f64::sqrt(2.0);
+        let n = vector(root_2/2.0, root_2/2.0, 0);
+
+        let r = v.reflect(n);
+        assert!(r == vector(1, 0, 0));
     }
 }

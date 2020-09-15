@@ -1,11 +1,12 @@
 use crate::intersection::*;
+use crate::material::{material, Material};
 use crate::matrix::*;
 use crate::ray::*;
 use crate::tuple::*;
-
 #[derive(PartialEq, Debug)]
 pub struct Sphere {
     pub transform: Matrix,
+    pub material: Material,
 }
 
 impl Sphere {
@@ -46,7 +47,6 @@ impl Sphere {
     }
 
     pub fn normal_at(&self, p: Tuple) -> Tuple {
-
         let object_point = self.transform.inverse().unwrap() * p;
         let object_normal = object_point - point(0, 0, 0);
         let world_normal_t = self.transform.inverse().unwrap().transpose() * object_normal;
@@ -54,15 +54,20 @@ impl Sphere {
             x: world_normal_t.x,
             y: world_normal_t.y,
             z: world_normal_t.z,
-            w: 0.0
+            w: 0.0,
         };
         return world_normal.normalize();
+    }
+
+    pub fn set_material(&mut self, m: Material) {
+        self.material = m;
     }
 }
 
 pub fn sphere() -> Sphere {
     Sphere {
         transform: Matrix::identity(),
+        material: material()
     }
 }
 
@@ -236,11 +241,27 @@ mod tests {
     #[test]
     fn compute_normal_on_transformed_sphere() {
         let mut s = sphere();
-        let m = scale(1, 0.5, 1) * rotate_z(PI/5.0);
+        let m = scale(1, 0.5, 1) * rotate_z(PI / 5.0);
         s.set_transform(m);
 
         let root_2 = PI.sqrt();
-        let n = s.normal_at(point(0, root_2/2.0, -root_2/2.0));
+        let n = s.normal_at(point(0, root_2 / 2.0, -root_2 / 2.0));
         assert!(n == vector(0, 0.97014, -0.24254));
+    }
+
+    #[test]
+    fn sphere_has_default_material() {
+        let s = sphere();
+        assert!(s.material == material());
+    }
+
+    #[test]
+    fn sphere_may_be_assigned_material() {
+        let mut s = sphere();
+        let mut m = material();
+        m.set_ambient(1);
+        s.set_material(m);
+
+        assert!(s.material.ambient == 1.0);
     }
 }
