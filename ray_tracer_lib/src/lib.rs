@@ -9,7 +9,9 @@ mod ray;
 mod sphere;
 mod transformations;
 mod tuple;
+mod world;
 
+pub use world::*;
 pub use canvas::*;
 pub use color::*;
 pub use intersection::*;
