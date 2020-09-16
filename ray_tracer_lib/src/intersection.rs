@@ -1,4 +1,6 @@
+use crate::ray::Ray;
 use crate::sphere::*;
+use crate::tuple::Tuple;
 
 #[derive(PartialEq, Copy, Clone, Debug)]
 pub struct Intersection<'a> {
@@ -14,10 +16,31 @@ impl<'a> Intersection<'a> {
     pub fn object(&self) -> &Sphere {
         self.object
     }
+
+    pub fn prepare(&self, r: Ray) -> ComputedIntersection {
+        let mut comps = ComputedIntersection {
+            object: &self.object,
+            t: self.t,
+            point: r.position(self.t),
+            eye_v: -r.direction,
+            normal_v: self.object.normal_at(r.position(self.t)),
+            is_inside: false
+        };
+
+        if comps.normal_v.dot(comps.eye_v) < 0.0 {
+            comps.is_inside = true;
+            comps.normal_v = -comps.normal_v;
+        } 
+
+        comps
+    }
 }
 
 pub fn intersection<A: Into<f64>>(t: A, object: &Sphere) -> Intersection {
-    Intersection { t: t.into(), object }
+    Intersection {
+        t: t.into(),
+        object,
+    }
 }
 
 pub trait Hit {
@@ -31,9 +54,19 @@ impl<'a> Hit for Vec<Intersection<'a>> {
     }
 }
 
+pub struct ComputedIntersection<'a> {
+    object: &'a Sphere,
+    point: Tuple,
+    eye_v: Tuple,
+    normal_v: Tuple,
+    t: f64,
+    is_inside: bool
+}
 #[cfg(test)]
 mod tests {
     use super::*;
+    use crate::ray::ray;
+    use crate::tuple::{point, vector};
     #[test]
     fn an_intersection_encapsulates_t_and_object() {
         let s = sphere();
@@ -101,5 +134,42 @@ mod tests {
 
         let i = xs.hit().unwrap();
         assert!(i == &i4);
+    }
+
+    #[test]
+    fn precompute_state_of_intersection() {
+        let r = ray(point(0, 0, -5), vector(0, 0, 1));
+        let s = sphere();
+
+        let i = intersection(4, &s);
+        let comps = i.prepare(r);
+
+        assert!(comps.t == i.t());
+        assert!(comps.object == i.object);
+        assert!(comps.point == point(0, 0, -1));
+        assert!(comps.eye_v == vector(0, 0, -1));
+        assert!(comps.normal_v == vector(0, 0, -1));
+    }
+    #[test]
+    fn the_hit_when_intersection_occurs_on_outside() {
+        let r = ray(point(0, 0, -5), vector(0, 0, 1));
+        let s = sphere();
+        let i = intersection(1, &s);
+        let comps = i.prepare(r);
+
+        assert!(!comps.is_inside);
+    }
+
+    #[test]
+    fn the_hit_when_intersection_occurs_on_inside() {
+        let r = ray(point(0, 0, 0), vector(0, 0, 1));
+        let s = sphere();
+        let i = intersection(1, &s);
+        let comps = i.prepare(r);
+
+        assert!(comps.point == point(0, 0, 1));
+        assert!(comps.eye_v == vector(0, 0, -1));
+        assert!(comps.normal_v == vector(0, 0, -1));
+        assert!(comps.is_inside);
     }
 }

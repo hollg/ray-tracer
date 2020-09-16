@@ -2,8 +2,8 @@ use crate::matrix::*;
 use crate::tuple::*;
 #[derive(Copy, Clone, Debug)]
 pub struct Ray {
-    origin: Tuple,
-    direction: Tuple,
+    pub origin: Tuple,
+    pub direction: Tuple,
 }
 
 impl Ray {
