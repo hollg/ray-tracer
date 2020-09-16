@@ -3,7 +3,7 @@ use crate::material::{material, Material};
 use crate::matrix::*;
 use crate::ray::*;
 use crate::tuple::*;
-#[derive(PartialEq, Debug)]
+#[derive(Copy, Clone, PartialEq, Debug)]
 pub struct Sphere {
     pub transform: Matrix,
     pub material: Material,

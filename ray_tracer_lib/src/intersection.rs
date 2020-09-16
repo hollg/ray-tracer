@@ -55,12 +55,12 @@ impl<'a> Hit for Vec<Intersection<'a>> {
 }
 
 pub struct ComputedIntersection<'a> {
-    object: &'a Sphere,
-    point: Tuple,
-    eye_v: Tuple,
-    normal_v: Tuple,
-    t: f64,
-    is_inside: bool
+    pub object: &'a Sphere,
+    pub point: Tuple,
+    pub eye_v: Tuple,
+    pub normal_v: Tuple,
+    pub t: f64,
+    pub is_inside: bool
 }
 #[cfg(test)]
 mod tests {
