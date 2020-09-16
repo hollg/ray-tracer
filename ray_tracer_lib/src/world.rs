@@ -31,7 +31,7 @@ impl World {
         }
     }
 
-    pub fn intersect(&self, r: Ray) -> Vec<Intersection> {
+    fn intersect(&self, r: Ray) -> Vec<Intersection> {
         let mut xs: Vec<Intersection> = vec![];
         for obj in self.objects.iter() {
             xs.append(&mut obj.intersect(r).unwrap());
@@ -41,7 +41,7 @@ impl World {
         xs
     }
 
-    pub fn shade_hit(&self, comps: ComputedIntersection) -> Color {
+    fn shade_hit(&self, comps: ComputedIntersection) -> Color {
         comps.object.material.lighting(
             self.light_source.unwrap(),
             comps.point,

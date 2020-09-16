@@ -1,5 +1,5 @@
-use crate::matrix::*;
-
+use crate::matrix::Matrix;
+use crate::tuple::Tuple;
 impl Matrix {
     pub fn translate(self, x: f64, y: f64, z: f64) -> Matrix {
         Matrix::from([
@@ -102,6 +102,21 @@ pub fn shear<A: Into<f64>, B: Into<f64>, C: Into<f64>, D: Into<f64>, E: Into<f64
     )
 }
 
+pub fn view_transform(from: Tuple, to: Tuple, up: Tuple) -> Matrix {
+    let forward = (to - from).normalize();
+    let upn = up.normalize();
+    let left = forward.cross(&upn);
+    let true_up = left.cross(&forward);
+
+    let orientation = Matrix::from([
+        [left.x, left.y, left.z, 0.0],
+        [true_up.x, true_up.y, true_up.z, 0.0],
+        [-forward.x, -forward.y, -forward.z, 0.0],
+        [0.0, 0.0, 0.0, 1.0],
+    ]);
+
+    orientation * translate(-from.x, -from.y, -from.z)
+}
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -271,5 +286,51 @@ mod tests {
             .translate(10.0, 5.0, 7.0);
 
         assert!(t * p == point(15.0, 0.0, 7.0))
+    }
+
+    #[test]
+    fn transformation_matrix_for_default_orientation() {
+        let from = point(0, 0, 0);
+        let to = point(0, 0, -1);
+        let up = vector(0, 1, 0);
+
+        let t = view_transform(from, to, up);
+        assert!(t == identity());
+    }
+
+    #[test]
+    fn transformation_looking_in_positive_z_direction() {
+        let from = point(0, 0, 0);
+        let to = point(0, 0, 1);
+        let up = vector(0, 1, 0);
+        let t = view_transform(from, to, up);
+
+        assert!(t == scale(-1, 1, -1));
+    }
+
+    #[test]
+    fn view_transformation_moves_the_world() {
+        let from = point(0, 0, 8);
+        let to = point(0, 0, 0);
+        let up = vector(0, 1, 0);
+        let t = view_transform(from, to, up);
+        assert!(t == translate(0, 0, -8));
+    }
+
+    #[test]
+    fn arbitrary_view_transform() {
+        let from = point(1, 3, 2);
+        let to = point(4, -2, 8);
+        let up = vector(1, 1, 0);
+        let t = view_transform(from, to, up);
+
+        assert!(
+            t == Matrix::from([
+                [-0.50709, 0.50709, 0.67612, -2.36643],
+                [0.76772, 0.60609, 0.12122, -2.82843],
+                [-0.35857, 0.59761, -0.71714, 0.00000],
+                [0.00000, 0.00000, 0.00000, 1.00000]
+            ])
+        );
     }
 }
