@@ -69,7 +69,7 @@ mod tests {
     use crate::tuple::{point, vector};
     #[test]
     fn an_intersection_encapsulates_t_and_object() {
-        let s = sphere();
+        let s = Sphere::default();
 
         let i = intersection(3.5, &s);
         assert!(i.t == 3.5);
@@ -78,7 +78,7 @@ mod tests {
 
     #[test]
     fn aggregating_intersections() {
-        let s = sphere();
+        let s = Sphere::default();
 
         let i1 = intersection(1.0, &s);
         let i2 = intersection(2.0, &s);
@@ -92,7 +92,7 @@ mod tests {
 
     #[test]
     fn the_hit_when_all_intersections_have_positive_t() {
-        let s = sphere();
+        let s = Sphere::default();
         let i1 = intersection(1.0, &s);
         let i2 = intersection(2.0, &s);
         let mut xs = vec![i2, i1];
@@ -103,7 +103,7 @@ mod tests {
 
     #[test]
     fn the_hit_when_some_intersections_have_negative_t() {
-        let s = sphere();
+        let s = Sphere::default();
         let i1 = intersection(-1.0, &s);
         let i2 = intersection(1.0, &s);
         let mut xs = vec![i2, i1];
@@ -114,7 +114,7 @@ mod tests {
 
     #[test]
     fn the_hit_when_all_intersections_have_negative_t() {
-        let s = sphere();
+        let s = Sphere::default();
         let i1 = intersection(-2.0, &s);
         let i2 = intersection(-1.0, &s);
         let mut xs = vec![i2, i1];
@@ -125,7 +125,7 @@ mod tests {
 
     #[test]
     fn the_hit_is_always_the_lowest_nonnegative_intersection() {
-        let s = sphere();
+        let s = Sphere::default();
         let i1 = intersection(5.0, &s);
         let i2 = intersection(7.0, &s);
         let i3 = intersection(-3.0, &s);
@@ -139,7 +139,7 @@ mod tests {
     #[test]
     fn precompute_state_of_intersection() {
         let r = ray(point(0, 0, -5), vector(0, 0, 1));
-        let s = sphere();
+        let s = Sphere::default();
 
         let i = intersection(4, &s);
         let comps = i.prepare(r);
@@ -153,7 +153,7 @@ mod tests {
     #[test]
     fn the_hit_when_intersection_occurs_on_outside() {
         let r = ray(point(0, 0, -5), vector(0, 0, 1));
-        let s = sphere();
+        let s = Sphere::default();
         let i = intersection(1, &s);
         let comps = i.prepare(r);
 
@@ -163,7 +163,7 @@ mod tests {
     #[test]
     fn the_hit_when_intersection_occurs_on_inside() {
         let r = ray(point(0, 0, 0), vector(0, 0, 1));
-        let s = sphere();
+        let s = Sphere::default();
         let i = intersection(1, &s);
         let comps = i.prepare(r);
 

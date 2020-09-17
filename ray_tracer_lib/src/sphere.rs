@@ -10,6 +10,13 @@ pub struct Sphere {
 }
 
 impl Sphere {
+    pub fn default() -> Sphere {
+        Sphere {
+            transform: Matrix::identity(),
+            material: material(),
+        }
+    }
+
     pub fn intersect(&self, ray: Ray) -> Result<Vec<Intersection>, ()> {
         // the vector from the sphere's center, to the ray origin
         // remember: the sphere is centered at the world origin
@@ -56,10 +63,10 @@ impl Sphere {
     }
 }
 
-pub fn sphere() -> Sphere {
+pub fn sphere(transform: Matrix, material: Material) -> Sphere {
     Sphere {
-        transform: Matrix::identity(),
-        material: material(),
+        transform,
+        material,
     }
 }
 
@@ -73,7 +80,7 @@ mod tests {
     #[test]
     fn ray_intersects_sphere_at_two_points() {
         let r = ray(point(0.0, 0.0, -5.0), vector(0.0, 0.0, 1.0));
-        let s = sphere();
+        let s = Sphere::default();
 
         let xs = s.intersect(r).unwrap();
         assert!(xs.len() == 2);
@@ -84,7 +91,7 @@ mod tests {
     #[test]
     fn ray_intersects_sphere_at_tangent() {
         let r = ray(point(0.0, 1.0, -5.0), vector(0.0, 0.0, 1.0));
-        let s = sphere();
+        let s = Sphere::default();
 
         let xs = s.intersect(r).unwrap();
         assert!(xs.len() == 2);
@@ -95,7 +102,7 @@ mod tests {
     #[test]
     fn ray_misses_sphere() {
         let r = ray(point(0.0, 2.0, -5.0), vector(0.0, 0.0, 1.0));
-        let s = sphere();
+        let s = Sphere::default();
 
         let xs = s.intersect(r).unwrap();
         assert!(xs.len() == 0);
@@ -104,7 +111,7 @@ mod tests {
     #[test]
     fn ray_originates_inside_sphere() {
         let r = ray(point(0.0, 0.0, 0.0), vector(0.0, 0.0, 1.0));
-        let s = sphere();
+        let s = Sphere::default();
 
         let xs = s.intersect(r).unwrap();
 
@@ -116,7 +123,7 @@ mod tests {
     #[test]
     fn sphere_is_behind_ray() {
         let r = ray(point(0.0, 0.0, 5.0), vector(0.0, 0.0, 1.0));
-        let s = sphere();
+        let s = Sphere::default();
 
         let xs = s.intersect(r).unwrap();
         assert!(xs.len() == 2);
@@ -127,7 +134,7 @@ mod tests {
     #[test]
     fn intsersect_sets_the_object_on_the_intersection() {
         let r = ray(point(0.0, 0.0, -0.5), vector(0.0, 0.0, 1.0));
-        let s = sphere();
+        let s = Sphere::default();
 
         let xs = s.intersect(r).unwrap();
         assert!(xs.len() == 2);
@@ -137,13 +144,13 @@ mod tests {
 
     #[test]
     fn sphere_default_transformation() {
-        let s = sphere();
+        let s = Sphere::default();
         assert!(s.transform == Matrix::identity());
     }
 
     #[test]
     fn changing_sphere_transformation() {
-        let mut s = sphere();
+        let mut s = Sphere::default();
         let t = translate(2.0, 3.0, 4.0);
 
         s.transform = t;
@@ -154,7 +161,7 @@ mod tests {
     #[test]
     fn intersect_scaled_sphere_with_ray() {
         let r = ray(point(0.0, 0.0, -5.0), vector(0.0, 0.0, 1.0));
-        let mut s = sphere();
+        let mut s = Sphere::default();
 
         s.transform = scale(2.0, 2.0, 2.0);
         let xs = s.intersect(r).unwrap();
@@ -167,7 +174,7 @@ mod tests {
     #[test]
     fn intersect_translated_sphere_with_ray() {
         let r = ray(point(0.0, 0.0, -5.0), vector(0.0, 0.0, 1.0));
-        let mut s = sphere();
+        let mut s = Sphere::default();
 
         s.transform = translate(5.0, 0.0, 0.0);
         let xs = s.intersect(r).unwrap();
@@ -177,7 +184,7 @@ mod tests {
 
     #[test]
     fn normal_on_sphere_at_point_on_x_axis() {
-        let s = sphere();
+        let s = Sphere::default();
 
         let n = s.normal_at(point(1, 0, 0));
 
@@ -186,7 +193,7 @@ mod tests {
 
     #[test]
     fn normal_on_sphere_at_point_on_y_axis() {
-        let s = sphere();
+        let s = Sphere::default();
 
         let n = s.normal_at(point(0, 1, 0));
 
@@ -195,7 +202,7 @@ mod tests {
 
     #[test]
     fn normal_on_sphere_at_point_on_z_axis() {
-        let s = sphere();
+        let s = Sphere::default();
 
         let n = s.normal_at(point(0, 0, 1));
 
@@ -204,7 +211,7 @@ mod tests {
 
     #[test]
     fn normal_on_sphere_at_a_nonaxial_point() {
-        let s = sphere();
+        let s = Sphere::default();
 
         let root_3 = f64::sqrt(3.0);
         let n = s.normal_at(point(root_3 / 3.0, root_3 / 3.0, root_3 / 3.0));
@@ -214,7 +221,7 @@ mod tests {
 
     #[test]
     fn normal_is_normalised_vector() {
-        let s = sphere();
+        let s = Sphere::default();
         let root_3 = f64::sqrt(3.0);
         let n = s.normal_at(point(root_3 / 3.0, root_3 / 3.0, root_3 / 3.0));
 
@@ -223,7 +230,7 @@ mod tests {
 
     #[test]
     fn compute_normal_on_translated_sphere() {
-        let mut s = sphere();
+        let mut s = Sphere::default();
         s.transform = translate(0, 1, 0);
 
         let n = s.normal_at(point(0, 1.70711, -0.70711));
@@ -232,7 +239,7 @@ mod tests {
 
     #[test]
     fn compute_normal_on_transformed_sphere() {
-        let mut s = sphere();
+        let mut s = Sphere::default();
         let m = scale(1, 0.5, 1) * rotate_z(PI / 5.0);
         s.transform = m;
 
@@ -243,13 +250,13 @@ mod tests {
 
     #[test]
     fn sphere_has_default_material() {
-        let s = sphere();
+        let s = Sphere::default();
         assert!(s.material == material());
     }
 
     #[test]
     fn sphere_may_be_assigned_material() {
-        let mut s = sphere();
+        let mut s = Sphere::default();
         let mut m = material();
         m.set_ambient(1);
         s.set_material(m);

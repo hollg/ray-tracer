@@ -1,7 +1,7 @@
 use crate::canvas::{canvas, Canvas};
 use crate::matrix::Matrix;
 use crate::ray::{ray, Ray};
-use crate::tuple::{point, vector};
+use crate::tuple::point;
 use crate::world::World;
 
 pub struct Camera {

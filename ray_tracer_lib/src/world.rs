@@ -4,7 +4,7 @@ use crate::intersection::{ComputedIntersection, Intersection};
 use crate::light::{point_light, PointLight};
 use crate::material::material;
 use crate::ray::Ray;
-use crate::sphere::{sphere, Sphere};
+use crate::sphere::Sphere;
 use crate::transformations::scale;
 use crate::tuple::point;
 
@@ -15,10 +15,10 @@ pub struct World {
 
 impl World {
     pub fn default() -> World {
-        let mut inner_sphere = sphere();
+        let mut inner_sphere = Sphere::default();
         inner_sphere.transform = scale(0.5, 0.5, 0.5);
 
-        let mut outer_sphere = sphere();
+        let mut outer_sphere = Sphere::default();
         let mut m = material();
         m.set_color(color(0.8, 1.0, 0.6));
         m.diffuse = 0.7;
@@ -90,10 +90,10 @@ mod tests {
     fn default_world() {
         let w = World::default();
 
-        let mut inner_sphere = sphere();
+        let mut inner_sphere = Sphere::default();
         inner_sphere.transform = scale(0.5, 0.5, 0.5);
 
-        let mut outer_sphere = sphere();
+        let mut outer_sphere = Sphere::default();
         let mut m = material();
         m.set_color(color(0.8, 1.0, 0.6));
         m.diffuse = 0.7;
@@ -166,10 +166,10 @@ mod tests {
     #[test]
     fn the_color_with_an_intersection_behind_the_ray() {
         let mut w = World::default();
-        
+
         let mut outer = w.objects.remove(0);
         let mut inner = w.objects.remove(0);
-        
+
         outer.material.ambient = 1.0;
         inner.material.ambient = 1.0;
 
