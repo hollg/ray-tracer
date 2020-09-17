@@ -11,7 +11,7 @@ pub struct Material {
 }
 
 impl Material {
-    fn default() -> Material {
+    pub fn default() -> Material {
         Material {
             color: color(1, 1, 1),
             ambient: 0.1,
@@ -76,8 +76,20 @@ impl Material {
     }
 }
 
-pub fn material() -> Material {
-    Material::default()
+pub fn material(
+    color: Color,
+    ambient: f64,
+    diffuse: f64,
+    specular: f64,
+    shininess: f64,
+) -> Material {
+    Material {
+        ambient,
+        color,
+        diffuse,
+        specular,
+        shininess,
+    }
 }
 
 #[cfg(test)]
@@ -88,7 +100,7 @@ mod tests {
 
     #[test]
     fn default_material() {
-        let m = material();
+        let m = Material::default();
         assert!(m.color == color(1, 1, 1));
         assert!(m.ambient == 0.1);
         assert!(m.diffuse == 0.9);
@@ -98,7 +110,7 @@ mod tests {
 
     #[test]
     fn lighting_with_eye_between_light_and_surface() {
-        let m = material();
+        let m = Material::default();
         let p = point(0, 0, 0);
 
         let eye_v = vector(0, 0, -1);
@@ -111,7 +123,7 @@ mod tests {
 
     #[test]
     fn lighting_with_eye_between_light_and_surface_eye_offset_45_degs() {
-        let m = material();
+        let m = Material::default();
         let p = point(0, 0, 0);
 
         let root_2 = f64::sqrt(2.0);
@@ -125,7 +137,7 @@ mod tests {
 
     #[test]
     fn lighting_with_eye_between_light_and_surface_light_offset_45_degs() {
-        let m = material();
+        let m = Material::default();
         let p = point(0, 0, 0);
 
         let eye_v = vector(0, 0, -1);
@@ -138,7 +150,7 @@ mod tests {
 
     #[test]
     fn lighting_with_eye_in_reflection_vector() {
-        let m = material();
+        let m = Material::default();
         let p = point(0, 0, 0);
 
         let root_2 = f64::sqrt(2.0);
@@ -152,7 +164,7 @@ mod tests {
 
     #[test]
     fn lighting_with_light_behind_surface() {
-        let m = material();
+        let m = Material::default();
         let p = point(0, 0, 0);
 
         let eye_v = vector(0, 0, -1);

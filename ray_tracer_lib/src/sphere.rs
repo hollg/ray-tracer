@@ -1,5 +1,5 @@
 use crate::intersection::*;
-use crate::material::{material, Material};
+use crate::material::Material;
 use crate::matrix::*;
 use crate::ray::*;
 use crate::tuple::*;
@@ -13,7 +13,7 @@ impl Sphere {
     pub fn default() -> Sphere {
         Sphere {
             transform: Matrix::identity(),
-            material: material(),
+            material: Material::default(),
         }
     }
 
@@ -251,13 +251,13 @@ mod tests {
     #[test]
     fn sphere_has_default_material() {
         let s = Sphere::default();
-        assert!(s.material == material());
+        assert!(s.material == Material::default());
     }
 
     #[test]
     fn sphere_may_be_assigned_material() {
         let mut s = Sphere::default();
-        let mut m = material();
+        let mut m = Material::default();
         m.set_ambient(1);
         s.set_material(m);
 

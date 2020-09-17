@@ -94,6 +94,7 @@ mod tests {
     use super::*;
     use crate::consts::EPSILON;
     use crate::transformations::{rotate_y, translate, view_transform};
+    use crate::tuple::vector;
     use std::f64::consts::PI;
 
     use crate::color::color;

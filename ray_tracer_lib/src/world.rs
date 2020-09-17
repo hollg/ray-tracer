@@ -2,7 +2,7 @@ use crate::color::{color, Color};
 use crate::intersection::Hit;
 use crate::intersection::{ComputedIntersection, Intersection};
 use crate::light::{point_light, PointLight};
-use crate::material::material;
+use crate::material::Material;
 use crate::ray::Ray;
 use crate::sphere::Sphere;
 use crate::transformations::scale;
@@ -19,7 +19,7 @@ impl World {
         inner_sphere.transform = scale(0.5, 0.5, 0.5);
 
         let mut outer_sphere = Sphere::default();
-        let mut m = material();
+        let mut m = Material::default();
         m.set_color(color(0.8, 1.0, 0.6));
         m.diffuse = 0.7;
         m.specular = 0.2;
@@ -94,7 +94,7 @@ mod tests {
         inner_sphere.transform = scale(0.5, 0.5, 0.5);
 
         let mut outer_sphere = Sphere::default();
-        let mut m = material();
+        let mut m = Material::default();
         m.set_color(color(0.8, 1.0, 0.6));
         m.diffuse = 0.7;
         m.specular = 0.2;
