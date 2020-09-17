@@ -17,7 +17,6 @@ impl Canvas {
         }
     }
 
-
     pub fn size(&self) -> usize {
         self.width * self.height
     }
@@ -82,6 +81,10 @@ impl IndexMut<usize> for Canvas {
     fn index_mut(&mut self, i: usize) -> &mut Color {
         &mut self.pixels[i]
     }
+}
+
+pub fn canvas(width: usize, height: usize) -> Canvas {
+    Canvas::new(width, height)
 }
 
 #[cfg(test)]
