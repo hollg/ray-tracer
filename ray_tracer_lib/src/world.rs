@@ -9,8 +9,8 @@ use crate::transformations::scale;
 use crate::tuple::point;
 
 pub struct World {
-    objects: Vec<Sphere>,
-    light_source: Option<PointLight>,
+    pub objects: Vec<Sphere>,
+    pub light_source: Option<PointLight>,
 }
 
 impl World {
