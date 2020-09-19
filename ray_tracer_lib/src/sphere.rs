@@ -25,10 +25,10 @@ impl Sphere {
         match matrix {
             Ok(matrix) => {
                 let ray2 = ray.transform(matrix);
-                let sphere_to_ray = ray2.origin() - point(0.0, 0.0, 0.0);
+                let sphere_to_ray = ray2.origin - point(0.0, 0.0, 0.0);
 
-                let a = ray2.direction().dot(ray2.direction());
-                let b = 2.0 * ray2.direction().dot(sphere_to_ray);
+                let a = ray2.direction.dot(ray2.direction);
+                let b = 2.0 * ray2.direction.dot(sphere_to_ray);
                 let c = sphere_to_ray.dot(sphere_to_ray) - 1.0;
 
                 let discriminant = b.powi(2) - 4.0 * a * c;
@@ -138,8 +138,8 @@ mod tests {
 
         let xs = s.intersect(r).unwrap();
         assert!(xs.len() == 2);
-        assert!(xs[0].object() == &s);
-        assert!(xs[1].object() == &s);
+        assert!(xs[0].object == &s);
+        assert!(xs[1].object == &s);
     }
 
     #[test]
@@ -258,8 +258,8 @@ mod tests {
     fn sphere_may_be_assigned_material() {
         let mut s = Sphere::default();
         let mut m = Material::default();
-        m.set_ambient(1);
-        s.set_material(m);
+        m.ambient = 1.0;
+        s.material = m;
 
         assert!(s.material.ambient == 1.0);
     }

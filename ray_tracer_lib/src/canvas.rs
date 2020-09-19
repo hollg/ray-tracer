@@ -17,10 +17,6 @@ impl Canvas {
         }
     }
 
-    pub fn size(&self) -> usize {
-        self.width * self.height
-    }
-
     pub fn get_pixel(&self, x: usize, y: usize) -> &Color {
         &self[self.width * y + x]
     }
@@ -58,9 +54,7 @@ impl Canvas {
                     write!(line, " ").unwrap();
                 }
             }
-            // if y <= self.height - 1 {
             writeln!(line).unwrap();
-            // }
             write!(buf, "{}", line).unwrap();
         }
         println!("finished writing");

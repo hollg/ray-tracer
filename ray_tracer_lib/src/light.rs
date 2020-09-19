@@ -6,10 +6,12 @@ pub struct PointLight {
     pub position: Tuple,
 }
 
-pub fn point_light(position: Tuple, intensity: Color) -> PointLight {
-    PointLight {
-        position,
-        intensity,
+impl PointLight {
+    pub fn new(position: Tuple, intensity: Color) -> PointLight {
+        PointLight {
+            position,
+            intensity,
+        }
     }
 }
 
@@ -21,7 +23,7 @@ mod tests {
         let intensity = color(1, 1, 1);
         let position = point(0, 0, 0);
 
-        let light = point_light(position, intensity);
+        let light = PointLight::new(position, intensity);
 
         assert!(light.position == position);
         assert!(light.intensity == intensity);

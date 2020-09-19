@@ -4,19 +4,11 @@ use crate::tuple::Tuple;
 
 #[derive(PartialEq, Copy, Clone, Debug)]
 pub struct Intersection<'a> {
-    t: f64,
-    object: &'a Sphere,
+    pub t: f64,
+    pub object: &'a Sphere,
 }
 
 impl<'a> Intersection<'a> {
-    pub fn t(&self) -> f64 {
-        self.t
-    }
-
-    pub fn object(&self) -> &Sphere {
-        self.object
-    }
-
     pub fn prepare(&self, r: Ray) -> ComputedIntersection {
         let mut comps = ComputedIntersection {
             object: &self.object,
@@ -24,13 +16,13 @@ impl<'a> Intersection<'a> {
             point: r.position(self.t),
             eye_v: -r.direction,
             normal_v: self.object.normal_at(r.position(self.t)),
-            is_inside: false
+            is_inside: false,
         };
 
         if comps.normal_v.dot(comps.eye_v) < 0.0 {
             comps.is_inside = true;
             comps.normal_v = -comps.normal_v;
-        } 
+        }
 
         comps
     }
@@ -60,7 +52,7 @@ pub struct ComputedIntersection<'a> {
     pub eye_v: Tuple,
     pub normal_v: Tuple,
     pub t: f64,
-    pub is_inside: bool
+    pub is_inside: bool,
 }
 #[cfg(test)]
 mod tests {

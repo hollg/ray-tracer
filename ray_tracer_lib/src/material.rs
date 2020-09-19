@@ -11,34 +11,24 @@ pub struct Material {
 }
 
 impl Material {
-    pub fn default() -> Material {
+    pub fn new(
+        color: Color,
+        ambient: f64,
+        diffuse: f64,
+        specular: f64,
+        shininess: f64,
+    ) -> Material {
         Material {
-            color: color(1, 1, 1),
-            ambient: 0.1,
-            diffuse: 0.9,
-            specular: 0.9,
-            shininess: 200.0,
+            color,
+            ambient,
+            diffuse,
+            specular,
+            shininess,
         }
     }
 
-    pub fn set_color(&mut self, c: Color) {
-        self.color = c;
-    }
-
-    pub fn set_ambient<T: Into<f64>>(&mut self, a: T) {
-        self.ambient = a.into();
-    }
-
-    pub fn set_diffuse<T: Into<f64>>(&mut self, d: T) {
-        self.diffuse = d.into();
-    }
-
-    pub fn set_specular<T: Into<f64>>(&mut self, s: T) {
-        self.specular = s.into();
-    }
-
-    pub fn set_shininess<T: Into<f64>>(&mut self, s: T) {
-        self.shininess = s.into();
+    pub fn default() -> Material {
+        Material::new(color(1, 1, 1), 0.1, 0.9, 0.9, 200.0)
     }
 
     pub fn lighting(
@@ -115,7 +105,7 @@ mod tests {
 
         let eye_v = vector(0, 0, -1);
         let normal_v = vector(0, 0, -1);
-        let light = point_light(point(0, 0, -10), color(1, 1, 1));
+        let light = PointLight::new(point(0, 0, -10), color(1, 1, 1));
 
         let result = m.lighting(light, p, eye_v, normal_v);
         assert!(result == color(1.9, 1.9, 1.9));
@@ -129,7 +119,7 @@ mod tests {
         let root_2 = f64::sqrt(2.0);
         let eye_v = vector(0, root_2 / 2.0, root_2 / 2.0);
         let normal_v = vector(0, 0, -1);
-        let light = point_light(point(0, 0, -10), color(1, 1, 1));
+        let light = PointLight::new(point(0, 0, -10), color(1, 1, 1));
 
         let result = m.lighting(light, p, eye_v, normal_v);
         assert!(result == color(1, 1, 1));
@@ -142,7 +132,7 @@ mod tests {
 
         let eye_v = vector(0, 0, -1);
         let normal_v = vector(0, 0, -1);
-        let light = point_light(point(0, 10, -10), color(1, 1, 1));
+        let light = PointLight::new(point(0, 10, -10), color(1, 1, 1));
 
         let result = m.lighting(light, p, eye_v, normal_v);
         assert!(result == color(0.7364, 0.7364, 0.7364));
@@ -156,7 +146,7 @@ mod tests {
         let root_2 = f64::sqrt(2.0);
         let eye_v = vector(0, -root_2 / 2.0, -root_2 / 2.0);
         let normal_v = vector(0, 0, -1);
-        let light = point_light(point(0, 10, -10), color(1, 1, 1));
+        let light = PointLight::new(point(0, 10, -10), color(1, 1, 1));
 
         let result = m.lighting(light, p, eye_v, normal_v);
         assert!(result == color(1.6364, 1.6364, 1.6364));
@@ -169,7 +159,7 @@ mod tests {
 
         let eye_v = vector(0, 0, -1);
         let normal_v = vector(0, 0, -1);
-        let light = point_light(point(0, 0, 10), color(1, 1, 1));
+        let light = PointLight::new(point(0, 0, 10), color(1, 1, 1));
 
         let result = m.lighting(light, p, eye_v, normal_v);
         assert!(result == color(0.1, 0.1, 0.1));

@@ -1,7 +1,7 @@
 use crate::color::{color, Color};
 use crate::intersection::Hit;
 use crate::intersection::{ComputedIntersection, Intersection};
-use crate::light::{point_light, PointLight};
+use crate::light::PointLight;
 use crate::material::Material;
 use crate::ray::Ray;
 use crate::sphere::Sphere;
@@ -14,40 +14,28 @@ pub struct World {
 }
 
 impl World {
+    pub fn new<T: Into<Option<PointLight>>>(objects: Vec<Sphere>, light_source: T) -> World {
+        World {
+            objects,
+            light_source: light_source.into(),
+        }
+    }
+
     pub fn default() -> World {
         let mut inner_sphere = Sphere::default();
         inner_sphere.transform = scale(0.5, 0.5, 0.5);
 
         let mut outer_sphere = Sphere::default();
         let mut m = Material::default();
-        m.set_color(color(0.8, 1.0, 0.6));
+        m.color = color(0.8, 1.0, 0.6);
         m.diffuse = 0.7;
         m.specular = 0.2;
         outer_sphere.material = m;
 
         World {
-            light_source: Some(point_light(point(-10, 10, -10), color(1, 1, 1))),
+            light_source: Some(PointLight::new(point(-10, 10, -10), color(1, 1, 1))),
             objects: vec![outer_sphere, inner_sphere],
         }
-    }
-
-    fn intersect(&self, r: Ray) -> Vec<Intersection> {
-        let mut xs: Vec<Intersection> = vec![];
-        for obj in self.objects.iter() {
-            xs.append(&mut obj.intersect(r).unwrap());
-        }
-
-        xs.sort_by(|a, b| a.t().partial_cmp(&b.t()).unwrap());
-        xs
-    }
-
-    fn shade_hit(&self, comps: ComputedIntersection) -> Color {
-        comps.object.material.lighting(
-            self.light_source.unwrap(),
-            comps.point,
-            comps.eye_v,
-            comps.normal_v,
-        )
     }
 
     pub fn color_at(&self, r: Ray) -> Color {
@@ -62,6 +50,25 @@ impl World {
             }
             None => color(0, 0, 0),
         }
+    }
+
+    fn intersect(&self, r: Ray) -> Vec<Intersection> {
+        let mut xs: Vec<Intersection> = vec![];
+        for obj in self.objects.iter() {
+            xs.append(&mut obj.intersect(r).unwrap());
+        }
+
+        xs.sort_by(|a, b| a.t.partial_cmp(&b.t).unwrap());
+        xs
+    }
+
+    fn shade_hit(&self, comps: ComputedIntersection) -> Color {
+        comps.object.material.lighting(
+            self.light_source.unwrap(),
+            comps.point,
+            comps.eye_v,
+            comps.normal_v,
+        )
     }
 }
 
@@ -95,7 +102,7 @@ mod tests {
 
         let mut outer_sphere = Sphere::default();
         let mut m = Material::default();
-        m.set_color(color(0.8, 1.0, 0.6));
+        m.color = color(0.8, 1.0, 0.6);
         m.diffuse = 0.7;
         m.specular = 0.2;
         outer_sphere.material = m;

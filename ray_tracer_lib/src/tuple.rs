@@ -18,22 +18,6 @@ impl Tuple {
         Tuple { x, y, z, w: 0.0 }
     }
 
-    pub fn x(&self) -> f64 {
-        self.x
-    }
-
-    pub fn y(&self) -> f64 {
-        self.y
-    }
-
-    pub fn z(&self) -> f64 {
-        self.z
-    }
-
-    pub fn w(&self) -> f64 {
-        self.w
-    }
-
     pub fn is_point(&self) -> bool {
         (self.w - 1.0).abs() < EPSILON
     }

@@ -7,7 +7,7 @@ pub struct Matrix {
 }
 
 impl Matrix {
-    fn build(size: usize, v: [f64; 4 * 4]) -> Matrix {
+    pub fn build(size: usize, v: [f64; 4 * 4]) -> Matrix {
         let mut values = [[0.0; 4]; 4];
         for r in 0..size {
             for c in 0..size {
@@ -16,6 +16,7 @@ impl Matrix {
         }
         Matrix { size, values }
     }
+
     pub fn identity() -> Matrix {
         Matrix::from([
             [1.0, 0.0, 0.0, 0.0],
@@ -23,9 +24,6 @@ impl Matrix {
             [0.0, 0.0, 1.0, 0.0],
             [0.0, 0.0, 0.0, 1.0],
         ])
-    }
-    pub fn at(&self, y: usize, x: usize) -> f64 {
-        self.values[y][x]
     }
 
     pub fn transpose(&self) -> Matrix {
@@ -43,7 +41,30 @@ impl Matrix {
         }
     }
 
-    pub fn determinant(&self) -> f64 {
+    pub fn inverse(&self) -> Result<Matrix, ()> {
+        if !self.is_invertible() {
+            return Err(());
+        }
+        let determinant = self.determinant();
+        let mut values = [[0.0; 4]; 4];
+
+        for r in 0..self.size {
+            for (c, row) in values.iter_mut().enumerate().take(self.size) {
+                row[r] = self.cofactor(r, c) / determinant;
+            }
+        }
+
+        Ok(Matrix {
+            size: self.size,
+            values,
+        })
+    }
+
+    fn at(&self, y: usize, x: usize) -> f64 {
+        self.values[y][x]
+    }
+
+    fn determinant(&self) -> f64 {
         match self.size {
             2 => self[0][0] * self[1][1] - self[0][1] * self[1][0],
             _ => (0..self.size).fold(0.0, |result, num| {
@@ -52,7 +73,7 @@ impl Matrix {
         }
     }
 
-    pub fn submatrix(&self, row_num: usize, column_num: usize) -> Matrix {
+    fn submatrix(&self, row_num: usize, column_num: usize) -> Matrix {
         let mut values = [[0.0; 4]; 4];
         let size = self.size - 1;
 
@@ -76,11 +97,11 @@ impl Matrix {
         Matrix { size, values }
     }
 
-    pub fn minor(&self, r: usize, c: usize) -> f64 {
+    fn minor(&self, r: usize, c: usize) -> f64 {
         self.submatrix(r, c).determinant()
     }
 
-    pub fn cofactor(&self, r: usize, c: usize) -> f64 {
+    fn cofactor(&self, r: usize, c: usize) -> f64 {
         let minor = self.minor(r, c);
 
         match (r + c) % 2 {
@@ -89,27 +110,8 @@ impl Matrix {
         }
     }
 
-    pub fn is_invertible(&self) -> bool {
+    fn is_invertible(&self) -> bool {
         self.determinant() != 0.0
-    }
-
-    pub fn inverse(&self) -> Result<Matrix, ()> {
-        if !self.is_invertible() {
-            return Err(());
-        }
-        let determinant = self.determinant();
-        let mut values = [[0.0; 4]; 4];
-
-        for r in 0..self.size {
-            for (c, row) in values.iter_mut().enumerate().take(self.size) {
-                row[r] = self.cofactor(r, c) / determinant;
-            }
-        }
-
-        Ok(Matrix {
-            size: self.size,
-            values,
-        })
     }
 }
 

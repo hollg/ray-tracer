@@ -48,7 +48,7 @@ impl Camera {
         }
     }
 
-    pub fn ray_for_pixel<A: Into<f64>, B: Into<f64>>(&self, px: A, py: B) -> Ray {
+    fn ray_for_pixel<A: Into<f64>, B: Into<f64>>(&self, px: A, py: B) -> Ray {
         let pixel_x = px.into();
         let pixel_y = py.into();
         // the offset from the edge of the canvas to the pixel's center
