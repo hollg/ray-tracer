@@ -33,7 +33,7 @@ impl Material {
 
     pub fn lighting(
         &self,
-        light: PointLight,
+        light: &PointLight,
         point: Tuple,
         eye_v: Tuple,
         normal_v: Tuple,
@@ -85,7 +85,7 @@ pub fn material(
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::light::point_light;
+    use crate::light::PointLight;
     use crate::tuple::{point, vector};
 
     #[test]
@@ -107,7 +107,7 @@ mod tests {
         let normal_v = vector(0, 0, -1);
         let light = PointLight::new(point(0, 0, -10), color(1, 1, 1));
 
-        let result = m.lighting(light, p, eye_v, normal_v);
+        let result = m.lighting(&light, p, eye_v, normal_v);
         assert!(result == color(1.9, 1.9, 1.9));
     }
 
@@ -121,7 +121,7 @@ mod tests {
         let normal_v = vector(0, 0, -1);
         let light = PointLight::new(point(0, 0, -10), color(1, 1, 1));
 
-        let result = m.lighting(light, p, eye_v, normal_v);
+        let result = m.lighting(&light, p, eye_v, normal_v);
         assert!(result == color(1, 1, 1));
     }
 
@@ -134,7 +134,7 @@ mod tests {
         let normal_v = vector(0, 0, -1);
         let light = PointLight::new(point(0, 10, -10), color(1, 1, 1));
 
-        let result = m.lighting(light, p, eye_v, normal_v);
+        let result = m.lighting(&light, p, eye_v, normal_v);
         assert!(result == color(0.7364, 0.7364, 0.7364));
     }
 
@@ -148,7 +148,7 @@ mod tests {
         let normal_v = vector(0, 0, -1);
         let light = PointLight::new(point(0, 10, -10), color(1, 1, 1));
 
-        let result = m.lighting(light, p, eye_v, normal_v);
+        let result = m.lighting(&light, p, eye_v, normal_v);
         assert!(result == color(1.6364, 1.6364, 1.6364));
     }
 
@@ -161,7 +161,7 @@ mod tests {
         let normal_v = vector(0, 0, -1);
         let light = PointLight::new(point(0, 0, 10), color(1, 1, 1));
 
-        let result = m.lighting(light, p, eye_v, normal_v);
+        let result = m.lighting(&light, p, eye_v, normal_v);
         assert!(result == color(0.1, 0.1, 0.1));
     }
 }

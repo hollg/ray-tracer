@@ -10,14 +10,14 @@ use crate::tuple::point;
 
 pub struct World {
     pub objects: Vec<Sphere>,
-    pub light_source: Option<PointLight>,
+    pub light_sources: Vec<PointLight>,
 }
 
 impl World {
-    pub fn new<T: Into<Option<PointLight>>>(objects: Vec<Sphere>, light_source: T) -> World {
+    pub fn new(objects: Vec<Sphere>, light_sources: Vec<PointLight>) -> World {
         World {
             objects,
-            light_source: light_source.into(),
+            light_sources,
         }
     }
 
@@ -33,7 +33,7 @@ impl World {
         outer_sphere.material = m;
 
         World {
-            light_source: Some(PointLight::new(point(-10, 10, -10), color(1, 1, 1))),
+            light_sources: vec![PointLight::new(point(-10, 10, -10), color(1, 1, 1))],
             objects: vec![outer_sphere, inner_sphere],
         }
     }
@@ -63,19 +63,24 @@ impl World {
     }
 
     fn shade_hit(&self, comps: ComputedIntersection) -> Color {
-        comps.object.material.lighting(
-            self.light_source.unwrap(),
-            comps.point,
-            comps.eye_v,
-            comps.normal_v,
-        )
+        self.light_sources
+            .iter()
+            .fold(color(0, 0, 0), |color, light_source| {
+                color
+                    + comps.object.material.lighting(
+                        light_source,
+                        comps.point,
+                        comps.eye_v,
+                        comps.normal_v,
+                    )
+            })
     }
 }
 
 pub fn world() -> World {
     World {
         objects: vec![],
-        light_source: None,
+        light_sources: vec![],
     }
 }
 
@@ -89,7 +94,7 @@ mod tests {
     fn create_world() {
         let w = world();
 
-        assert!(w.light_source.is_none());
+        assert!(w.light_sources.is_empty());
         assert!(w.objects.len() == 0);
     }
 
@@ -107,7 +112,7 @@ mod tests {
         m.specular = 0.2;
         outer_sphere.material = m;
 
-        assert!(w.light_source.unwrap() == (point_light(point(-10, 10, -10), color(1, 1, 1))));
+        assert!(w.light_sources[0] == PointLight::new(point(-10, 10, -10), color(1, 1, 1)));
         assert!(w.objects.len() == 2);
         assert!(w.objects[0] == outer_sphere);
         assert!(w.objects[1] == inner_sphere);
@@ -121,10 +126,10 @@ mod tests {
         let xs = w.intersect(r);
 
         assert!(xs.len() == 4);
-        assert!(xs[0].t() == 4.0);
-        assert!(xs[1].t() == 4.5);
-        assert!(xs[2].t() == 5.5);
-        assert!(xs[3].t() == 6.0);
+        assert!(xs[0].t == 4.0);
+        assert!(xs[1].t == 4.5);
+        assert!(xs[2].t == 5.5);
+        assert!(xs[3].t == 6.0);
     }
 
     #[test]
@@ -142,7 +147,7 @@ mod tests {
     #[test]
     fn shading_an_intersection_from_the_inside() {
         let mut w = World::default();
-        w.light_source = Some(point_light(point(0, 0.25, 0), color(1, 1, 1)));
+        w.light_sources = vec![PointLight::new(point(0, 0.25, 0), color(1, 1, 1))];
         let r = ray(point(0, 0, 0), vector(0, 0, 1));
         let shape = &w.objects[1];
 

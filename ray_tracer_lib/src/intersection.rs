@@ -136,7 +136,7 @@ mod tests {
         let i = intersection(4, &s);
         let comps = i.prepare(r);
 
-        assert!(comps.t == i.t());
+        assert!(comps.t == i.t);
         assert!(comps.object == i.object);
         assert!(comps.point == point(0, 0, -1));
         assert!(comps.eye_v == vector(0, 0, -1));

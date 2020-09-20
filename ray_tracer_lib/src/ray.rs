@@ -60,8 +60,8 @@ mod tests {
 
         let r2 = r.transform(m);
 
-        assert!(r2.origin() == point(4.0, 6.0, 8.0));
-        assert!(r2.direction() == vector(0.0, 1.0, 0.0));
+        assert!(r2.origin == point(4.0, 6.0, 8.0));
+        assert!(r2.direction == vector(0.0, 1.0, 0.0));
     }
 
     #[test]
@@ -71,7 +71,7 @@ mod tests {
 
         let r2 = r.transform(m);
 
-        assert!(r2.origin() == point(2.0, 6.0, 12.0));
-        assert!(r2.direction() == vector(0.0, 3.0, 0.0));
+        assert!(r2.origin == point(2.0, 6.0, 12.0));
+        assert!(r2.direction == vector(0.0, 3.0, 0.0));
     }
 }

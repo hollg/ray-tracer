@@ -167,8 +167,8 @@ mod tests {
         let xs = s.intersect(r).unwrap();
 
         assert!(xs.len() == 2);
-        assert!(xs[0].t() == 3.0);
-        assert!(xs[1].t() == 7.0);
+        assert!(xs[0].t == 3.0);
+        assert!(xs[1].t == 7.0);
     }
 
     #[test]
