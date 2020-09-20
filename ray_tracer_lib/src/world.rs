@@ -6,7 +6,7 @@ use crate::material::Material;
 use crate::ray::Ray;
 use crate::sphere::Sphere;
 use crate::transformations::scale;
-use crate::tuple::point;
+use crate::tuple::{point, Tuple};
 
 pub struct World {
     pub objects: Vec<Sphere>,
@@ -69,11 +69,28 @@ impl World {
                 color
                     + comps.object.material.lighting(
                         light_source,
-                        comps.point,
+                        comps.over_point,
                         comps.eye_v,
                         comps.normal_v,
+                        self.is_shadowed(comps.over_point, light_source),
                     )
             })
+    }
+
+    fn is_shadowed(&self, point: Tuple, light_source: &PointLight) -> bool {
+        let v = light_source.position - point;
+        let distance = v.magnitude();
+        let direction = v.normalize();
+        let r = Ray::new(point, direction);
+
+        let mut intersections = self.intersect(r);
+
+        let h = intersections.hit();
+
+        match h {
+            Some(hit) => hit.t < distance,
+            _ => false,
+        }
     }
 }
 
@@ -89,6 +106,7 @@ mod tests {
     use super::*;
     use crate::intersection::intersection;
     use crate::ray::ray;
+    use crate::transformations::translate;
     use crate::tuple::vector;
     #[test]
     fn create_world() {
@@ -188,8 +206,55 @@ mod tests {
         w.objects = vec![outer, inner];
         let r = ray(point(0, 0, 0.75), vector(0, 0, -1));
         let c = w.color_at(r);
-        dbg!(c);
-        dbg!(inner.material.color);
         assert!(c == inner.material.color);
+    }
+
+    #[test]
+    fn no_shadow_when_nothing_is_colinear_with_point_and_light() {
+        let w = World::default();
+        let p = point(0, 10, 0);
+
+        assert!(w.is_shadowed(p, &w.light_sources[0]) == false);
+    }
+
+    #[test]
+    fn shadow_when_object_is_between_point_and_light() {
+        let w = World::default();
+        let p = point(10, -10, 10);
+
+        assert!(w.is_shadowed(p, &w.light_sources[0]) == true);
+    }
+
+    #[test]
+    fn no_shadow_when_object_is_behind_light() {
+        let w = World::default();
+        let p = point(-20, 20, -20);
+
+        assert!(w.is_shadowed(p, &w.light_sources[0]) == false);
+    }
+
+    #[test]
+    fn no_shadow_when_object_is_behind_point() {
+        let w = World::default();
+        let p = point(-2, 2, -2);
+
+        assert!(w.is_shadowed(p, &w.light_sources[0]) == false);
+    }
+
+    #[test]
+    fn shade_hit_given_an_intersection_in_shadow() {
+        let s1 = Sphere::default();
+        let mut s2 = Sphere::default();
+        s2.transform = translate(0, 0, 10);
+        let w = World::new(
+            vec![s1, s2],
+            vec![PointLight::new(point(0, 0, -10), color(1, 1, 1))],
+        );
+        let r = ray(point(0, 0, 5), vector(0, 0, 1));
+        let i = intersection(4, &s2);
+
+        let comps = i.prepare(r);
+
+        assert!(w.shade_hit(comps) == color(0.1, 0.1, 0.1));
     }
 }

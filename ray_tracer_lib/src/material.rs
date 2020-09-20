@@ -31,12 +31,14 @@ impl Material {
         Material::new(color(1, 1, 1), 0.1, 0.9, 0.9, 200.0)
     }
 
+    // TODO: don't calculate specular and diffuse if in shadow
     pub fn lighting(
         &self,
         light: &PointLight,
         point: Tuple,
         eye_v: Tuple,
         normal_v: Tuple,
+        in_shadow: bool,
     ) -> Color {
         let effective_color = self.color * light.intensity;
         let light_v = (light.position - point).normalize();
@@ -62,7 +64,12 @@ impl Material {
                 specular = light.intensity * self.specular * factor;
             }
         }
-        ambient + diffuse + specular
+
+        if in_shadow {
+            ambient
+        } else {
+            ambient + diffuse + specular
+        }
     }
 }
 
@@ -107,7 +114,7 @@ mod tests {
         let normal_v = vector(0, 0, -1);
         let light = PointLight::new(point(0, 0, -10), color(1, 1, 1));
 
-        let result = m.lighting(&light, p, eye_v, normal_v);
+        let result = m.lighting(&light, p, eye_v, normal_v, false);
         assert!(result == color(1.9, 1.9, 1.9));
     }
 
@@ -121,7 +128,7 @@ mod tests {
         let normal_v = vector(0, 0, -1);
         let light = PointLight::new(point(0, 0, -10), color(1, 1, 1));
 
-        let result = m.lighting(&light, p, eye_v, normal_v);
+        let result = m.lighting(&light, p, eye_v, normal_v, false);
         assert!(result == color(1, 1, 1));
     }
 
@@ -134,7 +141,7 @@ mod tests {
         let normal_v = vector(0, 0, -1);
         let light = PointLight::new(point(0, 10, -10), color(1, 1, 1));
 
-        let result = m.lighting(&light, p, eye_v, normal_v);
+        let result = m.lighting(&light, p, eye_v, normal_v, false);
         assert!(result == color(0.7364, 0.7364, 0.7364));
     }
 
@@ -148,7 +155,7 @@ mod tests {
         let normal_v = vector(0, 0, -1);
         let light = PointLight::new(point(0, 10, -10), color(1, 1, 1));
 
-        let result = m.lighting(&light, p, eye_v, normal_v);
+        let result = m.lighting(&light, p, eye_v, normal_v, false);
         assert!(result == color(1.6364, 1.6364, 1.6364));
     }
 
@@ -161,7 +168,21 @@ mod tests {
         let normal_v = vector(0, 0, -1);
         let light = PointLight::new(point(0, 0, 10), color(1, 1, 1));
 
-        let result = m.lighting(&light, p, eye_v, normal_v);
+        let result = m.lighting(&light, p, eye_v, normal_v, false);
+        assert!(result == color(0.1, 0.1, 0.1));
+    }
+
+    #[test]
+    fn lighting_with_surface_in_shadow() {
+        let m = Material::default();
+        let p = point(0, 0, 0);
+        let eye_v = vector(0, 0, -1);
+        let normal_v = vector(0, 0, -1);
+        let light = PointLight::new(point(0, 0, -10), color(1, 1, 1));
+        let in_shadow = true;
+
+        let result = m.lighting(&light, p, eye_v, normal_v, in_shadow);
+
         assert!(result == color(0.1, 0.1, 0.1));
     }
 }

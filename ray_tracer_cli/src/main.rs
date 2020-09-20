@@ -46,7 +46,10 @@ fn main() -> std::io::Result<()> {
     left.material = left_material;
 
     let mut world = World::default();
-    world.light_source = Some(PointLight::new(point(-10, 10, -10), color(1, 1, 1)));
+    world.light_sources = vec![
+        PointLight::new(point(-10, 10, -10), color(1, 1, 1)),
+        PointLight::new(point(30, 0, -10), color(1, 0, 0)),
+    ];
     world.objects = vec![left, right, middle, floor, left_wall, right_wall];
     let c = camera(
         500,

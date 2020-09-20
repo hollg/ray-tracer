@@ -1,7 +1,8 @@
 use crate::ray::Ray;
 use crate::sphere::*;
-use crate::tuple::Tuple;
+use crate::tuple::{point, Tuple};
 
+use crate::consts::EPSILON;
 #[derive(PartialEq, Copy, Clone, Debug)]
 pub struct Intersection<'a> {
     pub t: f64,
@@ -17,12 +18,15 @@ impl<'a> Intersection<'a> {
             eye_v: -r.direction,
             normal_v: self.object.normal_at(r.position(self.t)),
             is_inside: false,
+            over_point: point(0, 0, 0), // TODO: avoid this temp value
         };
 
         if comps.normal_v.dot(comps.eye_v) < 0.0 {
             comps.is_inside = true;
             comps.normal_v = -comps.normal_v;
         }
+
+        comps.over_point = comps.point + comps.normal_v * EPSILON;
 
         comps
     }
@@ -53,11 +57,13 @@ pub struct ComputedIntersection<'a> {
     pub normal_v: Tuple,
     pub t: f64,
     pub is_inside: bool,
+    pub over_point: Tuple,
 }
 #[cfg(test)]
 mod tests {
     use super::*;
     use crate::ray::ray;
+    use crate::transformations::translate;
     use crate::tuple::{point, vector};
     #[test]
     fn an_intersection_encapsulates_t_and_object() {
@@ -163,5 +169,18 @@ mod tests {
         assert!(comps.eye_v == vector(0, 0, -1));
         assert!(comps.normal_v == vector(0, 0, -1));
         assert!(comps.is_inside);
+    }
+
+    #[test]
+    fn the_hit_should_offset_the_point() {
+        let r = ray(point(0, 0, -5), vector(0, 0, 1));
+        let mut s = Sphere::default();
+        s.transform = translate(0, 0, 1);
+
+        let i = intersection(5, &s);
+        let comps = i.prepare(r);
+
+        assert!(comps.over_point.z < -EPSILON / 2.0);
+        assert!(comps.point.z > comps.over_point.z);
     }
 }
