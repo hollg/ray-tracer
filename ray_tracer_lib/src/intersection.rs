@@ -1,15 +1,20 @@
-use crate::ray::Ray;
-use crate::sphere::*;
-use crate::tuple::{point, Tuple};
-
 use crate::consts::EPSILON;
-#[derive(PartialEq, Copy, Clone, Debug)]
-pub struct Intersection<'a> {
+use crate::object::Object;
+use crate::ray::Ray;
+use crate::tuple::{point, Tuple};
+// #[derive(PartialEq)]
+pub struct Intersection {
     pub t: f64,
-    pub object: &'a Sphere,
+    pub object: Box<dyn Object>,
 }
 
-impl<'a> Intersection<'a> {
+// impl PartialEq for Intersection {
+//     fn eq(&self, other: &Self) -> bool {
+//         f64::abs(self.t - other.t) < EPSILON && *self.object == *other.object
+//     }
+// }
+
+impl Intersection {
     pub fn prepare(&self, r: Ray) -> ComputedIntersection {
         let mut comps = ComputedIntersection {
             object: &self.object,
@@ -32,7 +37,7 @@ impl<'a> Intersection<'a> {
     }
 }
 
-pub fn intersection<A: Into<f64>>(t: A, object: &Sphere) -> Intersection {
+pub fn intersection<A: Into<f64>>(t: A, object: Box<dyn Object>) -> Intersection {
     Intersection {
         t: t.into(),
         object,
@@ -43,7 +48,7 @@ pub trait Hit {
     fn hit(&mut self) -> Option<&Intersection>;
 }
 
-impl<'a> Hit for Vec<Intersection<'a>> {
+impl Hit for Vec<Intersection> {
     fn hit(&mut self) -> Option<&Intersection> {
         self.sort_by(|a, b| a.t.partial_cmp(&b.t).unwrap());
         self.iter().find(|i| i.t >= 0.0)
@@ -51,7 +56,7 @@ impl<'a> Hit for Vec<Intersection<'a>> {
 }
 
 pub struct ComputedIntersection<'a> {
-    pub object: &'a Sphere,
+    pub object: &'a Box<dyn Object>,
     pub point: Tuple,
     pub eye_v: Tuple,
     pub normal_v: Tuple,

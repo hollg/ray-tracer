@@ -3,18 +3,18 @@ use crate::intersection::Hit;
 use crate::intersection::{ComputedIntersection, Intersection};
 use crate::light::PointLight;
 use crate::material::Material;
+use crate::object::Object;
 use crate::ray::Ray;
 use crate::sphere::Sphere;
 use crate::transformations::scale;
 use crate::tuple::{point, Tuple};
-
 pub struct World {
-    pub objects: Vec<Sphere>,
+    pub objects: Vec<Box<dyn Object>>,
     pub light_sources: Vec<PointLight>,
 }
 
 impl World {
-    pub fn new(objects: Vec<Sphere>, light_sources: Vec<PointLight>) -> World {
+    pub fn new(objects: Vec<Box<dyn Object>>, light_sources: Vec<PointLight>) -> World {
         World {
             objects,
             light_sources,
@@ -34,7 +34,7 @@ impl World {
 
         World {
             light_sources: vec![PointLight::new(point(-10, 10, -10), color(1, 1, 1))],
-            objects: vec![outer_sphere, inner_sphere],
+            objects: vec![Box::new(outer_sphere), Box::new(inner_sphere)],
         }
     }
 
@@ -67,7 +67,7 @@ impl World {
             .iter()
             .fold(color(0, 0, 0), |color, light_source| {
                 color
-                    + comps.object.material.lighting(
+                    + comps.object.material().lighting(
                         light_source,
                         comps.over_point,
                         comps.eye_v,

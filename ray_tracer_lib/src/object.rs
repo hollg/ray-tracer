@@ -9,3 +9,4 @@ pub trait Object {
     fn transform(&self) -> Matrix;
     fn material(&self) -> Material;
 }
+

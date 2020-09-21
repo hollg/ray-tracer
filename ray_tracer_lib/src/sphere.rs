@@ -1,6 +1,7 @@
 use crate::intersection::*;
 use crate::material::Material;
 use crate::matrix::*;
+use crate::object::Object;
 use crate::ray::*;
 use crate::tuple::*;
 #[derive(Copy, Clone, PartialEq, Debug)]
@@ -16,8 +17,18 @@ impl Sphere {
             material: Material::default(),
         }
     }
+}
 
-    pub fn intersect(&self, ray: Ray) -> Result<Vec<Intersection>, ()> {
+impl Object for Sphere {
+    fn material(&self) -> Material {
+        self.material
+    }
+
+    fn transform(&self) -> Matrix {
+        self.transform
+    }
+
+    fn intersect(&self, ray: Ray) -> Result<Vec<Intersection>, ()> {
         // the vector from the sphere's center, to the ray origin
         // remember: the sphere is centered at the world origin
         let matrix = self.transform.inverse();
@@ -36,8 +47,10 @@ impl Sphere {
                 if discriminant < 0.0 {
                     Ok(vec![])
                 } else {
-                    let t1 = intersection((-b - (discriminant).sqrt()) / (2.0 * a), self);
-                    let t2 = intersection((-b + (discriminant).sqrt()) / (2.0 * a), self);
+                    let t1 =
+                        intersection((-b - (discriminant).sqrt()) / (2.0 * a), Box::new(*self));
+                    let t2 =
+                        intersection((-b + (discriminant).sqrt()) / (2.0 * a), Box::new(*self));
                     Ok(vec![t1, t2])
                 }
             }
@@ -45,7 +58,7 @@ impl Sphere {
         }
     }
 
-    pub fn normal_at(&self, p: Tuple) -> Tuple {
+    fn normal_at(&self, p: Tuple) -> Tuple {
         let object_point = self.transform.inverse().unwrap() * p;
         let object_normal = object_point - point(0, 0, 0);
         let world_normal_t = self.transform.inverse().unwrap().transpose() * object_normal;
@@ -56,10 +69,6 @@ impl Sphere {
             w: 0.0,
         };
         world_normal.normalize()
-    }
-
-    pub fn set_material(&mut self, m: Material) {
-        self.material = m;
     }
 }
 
