@@ -2,7 +2,7 @@ use crate::consts::EPSILON;
 use crate::object::Object;
 use crate::ray::Ray;
 use crate::tuple::{point, Tuple};
-// #[derive(PartialEq)]
+#[derive(Clone)]
 pub struct Intersection {
     pub t: f64,
     pub object: Box<dyn Object>,
