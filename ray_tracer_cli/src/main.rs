@@ -4,22 +4,8 @@ use std::fs::File;
 use std::io::prelude::*;
 
 fn main() -> std::io::Result<()> {
-    let mut floor = Sphere::default();
-    floor.transform = scale(10, 0.01, 10);
-    let mut floor_material = Material::default();
-    floor_material.color = color(1, 0.9, 0.9);
-    floor_material.specular = 0.0;
-    floor.material = floor_material;
-
-    let mut left_wall = Sphere::default();
-    left_wall.transform =
-        translate(0, 0, 5) * rotate_y(-PI / 4.0) * rotate_x(PI / 2.0) * scale(10, 0.01, 10.0);
-    left_wall.material = floor_material;
-
-    let mut right_wall = Sphere::default();
-    right_wall.transform =
-        translate(0, 0, 5) * rotate_y(PI / 4.0) * rotate_x(PI / 2.0) * scale(10, 0.01, 10);
-    right_wall.material = floor_material;
+    
+    let floor = Plane::default();
 
     let mut middle = Sphere::default();
     middle.transform = translate(-0.5, 1, 0.5);
@@ -53,9 +39,7 @@ fn main() -> std::io::Result<()> {
         Box::new(left),
         Box::new(right),
         Box::new(middle),
-        Box::new(floor),
-        Box::new(left_wall),
-        Box::new(right_wall),
+        Box::new(floor)
     ];
     let c = camera(
         500,
