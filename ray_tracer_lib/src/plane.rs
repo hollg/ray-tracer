@@ -8,8 +8,8 @@ use crate::tuple::{vector, Tuple};
 
 #[derive(Copy, Clone, PartialEq)]
 pub struct Plane {
-    material: Material,
-    transform: Matrix,
+    pub material: Material,
+    pub transform: Matrix,
 }
 
 impl Plane {

@@ -5,6 +5,7 @@ use crate::consts::EPSILON;
 pub struct Color(pub f64, pub f64, pub f64);
 
 pub const BLACK: Color = Color(0.0, 0.0, 0.0);
+pub const WHITE: Color = Color(1.0, 1.0, 1.0);
 
 pub fn color<A: Into<f64>, B: Into<f64>, C: Into<f64>>(r: A, g: B, b: C) -> Color {
     Color(r.into(), g.into(), b.into())
