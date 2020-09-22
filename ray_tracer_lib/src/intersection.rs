@@ -17,7 +17,7 @@ impl PartialEq for Intersection {
 impl Intersection {
     pub fn prepare(&self, r: Ray) -> ComputedIntersection {
         let mut comps = ComputedIntersection {
-            object: &self.object,
+            object: self.object.as_ref(),
             t: self.t,
             point: r.position(self.t),
             eye_v: -r.direction,
@@ -61,7 +61,7 @@ impl Hit for Vec<&Intersection> {
 }
 
 pub struct ComputedIntersection<'a> {
-    pub object: &'a Box<dyn Object>,
+    pub object: &'a dyn Object,
     pub point: Tuple,
     pub eye_v: Tuple,
     pub normal_v: Tuple,

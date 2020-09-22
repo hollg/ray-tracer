@@ -16,7 +16,7 @@ impl Plane {
     pub fn default() -> Plane {
         Plane {
             material: Material::default(),
-            transform: Matrix::identity()
+            transform: Matrix::identity(),
         }
     }
 }
@@ -49,7 +49,7 @@ impl Object for Plane {
         }
 
         let t = -ray2.origin.y / ray2.direction.y;
-        return Ok(vec![intersection(t, Box::new(*self))]);
+        Ok(vec![intersection(t, Box::new(*self))])
     }
 }
 #[cfg(test)]
