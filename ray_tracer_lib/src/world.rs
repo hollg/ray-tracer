@@ -39,9 +39,9 @@ impl World {
     }
 
     pub fn color_at(&self, r: Ray) -> Color {
-        let mut intersections = self.intersect(r);
-
-        let hit_option = intersections.hit();
+        let intersections = self.intersect(r);
+        let mut xs: Vec<&Intersection> = intersections.iter().map(|i| i).collect();
+        let hit_option = xs.hit();
 
         match hit_option {
             Some(hit) => {
@@ -83,9 +83,9 @@ impl World {
         let direction = v.normalize();
         let r = Ray::new(point, direction);
 
-        let mut intersections = self.intersect(r);
-
-        let h = intersections.hit();
+        let intersections = self.intersect(r);
+        let mut xs: Vec<&Intersection> = intersections.iter().map(|i| i).collect();
+        let h = xs.hit();
 
         match h {
             Some(hit) => hit.t < distance,
@@ -132,8 +132,8 @@ mod tests {
 
         assert!(w.light_sources[0] == PointLight::new(point(-10, 10, -10), color(1, 1, 1)));
         assert!(w.objects.len() == 2);
-        assert!(w.objects[0] == outer_sphere);
-        assert!(w.objects[1] == inner_sphere);
+        assert!(w.objects[0].material() == outer_sphere.material);
+        assert!(w.objects[1].material() == inner_sphere.material);
     }
 
     #[test]
@@ -154,7 +154,7 @@ mod tests {
     fn shading_an_intersection() {
         let w = World::default();
         let r = ray(point(0, 0, -5), vector(0, 0, 1));
-        let shape = &w.objects[0];
+        let shape = w.objects[0].clone();
 
         let i = intersection(4, shape);
         let comps = i.prepare(r);
@@ -167,7 +167,7 @@ mod tests {
         let mut w = World::default();
         w.light_sources = vec![PointLight::new(point(0, 0.25, 0), color(1, 1, 1))];
         let r = ray(point(0, 0, 0), vector(0, 0, 1));
-        let shape = &w.objects[1];
+        let shape = w.objects[1].clone();
 
         let i = intersection(0.5, shape);
         let comps = i.prepare(r);
@@ -200,13 +200,13 @@ mod tests {
         let mut outer = w.objects.remove(0);
         let mut inner = w.objects.remove(0);
 
-        outer.material.ambient = 1.0;
-        inner.material.ambient = 1.0;
+        outer.material_mut().ambient = 1.0;
+        inner.material_mut().ambient = 1.0;
 
         w.objects = vec![outer, inner];
         let r = ray(point(0, 0, 0.75), vector(0, 0, -1));
         let c = w.color_at(r);
-        assert!(c == inner.material.color);
+        assert!(c == w.objects[1].material().color);
     }
 
     #[test]
@@ -247,11 +247,11 @@ mod tests {
         let mut s2 = Sphere::default();
         s2.transform = translate(0, 0, 10);
         let w = World::new(
-            vec![s1, s2],
+            vec![Box::new(s1), Box::new(s2)],
             vec![PointLight::new(point(0, 0, -10), color(1, 1, 1))],
         );
         let r = ray(point(0, 0, 5), vector(0, 0, 1));
-        let i = intersection(4, &s2);
+        let i = intersection(4, Box::new(s2));
 
         let comps = i.prepare(r);
 

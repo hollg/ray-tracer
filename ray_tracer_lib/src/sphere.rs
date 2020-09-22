@@ -23,9 +23,16 @@ impl Object for Sphere {
     fn material(&self) -> Material {
         self.material
     }
+    fn material_mut(&mut self) -> &mut Material {
+        &mut self.material
+    }
 
     fn transform(&self) -> Matrix {
         self.transform
+    }
+
+    fn transform_mut(&mut self) -> &mut Matrix {
+        &mut self.transform
     }
 
     fn intersect(&self, ray: Ray) -> Result<Vec<Intersection>, ()> {
@@ -93,8 +100,8 @@ mod tests {
 
         let xs = s.intersect(r).unwrap();
         assert!(xs.len() == 2);
-        assert!(xs[0] == intersection(4.0, &s));
-        assert!(xs[1] == intersection(6.0, &s));
+        assert!(xs[0] == intersection(4.0, Box::new(s)));
+        assert!(xs[1] == intersection(6.0, Box::new(s)));
     }
 
     #[test]
@@ -104,8 +111,8 @@ mod tests {
 
         let xs = s.intersect(r).unwrap();
         assert!(xs.len() == 2);
-        assert!(xs[0] == intersection(5.0, &s));
-        assert!(xs[1] == intersection(5.0, &s));
+        assert!(xs[0] == intersection(5.0, Box::new(s)));
+        assert!(xs[1] == intersection(5.0, Box::new(s)));
     }
 
     #[test]
@@ -125,8 +132,8 @@ mod tests {
         let xs = s.intersect(r).unwrap();
 
         assert!(xs.len() == 2);
-        assert!(xs[0] == intersection(-1.0, &s));
-        assert!(xs[1] == intersection(1.0, &s));
+        assert!(xs[0] == intersection(-1.0, Box::new(s)));
+        assert!(xs[1] == intersection(1.0, Box::new(s)));
     }
 
     #[test]
@@ -136,8 +143,8 @@ mod tests {
 
         let xs = s.intersect(r).unwrap();
         assert!(xs.len() == 2);
-        assert!(xs[0] == intersection(-6.0, &s));
-        assert!(xs[1] == intersection(-4.0, &s));
+        assert!(xs[0] == intersection(-6.0, Box::new(s)));
+        assert!(xs[1] == intersection(-4.0, Box::new(s)));
     }
 
     #[test]
@@ -147,8 +154,10 @@ mod tests {
 
         let xs = s.intersect(r).unwrap();
         assert!(xs.len() == 2);
-        assert!(xs[0].object == &s);
-        assert!(xs[1].object == &s);
+        assert!(xs[0].object.material() == s.material);
+        assert!(xs[0].object.transform() == s.transform);
+        assert!(xs[1].object.material() == s.material);
+        assert!(xs[1].object.transform() == s.transform);
     }
 
     #[test]
