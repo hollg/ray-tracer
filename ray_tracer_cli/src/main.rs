@@ -5,7 +5,8 @@ use std::io::prelude::*;
 
 fn main() -> std::io::Result<()> {
     
-    let floor = Plane::default();
+    let mut floor = Plane::default();
+    floor.material_mut().pattern = Some(stripe_pattern(BLACK, WHITE));
     
     let mut middle = Sphere::default();
     middle.transform = translate(-0.5, 1, 0.5);

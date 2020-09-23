@@ -14,7 +14,9 @@ mod sphere;
 mod transformations;
 mod tuple;
 mod world;
+mod pattern;
 
+pub use pattern::*;
 pub use camera::*;
 pub use color::*;
 pub use light::*;

@@ -4,7 +4,7 @@ use crate::matrix::*;
 use crate::object::Object;
 use crate::ray::*;
 use crate::tuple::*;
-#[derive(Copy, Clone, PartialEq, Debug)]
+#[derive(PartialEq)]
 pub struct Sphere {
     pub transform: Matrix,
     pub material: Material,
@@ -20,8 +20,8 @@ impl Sphere {
 }
 
 impl Object for Sphere {
-    fn material(&self) -> Material {
-        self.material
+    fn material(&self) -> &Material {
+        &self.material
     }
     fn material_mut(&mut self) -> &mut Material {
         &mut self.material
@@ -55,9 +55,9 @@ impl Object for Sphere {
                     Ok(vec![])
                 } else {
                     let t1 =
-                        intersection((-b - (discriminant).sqrt()) / (2.0 * a), Box::new(*self));
+                        intersection((-b - (discriminant).sqrt()) / (2.0 * a), self);
                     let t2 =
-                        intersection((-b + (discriminant).sqrt()) / (2.0 * a), Box::new(*self));
+                        intersection((-b + (discriminant).sqrt()) / (2.0 * a), self);
                     Ok(vec![t1, t2])
                 }
             }
@@ -100,8 +100,8 @@ mod tests {
 
         let xs = s.intersect(r).unwrap();
         assert!(xs.len() == 2);
-        assert!(xs[0] == intersection(4.0, Box::new(s)));
-        assert!(xs[1] == intersection(6.0, Box::new(s)));
+        assert!(xs[0] == intersection(4.0, &s));
+        assert!(xs[1] == intersection(6.0, &s));
     }
 
     #[test]
@@ -111,8 +111,8 @@ mod tests {
 
         let xs = s.intersect(r).unwrap();
         assert!(xs.len() == 2);
-        assert!(xs[0] == intersection(5.0, Box::new(s)));
-        assert!(xs[1] == intersection(5.0, Box::new(s)));
+        assert!(xs[0] == intersection(5.0, &s));
+        assert!(xs[1] == intersection(5.0, &s));
     }
 
     #[test]
@@ -132,8 +132,8 @@ mod tests {
         let xs = s.intersect(r).unwrap();
 
         assert!(xs.len() == 2);
-        assert!(xs[0] == intersection(-1.0, Box::new(s)));
-        assert!(xs[1] == intersection(1.0, Box::new(s)));
+        assert!(xs[0] == intersection(-1.0, &s));
+        assert!(xs[1] == intersection(1.0, &s));
     }
 
     #[test]
@@ -143,8 +143,8 @@ mod tests {
 
         let xs = s.intersect(r).unwrap();
         assert!(xs.len() == 2);
-        assert!(xs[0] == intersection(-6.0, Box::new(s)));
-        assert!(xs[1] == intersection(-4.0, Box::new(s)));
+        assert!(xs[0] == intersection(-6.0, &s));
+        assert!(xs[1] == intersection(-4.0, &s));
     }
 
     #[test]
@@ -154,9 +154,9 @@ mod tests {
 
         let xs = s.intersect(r).unwrap();
         assert!(xs.len() == 2);
-        assert!(xs[0].object.material() == s.material);
+        assert!(xs[0].object.material() == &s.material);
         assert!(xs[0].object.transform() == s.transform);
-        assert!(xs[1].object.material() == s.material);
+        assert!(xs[1].object.material() == &s.material);
         assert!(xs[1].object.transform() == s.transform);
     }
 

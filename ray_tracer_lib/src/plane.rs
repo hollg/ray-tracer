@@ -6,7 +6,7 @@ use crate::object::Object;
 use crate::ray::Ray;
 use crate::tuple::{vector, Tuple};
 
-#[derive(Copy, Clone, PartialEq)]
+#[derive(PartialEq)]
 pub struct Plane {
     pub material: Material,
     pub transform: Matrix,
@@ -34,8 +34,8 @@ impl Object for Plane {
         &mut self.transform
     }
 
-    fn material(&self) -> Material {
-        self.material
+    fn material(&self) -> &Material {
+        &self.material
     }
 
     fn material_mut(&mut self) -> &mut Material {
@@ -49,7 +49,7 @@ impl Object for Plane {
         }
 
         let t = -ray2.origin.y / ray2.direction.y;
-        Ok(vec![intersection(t, Box::new(*self))])
+        Ok(vec![intersection(t, self)])
     }
 }
 #[cfg(test)]

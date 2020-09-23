@@ -1,22 +1,26 @@
 use crate::color::{color, Color};
+use crate::consts::EPSILON;
 use crate::light::PointLight;
+use crate::pattern::Pattern;
 use crate::tuple::Tuple;
-#[derive(PartialEq, Copy, Clone, Debug)]
+
 pub struct Material {
     pub color: Color,
     pub ambient: f64,
     pub diffuse: f64,
     pub specular: f64,
     pub shininess: f64,
+    pub pattern: Option<Pattern>,
 }
 
 impl Material {
-    pub fn new(
+    pub fn new<T: Into<Option<Pattern>>>(
         color: Color,
         ambient: f64,
         diffuse: f64,
         specular: f64,
         shininess: f64,
+        pattern: T,
     ) -> Material {
         Material {
             color,
@@ -24,11 +28,12 @@ impl Material {
             diffuse,
             specular,
             shininess,
+            pattern: pattern.into(),
         }
     }
 
     pub fn default() -> Material {
-        Material::new(color(1, 1, 1), 0.1, 0.9, 0.9, 200.0)
+        Material::new(color(1, 1, 1), 0.1, 0.9, 0.9, 200.0, None)
     }
 
     // TODO: don't calculate specular and diffuse if in shadow
@@ -40,7 +45,12 @@ impl Material {
         normal_v: Tuple,
         in_shadow: bool,
     ) -> Color {
-        let effective_color = self.color * light.intensity;
+        let start_color = match &self.pattern {
+            Some(pattern) => pattern.kind.color_at(point),
+            None => self.color,
+        };
+
+        let effective_color = start_color * light.intensity;
         let light_v = (light.position - point).normalize();
         let ambient = effective_color * self.ambient;
         let light_dot_normal = light_v.dot(normal_v);
@@ -73,26 +83,36 @@ impl Material {
     }
 }
 
-pub fn material(
+pub fn material<T: Into<Option<Pattern>>>(
     color: Color,
     ambient: f64,
     diffuse: f64,
     specular: f64,
     shininess: f64,
+    pattern: T,
 ) -> Material {
-    Material {
-        ambient,
-        color,
-        diffuse,
-        specular,
-        shininess,
-    }
+    Material::new(color, ambient, diffuse, specular, shininess, pattern)
 }
 
+impl PartialEq for Material {
+    fn eq(&self, other: &Self) -> bool {
+        self.color == other.color
+            && f64::abs(self.ambient - other.ambient) < EPSILON
+            && f64::abs(self.diffuse - other.diffuse) < EPSILON
+            && f64::abs(self.specular - other.specular) < EPSILON
+            && f64::abs(self.shininess - other.shininess) < EPSILON
+            && match (&self.pattern, &other.pattern) {
+                (None, None) => true,
+                (Some(a), Some(b)) => a == b,
+                _ => false,
+            }
+    }
+}
 #[cfg(test)]
 mod tests {
     use super::*;
     use crate::light::PointLight;
+    use crate::pattern::stripe_pattern;
     use crate::tuple::{point, vector};
 
     #[test]
@@ -184,5 +204,24 @@ mod tests {
         let result = m.lighting(&light, p, eye_v, normal_v, in_shadow);
 
         assert!(result == color(0.1, 0.1, 0.1));
+    }
+
+    #[test]
+    fn lighting_with_pattern_applied() {
+        let mut m = Material::default();
+        m.pattern = Some(stripe_pattern(color(1, 1, 1), color(0, 0, 0)));
+        m.ambient = 1.0;
+        m.diffuse = 0.0;
+        m.specular = 0.0;
+
+        let eye_v = vector(0, 0, -1);
+        let normal_v = vector(0, 0, -1);
+
+        let light = PointLight::new(point(0, 0, -10), color(1, 1, 1));
+        let c1 = m.lighting(&light, point(0.9, 0, 0), eye_v, normal_v, false);
+        let c2 = m.lighting(&light, point(1.1, 0, 0), eye_v, normal_v, false);
+
+        assert!(c1 == color(1, 1, 1));
+        assert!(c2 == color(0, 0, 0));
     }
 }

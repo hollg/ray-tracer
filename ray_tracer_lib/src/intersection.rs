@@ -2,22 +2,22 @@ use crate::consts::EPSILON;
 use crate::object::Object;
 use crate::ray::Ray;
 use crate::tuple::{point, Tuple};
-#[derive(Clone)]
-pub struct Intersection {
+// #[derive(Clone)]
+pub struct Intersection<'a> {
     pub t: f64,
-    pub object: Box<dyn Object>,
+    pub object: &'a dyn Object,
 }
 
-impl PartialEq for Intersection {
+impl<'a> PartialEq for Intersection<'a> {
     fn eq(&self, other: &Self) -> bool {
         f64::abs(self.t - other.t) < EPSILON && self.object.material() == other.object.material()
     }
 }
 
-impl Intersection {
+impl<'a> Intersection<'a> {
     pub fn prepare(&self, r: Ray) -> ComputedIntersection {
         let mut comps = ComputedIntersection {
-            object: self.object.as_ref(),
+            object: self.object,
             t: self.t,
             point: r.position(self.t),
             eye_v: -r.direction,
@@ -37,10 +37,10 @@ impl Intersection {
     }
 }
 
-pub fn intersection<A: Into<f64>>(t: A, object: Box<dyn Object>) -> Intersection {
+pub fn intersection<A: Into<f64>>(t: A, object: & dyn Object) -> Intersection {
     Intersection {
         t: t.into(),
-        object,
+        object:  object,
     }
 }
 
@@ -48,7 +48,7 @@ pub trait Hit {
     fn hit(&mut self) -> Option<&Intersection>;
 }
 
-impl Hit for Vec<&Intersection> {
+impl<'a> Hit for Vec<&Intersection<'a>> {
     fn hit(&mut self) -> Option<&Intersection> {
         self.sort_by(|a, b| a.t.partial_cmp(&b.t).unwrap());
         let result = self.iter().find(|i| i.t >= 0.0);
@@ -80,9 +80,9 @@ mod tests {
     fn an_intersection_encapsulates_t_and_object() {
         let s = Sphere::default();
 
-        let i = intersection(3.5, Box::new(s));
+        let i = intersection(3.5, &s);
         assert!(i.t == 3.5);
-        assert!(i.object.material() == s.material);
+        assert!(i.object.material() == &s.material);
         assert!(i.object.transform() == s.transform);
     }
 
@@ -90,8 +90,8 @@ mod tests {
     fn aggregating_intersections() {
         let s = Sphere::default();
 
-        let i1 = intersection(1.0, Box::new(s));
-        let i2 = intersection(2.0, Box::new(s));
+        let i1 = intersection(1.0, &s);
+        let i2 = intersection(2.0, &s);
 
         let xs = vec![&i1, &i2];
 
@@ -103,8 +103,8 @@ mod tests {
     #[test]
     fn the_hit_when_all_intersections_have_positive_t() {
         let s = Sphere::default();
-        let i1 = intersection(1.0, Box::new(s));
-        let i2 = intersection(2.0, Box::new(s));
+        let i1 = intersection(1.0, &s);
+        let i2 = intersection(2.0, &s);
         let mut xs = vec![&i2, &i1];
 
         let i = xs.hit().unwrap();
@@ -114,8 +114,8 @@ mod tests {
     #[test]
     fn the_hit_when_some_intersections_have_negative_t() {
         let s = Sphere::default();
-        let i1 = intersection(-1.0, Box::new(s));
-        let i2 = intersection(1.0, Box::new(s));
+        let i1 = intersection(-1.0, &s);
+        let i2 = intersection(1.0, &s);
         let mut xs = vec![&i2, &i1];
 
         let i = xs.hit().unwrap();
@@ -125,8 +125,8 @@ mod tests {
     #[test]
     fn the_hit_when_all_intersections_have_negative_t() {
         let s = Sphere::default();
-        let i1 = intersection(-2.0, Box::new(s));
-        let i2 = intersection(-1.0, Box::new(s));
+        let i1 = intersection(-2.0, &s);
+        let i2 = intersection(-1.0, &s);
         let mut xs = vec![&i2, &i1];
 
         let i = xs.hit();
@@ -136,10 +136,10 @@ mod tests {
     #[test]
     fn the_hit_is_always_the_lowest_nonnegative_intersection() {
         let s = Sphere::default();
-        let i1 = intersection(5.0, Box::new(s));
-        let i2 = intersection(7.0, Box::new(s));
-        let i3 = intersection(-3.0, Box::new(s));
-        let i4 = intersection(2.0, Box::new(s));
+        let i1 = intersection(5.0, &s);
+        let i2 = intersection(7.0, &s);
+        let i3 = intersection(-3.0, &s);
+        let i4 = intersection(2.0, &s);
         let mut xs = vec![&i1, &i2, &i3, &i4];
 
         let i = xs.hit().unwrap();
@@ -151,7 +151,7 @@ mod tests {
         let r = ray(point(0, 0, -5), vector(0, 0, 1));
         let s = Sphere::default();
 
-        let i = intersection(4, Box::new(s));
+        let i = intersection(4, &s);
         let comps = i.prepare(r);
 
         assert!(comps.t == i.t);
@@ -165,7 +165,7 @@ mod tests {
     fn the_hit_when_intersection_occurs_on_outside() {
         let r = ray(point(0, 0, -5), vector(0, 0, 1));
         let s = Sphere::default();
-        let i = intersection(1, Box::new(s));
+        let i = intersection(1, &s);
         let comps = i.prepare(r);
 
         assert!(!comps.is_inside);
@@ -175,7 +175,7 @@ mod tests {
     fn the_hit_when_intersection_occurs_on_inside() {
         let r = ray(point(0, 0, 0), vector(0, 0, 1));
         let s = Sphere::default();
-        let i = intersection(1, Box::new(s));
+        let i = intersection(1, &s);
         let comps = i.prepare(r);
 
         assert!(comps.point == point(0, 0, 1));
@@ -190,7 +190,7 @@ mod tests {
         let mut s = Sphere::default();
         s.transform = translate(0, 0, 1);
 
-        let i = intersection(5, Box::new(s));
+        let i = intersection(5, &s);
         let comps = i.prepare(r);
 
         assert!(comps.over_point.z < -EPSILON / 2.0);

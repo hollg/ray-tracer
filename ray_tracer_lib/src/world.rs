@@ -132,8 +132,8 @@ mod tests {
 
         assert!(w.light_sources[0] == PointLight::new(point(-10, 10, -10), color(1, 1, 1)));
         assert!(w.objects.len() == 2);
-        assert!(w.objects[0].material() == outer_sphere.material);
-        assert!(w.objects[1].material() == inner_sphere.material);
+        assert!(w.objects[0].material() == &outer_sphere.material);
+        assert!(w.objects[1].material() == &inner_sphere.material);
     }
 
     #[test]
@@ -154,9 +154,9 @@ mod tests {
     fn shading_an_intersection() {
         let w = World::default();
         let r = ray(point(0, 0, -5), vector(0, 0, 1));
-        let shape = w.objects[0].clone();
+        let shape = &w.objects[0];
 
-        let i = intersection(4, shape);
+        let i = intersection(4, shape.as_ref());
         let comps = i.prepare(r);
         let c = w.shade_hit(comps);
         assert!(c == color(0.38066, 0.47583, 0.2855));
@@ -167,9 +167,9 @@ mod tests {
         let mut w = World::default();
         w.light_sources = vec![PointLight::new(point(0, 0.25, 0), color(1, 1, 1))];
         let r = ray(point(0, 0, 0), vector(0, 0, 1));
-        let shape = w.objects[1].clone();
+        let shape = &w.objects[1];
 
-        let i = intersection(0.5, shape);
+        let i = intersection(0.5, shape.as_ref());
         let comps = i.prepare(r);
         let c = w.shade_hit(comps);
         assert!(c == color(0.90498, 0.90498, 0.90498));
@@ -251,7 +251,7 @@ mod tests {
             vec![PointLight::new(point(0, 0, -10), color(1, 1, 1))],
         );
         let r = ray(point(0, 0, 5), vector(0, 0, 1));
-        let i = intersection(4, Box::new(s2));
+        let i = intersection(4, *&w.objects[1].as_ref());
 
         let comps = i.prepare(r);
 
