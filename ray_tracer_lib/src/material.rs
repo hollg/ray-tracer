@@ -81,6 +81,10 @@ impl Material {
             ambient + diffuse + specular
         }
     }
+
+    pub fn pattern(&self) -> &Option<Pattern> {
+        &self.pattern
+    }
 }
 
 pub fn material<T: Into<Option<Pattern>>>(
@@ -209,7 +213,7 @@ mod tests {
     #[test]
     fn lighting_with_pattern_applied() {
         let mut m = Material::default();
-        m.pattern = Some(stripe_pattern(color(1, 1, 1), color(0, 0, 0)));
+        m.pattern = Some(stripe_pattern(color(1, 1, 1), color(0, 0, 0), None));
         m.ambient = 1.0;
         m.diffuse = 0.0;
         m.specular = 0.0;

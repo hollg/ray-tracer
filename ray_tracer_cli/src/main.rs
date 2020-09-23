@@ -4,10 +4,9 @@ use std::fs::File;
 use std::io::prelude::*;
 
 fn main() -> std::io::Result<()> {
-    
     let mut floor = Plane::default();
-    floor.material_mut().pattern = Some(stripe_pattern(BLACK, WHITE));
-    
+    floor.material_mut().pattern = Some(checkers_pattern(color(1, 0, 0), color(0, 1, 1), None));
+
     let mut middle = Sphere::default();
     middle.transform = translate(-0.5, 1, 0.5);
     let mut middle_material = Material::default();
@@ -30,12 +29,15 @@ fn main() -> std::io::Result<()> {
     left_material.color = color(1, 0.8, 0.1);
     left_material.diffuse = 0.7;
     left_material.specular = 0.3;
+    left_material.pattern = Some(gradient_pattern(
+        color(1, 1, 0),
+        color(1, 0, 1),
+        rotate_x(30),
+    ));
     left.material = left_material;
 
     let mut world = World::default();
-    world.light_sources = vec![
-        PointLight::new(point(-10, 10, -10), color(1, 1, 1))
-    ];
+    world.light_sources = vec![PointLight::new(point(-10, 10, -10), color(1, 1, 1))];
     world.objects = vec![
         Box::new(left),
         Box::new(right),
@@ -43,8 +45,8 @@ fn main() -> std::io::Result<()> {
         Box::new(floor),
     ];
     let c = camera(
-        500,
-        250,
+        4000,
+        2000,
         PI / 3.0,
         view_transform(point(0, 1.5, -5), point(0, 1, 0), vector(0, 1, 0)),
     );
