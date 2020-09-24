@@ -12,50 +12,21 @@ fn main() -> std::io::Result<()> {
     floor_material.specular = 0.3;
     floor.material = floor_material;
 
-    let mut middle = Sphere::default();
-    middle.transform = translate(-0.5, 1, 0.5);
-    let mut middle_material = Material::default();
-    middle_material.color = color(0.2, 0, 0);
-    middle_material.diffuse = 0.1;
-    middle_material.ambient = 0.1;
-    middle_material.specular = 0.1;
-    middle_material.reflective = 0.9;
-    middle_material.refractive_index = 1.5;
-    middle_material.transparency = 1.0;
-    middle_material.shininess = 300.0;
-    middle.material = middle_material;
-
-    // let mut right = Sphere::default();
-    // right.transform = translate(1.5, 0.5, 1.5) * scale(0.5, 0.5, 0.5);
-    // let mut right_material = Material::default();
-    // right_material.color = WHITE;
-    // right_material.diffuse = 0.7;
-    // right_material.specular = 0.2;
-    // right_material.reflective = 1.0;
-    // right_material.shininess = 1.0;
-    // right.material = right_material;
-
-    // let mut left = Sphere::default();
-    // left.transform = translate(-1.5, 0.33, -0.75) * scale(0.33, 0.33, 0.33);
-    // let mut left_material = Material::default();
-    // left_material.color = color(1, 0.8, 0.1);
-    // left_material.diffuse = 0.7;
-    // left_material.specular = 0.3;
-    // left_material.reflective = 0.1;
-    // left_material.pattern = Some(gradient_pattern(
-    //     color(1, 1, 0),
-    //     color(1, 0, 1),
-    //     rotate_x(30),
-    // ));
-    // left.material = left_material;
+    let mut sphere = Sphere::default();
+    sphere.transform = translate(-0.5, 1, 0.5);
+    let mut sphere_material = Material::default();
+    sphere_material.color = color(0.2, 0, 0);
+    sphere_material.diffuse = 0.1;
+    sphere_material.ambient = 0.1;
+    sphere_material.specular = 0.1;
+    sphere_material.reflective = 0.9;
+    sphere_material.refractive_index = 1.5;
+    sphere_material.transparency = 1.0;
+    sphere_material.shininess = 300.0;
+    sphere.material = sphere_material;
 
     let world = World::new(
-        vec![
-            // Box::new(left),
-            // Box::new(right),
-            Box::new(middle),
-            Box::new(floor),
-        ],
+        vec![Box::new(sphere), Box::new(floor)],
         vec![PointLight::new(point(-10, 10, -10), color(1, 1, 1))],
     );
 

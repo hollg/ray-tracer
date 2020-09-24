@@ -114,6 +114,27 @@ pub struct ComputedIntersection<'a> {
     pub n1: f64,
     pub n2: f64,
 }
+
+impl<'a> ComputedIntersection<'a> {
+    pub fn schlick(&self) -> f64 {
+        let mut cos = self.eye_v.dot(self.normal_v);
+
+        // total internal reflection can only occur if n1 > n2
+        if self.n1 > self.n2 {
+            let n = self.n1 / self.n2;
+            let sin2_t = n.powf(2.0) * (1.0 - cos.powf(2.0));
+            if sin2_t > 1.0 {
+                return 1.0;
+            } else {
+                let cos_t = f64::sqrt(1.0 - sin2_t);
+                cos = cos_t;
+            }
+        }
+
+        let r0 = ((self.n1 - self.n2) / (self.n1 + self.n2)).powf(2.0);
+        r0 + (1.0 - r0) * (1.0 - cos).powf(5.0)
+    }
+}
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -312,5 +333,41 @@ mod tests {
         let comps = i.prepare(r, &[i.clone()]);
         assert!(comps.under_point.z > EPSILON / 2.0);
         assert!(comps.point.z < comps.under_point.z);
+    }
+
+    #[test]
+    fn schlick_approximation_with_total_internal_reflection() {
+        let shape = glass_sphere();
+        let r = ray(point(0, 0, f64::sqrt(2.0) / 2.0), vector(0, 1, 0));
+        let xs = vec![
+            intersection(-f64::sqrt(2.0) / 2.0, &shape),
+            intersection(f64::sqrt(2.0) / 2.0, &shape),
+        ];
+
+        let comps = xs[1].prepare(r, &xs);
+        let reflectance = comps.schlick();
+        assert!(reflectance == 1.0);
+    }
+
+    #[test]
+    fn schlick_approximation_with_perpendicular_viewing_angle() {
+        let shape = glass_sphere();
+        let r = ray(point(0, 0, 0), vector(0, 1, 0));
+        let xs = vec![intersection(-1.0, &shape), intersection(1, &shape)];
+
+        let comps = xs[0].prepare(r, &xs);
+        let reflectance = comps.schlick();
+        assert!(reflectance == 0.04);
+    }
+
+    #[test]
+    fn schlick_approximation_with_small_angle_and_n2_gt_n1() {
+        let shape = glass_sphere();
+        let r = ray(point(0, 0.99, -2), vector(0, 0, 1));
+        let xs = vec![intersection(1.8589, &shape)];
+        let comps = xs[0].prepare(r, &xs);
+        let reflectance = comps.schlick();
+        dbg!(reflectance);
+        assert!(f64::abs(reflectance - 0.48873) < EPSILON);
     }
 }
