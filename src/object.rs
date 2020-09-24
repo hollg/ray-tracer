@@ -3,6 +3,8 @@ use crate::material::Material;
 use crate::matrix::Matrix;
 use crate::ray::Ray;
 use crate::tuple::Tuple;
+use uuid::Uuid;
+
 pub trait Object {
     fn intersect(&self, ray: Ray) -> Result<Vec<Intersection>, ()>;
     fn normal_at(&self, p: Tuple) -> Tuple;
@@ -10,23 +12,11 @@ pub trait Object {
     fn transform_mut(&mut self) -> &mut Matrix;
     fn material(&self) -> &Material;
     fn material_mut(&mut self) -> &mut Material;
+    fn id(&self) -> Uuid;
 }
 
-// pub trait ObjectClone {
-//     fn clone_box(&self) -> Box<dyn Object>;
-// }
-
-// impl<T> ObjectClone for T
-// where
-//     T: 'static + Object + Clone,
-// {
-//     fn clone_box(&self) -> Box<dyn Object> {
-//         Box::new(self.clone())
-//     }
-// }
-
-// impl Clone for Box<dyn Object> {
-//     fn clone(&self) -> Box<dyn Object> {
-//         self.clone_box()
-//     }
-// }
+impl PartialEq for &dyn Object {
+    fn eq(&self, other: &Self) -> bool {
+        self.id() == other.id()
+    }
+}

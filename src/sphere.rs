@@ -4,10 +4,13 @@ use crate::matrix::*;
 use crate::object::Object;
 use crate::ray::*;
 use crate::tuple::*;
+use uuid::Uuid;
+
 #[derive(PartialEq)]
 pub struct Sphere {
     pub transform: Matrix,
     pub material: Material,
+    id: Uuid,
 }
 
 impl Sphere {
@@ -15,11 +18,16 @@ impl Sphere {
         Sphere {
             transform: Matrix::identity(),
             material: Material::default(),
+            id: Uuid::new_v4(),
         }
     }
 }
 
 impl Object for Sphere {
+    fn id(&self) -> Uuid {
+        self.id
+    }
+
     fn material(&self) -> &Material {
         &self.material
     }
@@ -81,6 +89,7 @@ pub fn sphere(transform: Matrix, material: Material) -> Sphere {
     Sphere {
         transform,
         material,
+        id: Uuid::new_v4()
     }
 }
 

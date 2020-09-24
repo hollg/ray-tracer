@@ -16,56 +16,76 @@ impl<'a> PartialEq for Intersection<'a> {
 
 impl<'a> Intersection<'a> {
     pub fn prepare(&self, r: Ray, xs: &[Intersection]) -> ComputedIntersection {
-        let mut comps = ComputedIntersection {
-            object: self.object,
-            t: self.t,
-            point: r.position(self.t),
-            eye_v: -r.direction,
-            normal_v: self.object.normal_at(r.position(self.t)),
-            is_inside: false,
-            over_point: point(0, 0, 0), // TODO: avoid this temp value
-            reflect_v: vector(0, 0, 0), // TODO: avoid this temp value,
-            n1: 1.0,                    // TODO: avoid this temp value
-            n2: 1.0,                    // TODO: avoid this temp value
-        };
+        let object = self.object;
+        let t = self.t;
+        let point = r.position(t);
+        let eye_v = -r.direction;
+        let mut normal_v = self.object.normal_at(r.position(self.t));
 
-        if comps.normal_v.dot(comps.eye_v) < 0.0 {
-            comps.is_inside = true;
-            comps.normal_v = -comps.normal_v;
+        // let mut comps = ComputedIntersection {
+        //     object: self.object,
+        //     t: self.t,
+        //     point: r.position(self.t),
+        //     eye_v: -r.direction,
+        //     normal_v: self.object.normal_at(r.position(self.t)),
+        //     is_inside: false,
+        //     over_point: point(0, 0, 0), // TODO: avoid this temp value
+        //     reflect_v: vector(0, 0, 0), // TODO: avoid this temp value,
+        //     n1: 1.0,                    // TODO: avoid this temp value
+        //     n2: 1.0,                    // TODO: avoid this temp value
+        // };
+
+        let mut is_inside = false;
+        if normal_v.dot(eye_v) < 0.0 {
+            is_inside = true;
+            normal_v = -normal_v;
         }
 
-        comps.reflect_v = r.direction.reflect(comps.normal_v);
+        let reflect_v = r.direction.reflect(normal_v);
 
-        comps.over_point = comps.point + comps.normal_v * EPSILON;
+        let over_point = point + normal_v * EPSILON;
 
-        let containers: Vec<&dyn Object> = vec![];
+        let mut containers: Vec<&dyn Object> = vec![];
+        let mut n1 = 1.0;
+        let mut n2 = 1.0;
         for x in xs {
             if x == self {
                 if containers.is_empty() {
-                    comps.n1 = 1.0;
+                    n1 = 1.0;
                 } else {
-                    comps.n1 = containers.last().unwrap().material().refractive_index;
+                    n1 = containers.last().unwrap().material().refractive_index;
                     //TODO: remove unwrap
                 }
             }
 
             if containers.contains(&x.object) {
-                containers.remove_item(x.object);
+                containers.retain(|c| *c != x.object);
             } else {
                 containers.push(x.object);
             }
 
             if x == self {
                 if containers.is_empty() {
-                    comps.n2 = 1.0;
+                    n2 = 1.0;
                 } else {
-                    comps.n2 = containers.last().unwrap().material().refractive_index;
+                    n2 = containers.last().unwrap().material().refractive_index;
                     //TODO: remove unwrap
                 }
             }
         }
 
-        comps
+        ComputedIntersection {
+            object,
+            t,
+            point,
+            normal_v,
+            eye_v,
+            is_inside,
+            n1,
+            n2,
+            reflect_v,
+            over_point,
+        }
     }
 }
 
@@ -282,7 +302,8 @@ mod tests {
 
         for (i, intersection) in xs.iter().enumerate() {
             let comps = intersection.prepare(r, &xs);
-            assert!(comps.n1 == expected.get(&i).unwrap())
+            assert!(comps.n1 == expected.get(&i).unwrap().0);
+            assert!(comps.n2 == expected.get(&i).unwrap().1);
         }
     }
 }

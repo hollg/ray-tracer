@@ -5,11 +5,13 @@ use crate::matrix::Matrix;
 use crate::object::Object;
 use crate::ray::Ray;
 use crate::tuple::{vector, Tuple};
+use uuid::Uuid;
 
 #[derive(PartialEq)]
 pub struct Plane {
     pub material: Material,
     pub transform: Matrix,
+    id: Uuid
 }
 
 impl Plane {
@@ -17,11 +19,16 @@ impl Plane {
         Plane {
             material: Material::default(),
             transform: Matrix::identity(),
+            id: Uuid::new_v4()
         }
     }
 }
 
 impl Object for Plane {
+    fn id(&self) -> Uuid {
+        self.id
+    }
+
     fn normal_at(&self, _p: Tuple) -> Tuple {
         vector(0, 1, 0)
     }

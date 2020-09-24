@@ -45,7 +45,7 @@ impl World {
 
         match hit_option {
             Some(hit) => {
-                let comps = hit.prepare(r);
+                let comps = hit.prepare(r, &intersections);
                 self.shade_hit(comps, remaining)
             }
             None => color(0, 0, 0),
