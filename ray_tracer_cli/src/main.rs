@@ -22,7 +22,7 @@ fn main() -> std::io::Result<()> {
     middle.material = middle_material;
 
     let mut right = Sphere::default();
-    right.transform = translate(1.5, 0.5, -0.5) * scale(0.5, 0.5, 0.5);
+    right.transform = translate(1.5, 0.5, 1.5) * scale(0.5, 0.5, 0.5);
     let mut right_material = Material::default();
     right_material.color = WHITE;
     right_material.diffuse = 0.7;
