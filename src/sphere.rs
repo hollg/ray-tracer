@@ -54,10 +54,8 @@ impl Object for Sphere {
                 if discriminant < 0.0 {
                     Ok(vec![])
                 } else {
-                    let t1 =
-                        intersection((-b - (discriminant).sqrt()) / (2.0 * a), self);
-                    let t2 =
-                        intersection((-b + (discriminant).sqrt()) / (2.0 * a), self);
+                    let t1 = intersection((-b - (discriminant).sqrt()) / (2.0 * a), self);
+                    let t2 = intersection((-b + (discriminant).sqrt()) / (2.0 * a), self);
                     Ok(vec![t1, t2])
                 }
             }
@@ -84,6 +82,14 @@ pub fn sphere(transform: Matrix, material: Material) -> Sphere {
         transform,
         material,
     }
+}
+
+pub fn glass_sphere() -> Sphere {
+    let mut s = Sphere::default();
+    s.material.refractive_index = 1.5;
+    s.material.transparency = 1.0;
+
+    s
 }
 
 #[cfg(test)]
@@ -280,5 +286,13 @@ mod tests {
         s.material = m;
 
         assert!(s.material.ambient == 1.0);
+    }
+
+    #[test]
+    fn helper_for_glass_sphere() {
+        let s = glass_sphere();
+
+        assert!(s.material.refractive_index == 1.5);
+        assert!(s.material.transparency == 1.0);
     }
 }

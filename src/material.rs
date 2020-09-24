@@ -11,6 +11,8 @@ pub struct Material {
     pub specular: f64,
     pub shininess: f64,
     pub reflective: f64,
+    pub transparency: f64,
+    pub refractive_index: f64,
     pub pattern: Option<Pattern>,
 }
 
@@ -22,6 +24,8 @@ impl Material {
         specular: f64,
         shininess: f64,
         reflective: f64,
+        transparency: f64,
+        refractive_index: f64,
         pattern: T,
     ) -> Material {
         Material {
@@ -31,12 +35,14 @@ impl Material {
             specular,
             shininess,
             reflective,
+            transparency,
+            refractive_index,
             pattern: pattern.into(),
         }
     }
 
     pub fn default() -> Material {
-        Material::new(color(1, 1, 1), 0.1, 0.9, 0.9, 200.0, 0.0, None)
+        Material::new(color(1, 1, 1), 0.1, 0.9, 0.9, 200.0, 0.0, 0.0, 1.0, None)
     }
 
     // TODO: don't calculate specular and diffuse if in shadow
@@ -97,10 +103,21 @@ pub fn material<T: Into<Option<Pattern>>>(
     specular: f64,
     shininess: f64,
     reflective: f64,
+
+    transparency: f64,
+    refractive_index: f64,
     pattern: T,
 ) -> Material {
     Material::new(
-        color, ambient, diffuse, specular, shininess, reflective, pattern,
+        color,
+        ambient,
+        diffuse,
+        specular,
+        shininess,
+        reflective,
+        transparency,
+        refractive_index,
+        pattern,
     )
 }
 
@@ -239,5 +256,13 @@ mod tests {
     fn reflectivity_for_default_material() {
         let m = Material::default();
         assert!(m.reflective == 0.0);
+    }
+
+    #[test]
+    fn transparency_and_refractive_index_for_default_material() {
+        let m = Material::default();
+
+        assert!(m.refractive_index == 1.0);
+        assert!(m.transparency == 0.0);
     }
 }

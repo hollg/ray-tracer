@@ -15,7 +15,7 @@ impl<'a> PartialEq for Intersection<'a> {
 }
 
 impl<'a> Intersection<'a> {
-    pub fn prepare(&self, r: Ray) -> ComputedIntersection {
+    pub fn prepare(&self, r: Ray, xs: &[Intersection]) -> ComputedIntersection {
         let mut comps = ComputedIntersection {
             object: self.object,
             t: self.t,
@@ -24,7 +24,9 @@ impl<'a> Intersection<'a> {
             normal_v: self.object.normal_at(r.position(self.t)),
             is_inside: false,
             over_point: point(0, 0, 0), // TODO: avoid this temp value
-            reflect_v: vector(0, 0, 0), // TODO: avoid this temp value
+            reflect_v: vector(0, 0, 0), // TODO: avoid this temp value,
+            n1: 1.0,                    // TODO: avoid this temp value
+            n2: 1.0,                    // TODO: avoid this temp value
         };
 
         if comps.normal_v.dot(comps.eye_v) < 0.0 {
@@ -35,6 +37,33 @@ impl<'a> Intersection<'a> {
         comps.reflect_v = r.direction.reflect(comps.normal_v);
 
         comps.over_point = comps.point + comps.normal_v * EPSILON;
+
+        let containers: Vec<&dyn Object> = vec![];
+        for x in xs {
+            if x == self {
+                if containers.is_empty() {
+                    comps.n1 = 1.0;
+                } else {
+                    comps.n1 = containers.last().unwrap().material().refractive_index;
+                    //TODO: remove unwrap
+                }
+            }
+
+            if containers.contains(&x.object) {
+                containers.remove_item(x.object);
+            } else {
+                containers.push(x.object);
+            }
+
+            if x == self {
+                if containers.is_empty() {
+                    comps.n2 = 1.0;
+                } else {
+                    comps.n2 = containers.last().unwrap().material().refractive_index;
+                    //TODO: remove unwrap
+                }
+            }
+        }
 
         comps
     }
@@ -72,15 +101,18 @@ pub struct ComputedIntersection<'a> {
     pub t: f64,
     pub is_inside: bool,
     pub over_point: Tuple,
+    pub n1: f64,
+    pub n2: f64,
 }
 #[cfg(test)]
 mod tests {
     use super::*;
     use crate::plane::Plane;
     use crate::ray::ray;
-    use crate::sphere::Sphere;
-    use crate::transformations::translate;
+    use crate::sphere::{glass_sphere, Sphere};
+    use crate::transformations::{scale, translate};
     use crate::tuple::{point, vector};
+    use std::collections::HashMap;
     #[test]
     fn an_intersection_encapsulates_t_and_object() {
         let s = Sphere::default();
@@ -211,5 +243,46 @@ mod tests {
         let i = intersection(root_2, &shape);
         let comps = i.prepare(r);
         assert!(comps.reflect_v == vector(0, root_2 / 2.0, root_2 / 2.0));
+    }
+
+    #[test]
+    fn find_n1_and_n2_at_various_intersections() {
+        let mut a = glass_sphere();
+        a.transform = scale(2, 2, 2);
+
+        let mut b = glass_sphere();
+        b.material.refractive_index = 2.0;
+        b.transform = translate(0, 0, -0.25);
+
+        let mut c = glass_sphere();
+        c.transform = translate(0, 0, 0.25);
+        c.material.refractive_index = 2.5;
+
+        let r = ray(point(0, 0, -4), vector(0, 0, 1));
+        let xs = vec![
+            intersection(2.0, &a),
+            intersection(2.75, &b),
+            intersection(3.25, &c),
+            intersection(4.75, &b),
+            intersection(5.25, &c),
+            intersection(6.0, &a),
+        ];
+
+        let expected: HashMap<usize, (f64, f64)> = [
+            (0, (1.0, 1.5)),
+            (1, (1.5, 2.0)),
+            (2, (2.0, 2.5)),
+            (3, (2.5, 2.5)),
+            (4, (2.5, 1.5)),
+            (5, (1.5, 1.0)),
+        ]
+        .iter()
+        .cloned()
+        .collect();
+
+        for (i, intersection) in xs.iter().enumerate() {
+            let comps = intersection.prepare(r, &xs);
+            assert!(comps.n1 == expected.get(&i).unwrap())
+        }
     }
 }
