@@ -31,6 +31,7 @@ impl<'a> Intersection<'a> {
         let reflect_v = r.direction.reflect(normal_v);
 
         let over_point = point + normal_v * EPSILON;
+        let under_point = point - normal_v * EPSILON;
 
         let mut containers: Vec<&dyn Object> = vec![];
         let mut n1 = 1.0;
@@ -72,6 +73,7 @@ impl<'a> Intersection<'a> {
             n2,
             reflect_v,
             over_point,
+            under_point,
         }
     }
 }
@@ -108,6 +110,7 @@ pub struct ComputedIntersection<'a> {
     pub t: f64,
     pub is_inside: bool,
     pub over_point: Tuple,
+    pub under_point: Tuple,
     pub n1: f64,
     pub n2: f64,
 }
@@ -297,5 +300,17 @@ mod tests {
             assert!(comps.n1 == expected.get(&i).unwrap().0);
             assert!(comps.n2 == expected.get(&i).unwrap().1);
         }
+    }
+
+    #[test]
+    fn under_point_is_offset_below_surface() {
+        let r = ray(point(0, 0, -5), vector(0, 0, 1));
+        let mut shape = glass_sphere();
+        shape.transform = translate(0, 0, 1);
+        let i = intersection(5, &shape);
+
+        let comps = i.prepare(r, &[i.clone()]);
+        assert!(comps.under_point.z > EPSILON / 2.0);
+        assert!(comps.point.z < comps.under_point.z);
     }
 }
