@@ -104,6 +104,14 @@ impl World {
             self.color_at(reflect_ray, remaining - 1) * comps.object.material().reflective
         }
     }
+
+    fn refracted_color(&self, comps: &ComputedIntersection, remaining: usize) -> Color {
+        if comps.object.material().transparency == 0.0 || remaining <= 0 {
+            color(0, 0, 0)
+        } else {
+            color(1, 1, 1)
+        }
+    }
 }
 
 pub fn world() -> World {
@@ -116,6 +124,7 @@ pub fn world() -> World {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use crate::color::{BLACK, WHITE};
     use crate::intersection::intersection;
     use crate::plane::Plane;
     use crate::ray::ray;
@@ -339,5 +348,52 @@ mod tests {
         let comps = i.prepare(r, &[i2]);
         let c = w.reflected_color(&comps, 0);
         assert!(c == color(0, 0, 0));
+    }
+
+    #[test]
+    fn refracted_color_with_an_opaque_surface() {
+        let w = World::default();
+        let shape = &w.objects[0];
+        let r = ray(point(0, 0, -5), vector(0, 0, 1));
+
+        let xs = vec![
+            intersection(4, shape.as_ref()),
+            intersection(6, shape.as_ref()),
+        ];
+
+        let comps = xs[0].prepare(r, &xs);
+        let c = w.refracted_color(&comps, 5);
+        assert!(c == BLACK);
+    }
+
+    #[test]
+    fn refracted_color_at_max_recursive_depth() {
+        let mut inner_sphere = Sphere::default();
+        inner_sphere.transform = scale(0.5, 0.5, 0.5);
+
+        let mut outer_sphere = Sphere::default();
+        let mut m = Material::default();
+        m.color = color(0.8, 1.0, 0.6);
+        m.diffuse = 0.7;
+        m.specular = 0.2;
+        m.transparency = 1.0;
+        m.refractive_index = 1.5;
+        outer_sphere.material = m;
+
+        let w = World {
+            light_sources: vec![PointLight::new(point(-10, 10, -10), color(1, 1, 1))],
+            objects: vec![Box::new(outer_sphere), Box::new(inner_sphere)],
+        };
+        
+        let r = ray(point(0, 0, -5), vector(0, 0, 1));
+
+        let xs = vec![
+            intersection(4, w.objects[0].as_ref()),
+            intersection(6, w.objects[0].as_ref()),
+        ];
+
+        let comps = xs[0].prepare(r, &xs);
+        let c = w.refracted_color(&comps, 0);
+        assert!(c == BLACK);
     }
 }
