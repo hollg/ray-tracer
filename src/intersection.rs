@@ -1,8 +1,8 @@
 use crate::consts::EPSILON;
 use crate::object::Object;
 use crate::ray::Ray;
-use crate::tuple::{point, vector, Tuple};
-// #[derive(Clone)]
+use crate::tuple::Tuple;
+#[derive(Clone)]
 pub struct Intersection<'a> {
     pub t: f64,
     pub object: &'a dyn Object,
@@ -21,19 +21,6 @@ impl<'a> Intersection<'a> {
         let point = r.position(t);
         let eye_v = -r.direction;
         let mut normal_v = self.object.normal_at(r.position(self.t));
-
-        // let mut comps = ComputedIntersection {
-        //     object: self.object,
-        //     t: self.t,
-        //     point: r.position(self.t),
-        //     eye_v: -r.direction,
-        //     normal_v: self.object.normal_at(r.position(self.t)),
-        //     is_inside: false,
-        //     over_point: point(0, 0, 0), // TODO: avoid this temp value
-        //     reflect_v: vector(0, 0, 0), // TODO: avoid this temp value,
-        //     n1: 1.0,                    // TODO: avoid this temp value
-        //     n2: 1.0,                    // TODO: avoid this temp value
-        // };
 
         let mut is_inside = false;
         if normal_v.dot(eye_v) < 0.0 {
@@ -209,7 +196,8 @@ mod tests {
         let s = Sphere::default();
 
         let i = intersection(4, &s);
-        let comps = i.prepare(r);
+        let i2 = i.clone();
+        let comps = i.prepare(r, &[i2]);
 
         assert!(comps.t == i.t);
         assert!(comps.object.material() == i.object.material());
@@ -223,7 +211,8 @@ mod tests {
         let r = ray(point(0, 0, -5), vector(0, 0, 1));
         let s = Sphere::default();
         let i = intersection(1, &s);
-        let comps = i.prepare(r);
+        let i2 = i.clone();
+        let comps = i.prepare(r, &[i2]);
 
         assert!(!comps.is_inside);
     }
@@ -233,7 +222,8 @@ mod tests {
         let r = ray(point(0, 0, 0), vector(0, 0, 1));
         let s = Sphere::default();
         let i = intersection(1, &s);
-        let comps = i.prepare(r);
+        let i2 = i.clone();
+        let comps = i.prepare(r, &[i2]);
 
         assert!(comps.point == point(0, 0, 1));
         assert!(comps.eye_v == vector(0, 0, -1));
@@ -248,7 +238,8 @@ mod tests {
         s.transform = translate(0, 0, 1);
 
         let i = intersection(5, &s);
-        let comps = i.prepare(r);
+        let i2 = i.clone();
+        let comps = i.prepare(r, &[i2]);
 
         assert!(comps.over_point.z < -EPSILON / 2.0);
         assert!(comps.point.z > comps.over_point.z);
@@ -261,7 +252,8 @@ mod tests {
         let root_2 = f64::sqrt(2.0);
         let r = ray(point(0, 1, -1), vector(0, -root_2 / 2.0, root_2 / 2.0));
         let i = intersection(root_2, &shape);
-        let comps = i.prepare(r);
+        let i2 = i.clone();
+        let comps = i.prepare(r, &[i2]);
         assert!(comps.reflect_v == vector(0, root_2 / 2.0, root_2 / 2.0));
     }
 

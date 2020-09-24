@@ -171,7 +171,8 @@ mod tests {
         let shape = &w.objects[0];
 
         let i = intersection(4, shape.as_ref());
-        let comps = i.prepare(r);
+        let i2 = i.clone();
+        let comps = i.prepare(r, &[i2]);
         let c = w.shade_hit(comps, 4);
         assert!(c == color(0.38066, 0.47583, 0.2855));
     }
@@ -184,7 +185,8 @@ mod tests {
         let shape = &w.objects[1];
 
         let i = intersection(0.5, shape.as_ref());
-        let comps = i.prepare(r);
+        let i2 = i.clone();
+        let comps = i.prepare(r, &[i2]);
         let c = w.shade_hit(comps, 4);
         assert!(c == color(0.90498, 0.90498, 0.90498));
     }
@@ -267,7 +269,8 @@ mod tests {
         let r = ray(point(0, 0, 5), vector(0, 0, 1));
         let i = intersection(4, *&w.objects[1].as_ref());
 
-        let comps = i.prepare(r);
+        let i2 = i.clone();
+        let comps = i.prepare(r, &[i2]);
 
         assert!(w.shade_hit(comps, 4) == color(0.1, 0.1, 0.1));
     }
@@ -279,7 +282,8 @@ mod tests {
         w.objects[1].material_mut().ambient = 1.0;
         let i = intersection(1, w.objects[1].as_ref());
 
-        let comps = i.prepare(r);
+        let i2 = i.clone();
+        let comps = i.prepare(r, &[i2]);
         let c = w.reflected_color(&comps, 5);
         assert!(c == color(0, 0, 0));
     }
@@ -296,7 +300,8 @@ mod tests {
         let r = ray(point(0, 0, -3), vector(0, -root_2 / 2.0, root_2 / 2.0));
         let i = intersection(root_2, w.objects[2].as_ref());
 
-        let comps = i.prepare(r);
+        let i2 = i.clone();
+        let comps = i.prepare(r, &[i2]);
         let c = w.reflected_color(&comps, 5);
         assert!(c == color(0.19032, 0.2379, 0.14274));
     }
@@ -313,7 +318,8 @@ mod tests {
         let r = ray(point(0, 0, -3), vector(0, -root_2 / 2.0, root_2 / 2.0));
         let i = intersection(root_2, w.objects[2].as_ref());
 
-        let comps = i.prepare(r);
+        let i2 = i.clone();
+        let comps = i.prepare(r, &[i2]);
         let c = w.shade_hit(comps, 4);
         assert!(c == color(0.87677, 0.92436, 0.82918));
     }
@@ -329,7 +335,8 @@ mod tests {
         let root_2 = f64::sqrt(2.0);
         let r = ray(point(0, 0, -3), vector(0, -root_2 / 2.0, root_2 / 2.0));
         let i = intersection(root_2, w.objects[2].as_ref());
-        let comps = i.prepare(r);
+        let i2 = i.clone();
+        let comps = i.prepare(r, &[i2]);
         let c = w.reflected_color(&comps, 0);
         assert!(c == color(0, 0, 0));
     }
