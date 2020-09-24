@@ -4,7 +4,7 @@ use crate::intersection::{ComputedIntersection, Intersection};
 use crate::light::PointLight;
 use crate::material::Material;
 use crate::object::Object;
-use crate::ray::Ray;
+use crate::ray::{ray, Ray};
 use crate::sphere::Sphere;
 use crate::transformations::scale;
 use crate::tuple::{point, Tuple};
@@ -38,7 +38,7 @@ impl World {
         }
     }
 
-    pub fn color_at(&self, r: Ray) -> Color {
+    pub fn color_at(&self, r: Ray, remaining: usize) -> Color {
         let intersections = self.intersect(r);
         let mut xs: Vec<&Intersection> = intersections.iter().map(|i| i).collect();
         let hit_option = xs.hit();
@@ -46,7 +46,7 @@ impl World {
         match hit_option {
             Some(hit) => {
                 let comps = hit.prepare(r);
-                self.shade_hit(comps)
+                self.shade_hit(comps, remaining)
             }
             None => color(0, 0, 0),
         }
@@ -62,18 +62,21 @@ impl World {
         xs
     }
 
-    fn shade_hit(&self, comps: ComputedIntersection) -> Color {
+    fn shade_hit(&self, comps: ComputedIntersection, remaining: usize) -> Color {
         self.light_sources
             .iter()
             .fold(color(0, 0, 0), |color, light_source| {
-                color
+                let surface = color
                     + comps.object.material().lighting(
                         light_source,
                         comps.over_point,
                         comps.eye_v,
                         comps.normal_v,
                         self.is_shadowed(comps.over_point, light_source),
-                    )
+                    );
+                let reflected = self.reflected_color(&comps, remaining);
+
+                surface + reflected
             })
     }
 
@@ -92,6 +95,15 @@ impl World {
             _ => false,
         }
     }
+
+    fn reflected_color(&self, comps: &ComputedIntersection, remaining: usize) -> Color {
+        if comps.object.material().reflective == 0.0 || remaining <= 0 {
+            color(0, 0, 0)
+        } else {
+            let reflect_ray = ray(comps.over_point, comps.reflect_v);
+            self.color_at(reflect_ray, remaining - 1) * comps.object.material().reflective
+        }
+    }
 }
 
 pub fn world() -> World {
@@ -105,9 +117,11 @@ pub fn world() -> World {
 mod tests {
     use super::*;
     use crate::intersection::intersection;
+    use crate::plane::Plane;
     use crate::ray::ray;
     use crate::transformations::translate;
     use crate::tuple::vector;
+
     #[test]
     fn create_world() {
         let w = world();
@@ -158,7 +172,7 @@ mod tests {
 
         let i = intersection(4, shape.as_ref());
         let comps = i.prepare(r);
-        let c = w.shade_hit(comps);
+        let c = w.shade_hit(comps, 4);
         assert!(c == color(0.38066, 0.47583, 0.2855));
     }
 
@@ -171,7 +185,7 @@ mod tests {
 
         let i = intersection(0.5, shape.as_ref());
         let comps = i.prepare(r);
-        let c = w.shade_hit(comps);
+        let c = w.shade_hit(comps, 4);
         assert!(c == color(0.90498, 0.90498, 0.90498));
     }
 
@@ -180,7 +194,7 @@ mod tests {
         let w = World::default();
         let r = ray(point(0, 0, -5), vector(0, 1, 0));
 
-        let c = w.color_at(r);
+        let c = w.color_at(r, 0);
         assert!(c == color(0, 0, 0));
     }
 
@@ -189,7 +203,7 @@ mod tests {
         let w = World::default();
         let r = ray(point(0, 0, -5), vector(0, 0, 1));
 
-        let c = w.color_at(r);
+        let c = w.color_at(r, 0);
         assert!(c == color(0.38066, 0.47583, 0.2855));
     }
 
@@ -205,7 +219,7 @@ mod tests {
 
         w.objects = vec![outer, inner];
         let r = ray(point(0, 0, 0.75), vector(0, 0, -1));
-        let c = w.color_at(r);
+        let c = w.color_at(r, 0);
         assert!(c == w.objects[1].material().color);
     }
 
@@ -255,6 +269,68 @@ mod tests {
 
         let comps = i.prepare(r);
 
-        assert!(w.shade_hit(comps) == color(0.1, 0.1, 0.1));
+        assert!(w.shade_hit(comps, 4) == color(0.1, 0.1, 0.1));
+    }
+
+    #[test]
+    fn reflected_color_for_nonreflective_surface() {
+        let mut w = World::default();
+        let r = ray(point(0, 0, 0), vector(0, 0, 1));
+        w.objects[1].material_mut().ambient = 1.0;
+        let i = intersection(1, w.objects[1].as_ref());
+
+        let comps = i.prepare(r);
+        let c = w.reflected_color(&comps, 5);
+        assert!(c == color(0, 0, 0));
+    }
+
+    #[test]
+    fn reflected_color_for_reflective_surface() {
+        let mut w = World::default();
+        let mut s = Plane::default();
+        s.material_mut().reflective = 0.5;
+        s.transform = translate(0, -1, 0);
+        w.objects.append(&mut vec![Box::new(s)]);
+
+        let root_2 = f64::sqrt(2.0);
+        let r = ray(point(0, 0, -3), vector(0, -root_2 / 2.0, root_2 / 2.0));
+        let i = intersection(root_2, w.objects[2].as_ref());
+
+        let comps = i.prepare(r);
+        let c = w.reflected_color(&comps, 5);
+        assert!(c == color(0.19032, 0.2379, 0.14274));
+    }
+
+    #[test]
+    fn shade_hit_with_reflective_surface() {
+        let mut w = World::default();
+        let mut s = Plane::default();
+        s.material_mut().reflective = 0.5;
+        s.transform = translate(0, -1, 0);
+        w.objects.append(&mut vec![Box::new(s)]);
+
+        let root_2 = f64::sqrt(2.0);
+        let r = ray(point(0, 0, -3), vector(0, -root_2 / 2.0, root_2 / 2.0));
+        let i = intersection(root_2, w.objects[2].as_ref());
+
+        let comps = i.prepare(r);
+        let c = w.shade_hit(comps, 4);
+        assert!(c == color(0.87677, 0.92436, 0.82918));
+    }
+
+    #[test]
+    fn reflected_color_at_max_recursion() {
+        let mut w = World::default();
+        let mut s = Plane::default();
+        s.material_mut().reflective = 0.5;
+        s.transform = translate(0, -1, 0);
+        w.objects.append(&mut vec![Box::new(s)]);
+
+        let root_2 = f64::sqrt(2.0);
+        let r = ray(point(0, 0, -3), vector(0, -root_2 / 2.0, root_2 / 2.0));
+        let i = intersection(root_2, w.objects[2].as_ref());
+        let comps = i.prepare(r);
+        let c = w.reflected_color(&comps, 0);
+        assert!(c == color(0, 0, 0));
     }
 }

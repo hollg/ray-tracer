@@ -10,6 +10,7 @@ pub struct Material {
     pub diffuse: f64,
     pub specular: f64,
     pub shininess: f64,
+    pub reflective: f64,
     pub pattern: Option<Pattern>,
 }
 
@@ -20,6 +21,7 @@ impl Material {
         diffuse: f64,
         specular: f64,
         shininess: f64,
+        reflective: f64,
         pattern: T,
     ) -> Material {
         Material {
@@ -28,12 +30,13 @@ impl Material {
             diffuse,
             specular,
             shininess,
+            reflective,
             pattern: pattern.into(),
         }
     }
 
     pub fn default() -> Material {
-        Material::new(color(1, 1, 1), 0.1, 0.9, 0.9, 200.0, None)
+        Material::new(color(1, 1, 1), 0.1, 0.9, 0.9, 200.0, 0.0, None)
     }
 
     // TODO: don't calculate specular and diffuse if in shadow
@@ -93,9 +96,12 @@ pub fn material<T: Into<Option<Pattern>>>(
     diffuse: f64,
     specular: f64,
     shininess: f64,
+    reflective: f64,
     pattern: T,
 ) -> Material {
-    Material::new(color, ambient, diffuse, specular, shininess, pattern)
+    Material::new(
+        color, ambient, diffuse, specular, shininess, reflective, pattern,
+    )
 }
 
 impl PartialEq for Material {
@@ -227,5 +233,11 @@ mod tests {
 
         assert!(c1 == color(1, 1, 1));
         assert!(c2 == color(0, 0, 0));
+    }
+
+    #[test]
+    fn reflectivity_for_default_material() {
+        let m = Material::default();
+        assert!(m.reflective == 0.0);
     }
 }

@@ -1,7 +1,7 @@
 use crate::consts::EPSILON;
 use crate::object::Object;
 use crate::ray::Ray;
-use crate::tuple::{point, Tuple};
+use crate::tuple::{point, vector, Tuple};
 // #[derive(Clone)]
 pub struct Intersection<'a> {
     pub t: f64,
@@ -24,6 +24,7 @@ impl<'a> Intersection<'a> {
             normal_v: self.object.normal_at(r.position(self.t)),
             is_inside: false,
             over_point: point(0, 0, 0), // TODO: avoid this temp value
+            reflect_v: vector(0, 0, 0), // TODO: avoid this temp value
         };
 
         if comps.normal_v.dot(comps.eye_v) < 0.0 {
@@ -31,16 +32,18 @@ impl<'a> Intersection<'a> {
             comps.normal_v = -comps.normal_v;
         }
 
+        comps.reflect_v = r.direction.reflect(comps.normal_v);
+
         comps.over_point = comps.point + comps.normal_v * EPSILON;
 
         comps
     }
 }
 
-pub fn intersection<A: Into<f64>>(t: A, object: & dyn Object) -> Intersection {
+pub fn intersection<A: Into<f64>>(t: A, object: &dyn Object) -> Intersection {
     Intersection {
         t: t.into(),
-        object:  object,
+        object: object,
     }
 }
 
@@ -65,6 +68,7 @@ pub struct ComputedIntersection<'a> {
     pub point: Tuple,
     pub eye_v: Tuple,
     pub normal_v: Tuple,
+    pub reflect_v: Tuple,
     pub t: f64,
     pub is_inside: bool,
     pub over_point: Tuple,
@@ -72,6 +76,7 @@ pub struct ComputedIntersection<'a> {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use crate::plane::Plane;
     use crate::ray::ray;
     use crate::sphere::Sphere;
     use crate::transformations::translate;
@@ -195,5 +200,16 @@ mod tests {
 
         assert!(comps.over_point.z < -EPSILON / 2.0);
         assert!(comps.point.z > comps.over_point.z);
+    }
+
+    #[test]
+    fn precompute_reflection_vector() {
+        let shape = Plane::default();
+
+        let root_2 = f64::sqrt(2.0);
+        let r = ray(point(0, 1, -1), vector(0, -root_2 / 2.0, root_2 / 2.0));
+        let i = intersection(root_2, &shape);
+        let comps = i.prepare(r);
+        assert!(comps.reflect_v == vector(0, root_2 / 2.0, root_2 / 2.0));
     }
 }
