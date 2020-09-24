@@ -75,8 +75,8 @@ impl World {
                         self.is_shadowed(comps.over_point, light_source),
                     );
                 let reflected = self.reflected_color(&comps, remaining);
-
-                surface + reflected
+                let refracted = self.refracted_color(&comps, remaining);
+                surface + reflected + refracted
             })
     }
 
@@ -111,16 +111,16 @@ impl World {
         } else {
             let n_ratio = comps.n1 / comps.n2;
             let cos_i = comps.eye_v.dot(comps.normal_v);
-            let sin2_t = n_ratio.powf (2.0) * (1.0 - cos_i.powf(2.0));
+            let sin2_t = n_ratio.powf(2.0) * (1.0 - cos_i.powf(2.0));
 
             if sin2_t > 1.0 {
                 color(0, 0, 0)
+            } else {
+                let cos_t = (1.0 - sin2_t).sqrt();
+                let direction = comps.normal_v * (n_ratio * cos_i - cos_t) - comps.eye_v * n_ratio;
+                let refract_ray = ray(comps.under_point, direction);
+                self.color_at(refract_ray, remaining - 1) * comps.object.material().transparency
             }
-            else {
-                color(1, 1, 1)
-            }
-
-            
         }
     }
 }
@@ -135,8 +135,9 @@ pub fn world() -> World {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::color::{BLACK, WHITE};
+    use crate::color::BLACK;
     use crate::intersection::intersection;
+    use crate::pattern::test_pattern;
     use crate::plane::Plane;
     use crate::ray::ray;
     use crate::transformations::translate;
@@ -412,6 +413,10 @@ mod tests {
     #[test]
     fn refracted_color_with_total_internal_reflection() {
         let mut inner_sphere = Sphere::default();
+        let mut inner_material = Material::default();
+        inner_material.transparency = 1.0;
+        inner_material.refractive_index = 1.5;
+        inner_sphere.material = inner_material;
         inner_sphere.transform = scale(0.5, 0.5, 0.5);
 
         let mut outer_sphere = Sphere::default();
@@ -421,6 +426,8 @@ mod tests {
         m.specular = 0.2;
         m.transparency = 1.0;
         m.refractive_index = 1.5;
+        m.ambient = 1.0;
+        m.pattern = Some(test_pattern(None));
         outer_sphere.material = m;
 
         let w = World {
@@ -439,5 +446,66 @@ mod tests {
         let comps = xs[1].prepare(r, &xs);
         let c = w.refracted_color(&comps, 5);
         assert!(c == BLACK);
+    }
+
+    #[test]
+    fn refracted_color_with_refracted_ray() {
+        let mut inner_sphere = Sphere::default();
+        let mut inner_material = Material::default();
+        inner_material.ambient = 1.0;
+        inner_material.pattern = Some(test_pattern(None));
+        inner_sphere.transform = scale(0.5, 0.5, 0.5);
+
+        let mut outer_sphere = Sphere::default();
+        let mut m = Material::default();
+        m.color = color(0.8, 1.0, 0.6);
+        m.diffuse = 0.7;
+        m.specular = 0.2;
+        m.transparency = 1.0;
+        m.refractive_index = 1.5;
+        outer_sphere.material = m;
+
+        let w = World {
+            light_sources: vec![PointLight::new(point(-10, 10, -10), color(1, 1, 1))],
+            objects: vec![Box::new(outer_sphere), Box::new(inner_sphere)],
+        };
+
+        let r = ray(point(0, 0, 0.1), vector(0, 1, 0));
+
+        let xs = vec![
+            intersection(-0.9899, w.objects[0].as_ref()),
+            intersection(-0.4899, w.objects[1].as_ref()),
+            intersection(0.4899, w.objects[1].as_ref()),
+            intersection(0.9899, w.objects[0].as_ref()),
+        ];
+
+        let comps = xs[2].prepare(r, &xs);
+        let c = w.refracted_color(&comps, 5);
+        dbg!(c);
+        assert!(c == color(0, 0.99888, 0.04725));
+    }
+
+    #[test]
+    fn shade_hit_with_refracted_color() {
+        let mut w = World::default();
+        let mut floor = Plane::default();
+        floor.transform = translate(0, -1, 0);
+        floor.material.transparency = 0.5;
+        floor.material.refractive_index = 1.5;
+        w.objects.push(Box::new(floor));
+
+        let mut ball = Sphere::default();
+        ball.material.color = color(1, 0, 0);
+        ball.material.ambient = 0.5;
+        ball.transform = translate(0, -3.5, -0.5);
+        w.objects.push(Box::new(ball));
+
+        let root_2: f64 = f64::sqrt(2.0);
+        let r = ray(point(0, 0, -3), vector(0, -root_2 / 2.0, root_2 / 2.0));
+        let xs = vec![intersection(root_2, w.objects[2].as_ref())];
+        let comps = xs[0].prepare(r, &xs);
+
+        let c = w.shade_hit(comps, 5);
+        assert!(c == color(0.93642, 0.68642, 0.68642));
     }
 }

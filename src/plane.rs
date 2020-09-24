@@ -11,7 +11,7 @@ use uuid::Uuid;
 pub struct Plane {
     pub material: Material,
     pub transform: Matrix,
-    id: Uuid
+    id: Uuid,
 }
 
 impl Plane {
@@ -19,7 +19,7 @@ impl Plane {
         Plane {
             material: Material::default(),
             transform: Matrix::identity(),
-            id: Uuid::new_v4()
+            id: Uuid::new_v4(),
         }
     }
 }

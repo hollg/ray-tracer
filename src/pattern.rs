@@ -3,6 +3,7 @@ use crate::matrix::Matrix;
 use crate::object::Object;
 use crate::tuple::Tuple;
 pub enum Kind {
+    Test,
     Checkers(Color, Color),
     Gradient(Color, Color),
     Rings(Color, Color),
@@ -12,6 +13,7 @@ pub enum Kind {
 impl Kind {
     pub fn color_at(&self, point: Tuple) -> Color {
         match self {
+            Kind::Test => Color(point.x, point.y, point.z),
             Kind::Checkers(a, b) => {
                 match (point.x.floor() + point.y.floor() + point.z.floor()) % 2.0 == 0.0 {
                     true => *a,
@@ -121,6 +123,17 @@ pub fn checkers_pattern<T: Into<Option<Matrix>>>(
     };
     Pattern {
         kind: Kind::Checkers(color_a, color_b),
+        transform: m,
+    }
+}
+
+pub fn test_pattern<T: Into<Option<Matrix>>>(transform: T) -> Pattern {
+    let m = match transform.into() {
+        Some(matrix) => matrix,
+        None => Matrix::identity(),
+    };
+    Pattern {
+        kind: Kind::Test,
         transform: m,
     }
 }
