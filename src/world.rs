@@ -109,7 +109,18 @@ impl World {
         if comps.object.material().transparency == 0.0 || remaining <= 0 {
             color(0, 0, 0)
         } else {
-            color(1, 1, 1)
+            let n_ratio = comps.n1 / comps.n2;
+            let cos_i = comps.eye_v.dot(comps.normal_v);
+            let sin2_t = n_ratio.powf (2.0) * (1.0 - cos_i.powf(2.0));
+
+            if sin2_t > 1.0 {
+                color(0, 0, 0)
+            }
+            else {
+                color(1, 1, 1)
+            }
+
+            
         }
     }
 }
@@ -130,6 +141,7 @@ mod tests {
     use crate::ray::ray;
     use crate::transformations::translate;
     use crate::tuple::vector;
+    use std::f64::consts::PI;
 
     #[test]
     fn create_world() {
@@ -384,7 +396,7 @@ mod tests {
             light_sources: vec![PointLight::new(point(-10, 10, -10), color(1, 1, 1))],
             objects: vec![Box::new(outer_sphere), Box::new(inner_sphere)],
         };
-        
+
         let r = ray(point(0, 0, -5), vector(0, 0, 1));
 
         let xs = vec![
@@ -394,6 +406,38 @@ mod tests {
 
         let comps = xs[0].prepare(r, &xs);
         let c = w.refracted_color(&comps, 0);
+        assert!(c == BLACK);
+    }
+
+    #[test]
+    fn refracted_color_with_total_internal_reflection() {
+        let mut inner_sphere = Sphere::default();
+        inner_sphere.transform = scale(0.5, 0.5, 0.5);
+
+        let mut outer_sphere = Sphere::default();
+        let mut m = Material::default();
+        m.color = color(0.8, 1.0, 0.6);
+        m.diffuse = 0.7;
+        m.specular = 0.2;
+        m.transparency = 1.0;
+        m.refractive_index = 1.5;
+        outer_sphere.material = m;
+
+        let w = World {
+            light_sources: vec![PointLight::new(point(-10, 10, -10), color(1, 1, 1))],
+            objects: vec![Box::new(outer_sphere), Box::new(inner_sphere)],
+        };
+        let root_2 = PI.sqrt();
+
+        let r = ray(point(0, 0, root_2 / 2.0), vector(0, 1, 0));
+
+        let xs = vec![
+            intersection(-root_2 / 2.0, w.objects[0].as_ref()),
+            intersection(root_2 / 2.0, w.objects[0].as_ref()),
+        ];
+
+        let comps = xs[1].prepare(r, &xs);
+        let c = w.refracted_color(&comps, 5);
         assert!(c == BLACK);
     }
 }
