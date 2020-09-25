@@ -4,6 +4,7 @@ use crate::light::PointLight;
 use crate::pattern::Pattern;
 use crate::tuple::Tuple;
 
+#[derive(Clone)]
 pub struct Material {
     pub color: Color,
     pub ambient: f64,

@@ -4,7 +4,7 @@ use crate::material::Material;
 use crate::matrix::Matrix;
 use crate::object::Object;
 use crate::ray::Ray;
-use crate::tuple::{point, vector, Tuple};
+use crate::tuple::{vector, Tuple};
 use uuid::Uuid;
 
 #[macro_use]
@@ -31,6 +31,7 @@ macro_rules! min {
         }
     }}
 }
+#[derive(Clone)]
 pub struct Cube {
     pub material: Material,
     pub transform: Matrix,
