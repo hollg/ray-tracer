@@ -73,8 +73,16 @@ impl Object for Cube {
         self.id
     }
 
-    fn normal_at(&self, _p: Tuple) -> Tuple {
-        vector(0, 1, 0)
+    fn normal_at(&self, p: Tuple) -> Tuple {
+        let max_c = max!(f64::abs(p.x), f64::abs(p.y), f64::abs(p.z));
+
+        if max_c == p.x.abs() {
+            return vector(p.x, 0, 0);
+        } else if max_c == p.y.abs() {
+            vector(0, p.y, 0)
+        } else {
+            vector(0, 0, p.z)
+        }
     }
 
     fn transform(&self) -> Matrix {
@@ -156,6 +164,25 @@ mod tests {
             let xs = cube.intersect(r).unwrap();
 
             assert!(xs.len() == 0);
+        }
+    }
+
+    #[test]
+    fn normal_of_surface_of_cube() {
+        let expected = [
+            (point(1, 0.5, -0.8), vector(1, 0, 0)),
+            (point(-1, -0.2, 0.9), vector(-1, 0, 0)),
+            (point(-0.4, 1, -0.1), vector(0, 1, 0)),
+            (point(0.3, -1, -0.7), vector(0, -1, 0)),
+            (point(-0.6, 0.3, 1), vector(0, 0, 1)),
+            (point(0.4, 0.4, -1), vector(0, 0, -1)),
+            (point(1, 1, 1), vector(1, 0, 0)),
+            (point(-1, -1, -1), vector(-1, 0, 0)),
+        ];
+
+        for (p, n) in expected.iter() {
+            let cube = Cube::default();
+            assert!(cube.normal_at(*p) == *n);
         }
     }
 }
