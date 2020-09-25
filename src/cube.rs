@@ -98,8 +98,8 @@ impl Object for Cube {
         let ray2 = ray.transform(self.transform().inverse()?);
 
         let (x_t_min, x_t_max) = Self::check_axis(ray2.origin.x, ray2.direction.x);
-        let (y_t_min, y_t_max) = Self::check_axis(ray2.origin.x, ray2.direction.x);
-        let (z_t_min, z_t_max) = Self::check_axis(ray2.origin.x, ray2.direction.x);
+        let (y_t_min, y_t_max) = Self::check_axis(ray2.origin.y, ray2.direction.y);
+        let (z_t_min, z_t_max) = Self::check_axis(ray2.origin.z, ray2.direction.z);
 
         let t_min = max!(x_t_min, y_t_min, z_t_min);
         let t_max = min!(x_t_max, y_t_max, z_t_max);
@@ -115,12 +115,12 @@ mod tests {
     #[test]
     fn ray_intersects_cube() {
         let table: HashMap<i32, (Tuple, Tuple, f64, f64)> = [
-            (0, (point(0, 0.5, 0), vector(-1, 0, 0), 4.0, 6.0)),
+            (0, (point(5, 0.5, 0), vector(-1, 0, 0), 4.0, 6.0)),
             (1, (point(-5, 0.5, 0), vector(1, 0, 0), 4.0, 6.0)),
             (2, (point(0.5, 5, 0), vector(0, -1, 0), 4.0, 6.0)),
             (3, (point(0.5, -5, 0), vector(0, 1, 0), 4.0, 6.0)),
             (4, (point(0.5, 0, 5), vector(0, 0, -1), 4.0, 6.0)),
-            (5, (point(0.5, 0, -5), vector(0, 0, -1), 4.0, 6.0)),
+            (5, (point(0.5, 0, 5), vector(0, 0, -1), 4.0, 6.0)),
             (6, (point(0.5, 0, -5), vector(0, 0, 1), 4.0, 6.0)),
             (7, (point(0, 0.5, 0), vector(0, 0, 1), -1.0, 1.0)),
         ]
