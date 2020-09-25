@@ -3,9 +3,8 @@ use crate::intersection::{intersection, Intersection};
 use crate::material::Material;
 use crate::matrix::Matrix;
 use crate::object::Object;
-use crate::ray::{ray, Ray};
+use crate::ray::Ray;
 use crate::tuple::{vector, Tuple};
-use std::collections::hash_map::HashMap;
 use uuid::Uuid;
 
 #[macro_use]
@@ -104,38 +103,59 @@ impl Object for Cube {
         let t_min = max!(x_t_min, y_t_min, z_t_min);
         let t_max = min!(x_t_max, y_t_max, z_t_max);
 
-        Ok(vec![intersection(t_min, self), intersection(t_max, self)])
+        return match t_min > t_max {
+            true => Ok(vec![]),
+            false => Ok(vec![intersection(t_min, self), intersection(t_max, self)]),
+        };
     }
 }
 
 #[cfg(test)]
 mod tests {
     use super::*;
+    use crate::ray::ray;
     use crate::tuple::point;
     #[test]
     fn ray_intersects_cube() {
-        let table: HashMap<i32, (Tuple, Tuple, f64, f64)> = [
-            (0, (point(5, 0.5, 0), vector(-1, 0, 0), 4.0, 6.0)),
-            (1, (point(-5, 0.5, 0), vector(1, 0, 0), 4.0, 6.0)),
-            (2, (point(0.5, 5, 0), vector(0, -1, 0), 4.0, 6.0)),
-            (3, (point(0.5, -5, 0), vector(0, 1, 0), 4.0, 6.0)),
-            (4, (point(0.5, 0, 5), vector(0, 0, -1), 4.0, 6.0)),
-            (5, (point(0.5, 0, 5), vector(0, 0, -1), 4.0, 6.0)),
-            (6, (point(0.5, 0, -5), vector(0, 0, 1), 4.0, 6.0)),
-            (7, (point(0, 0.5, 0), vector(0, 0, 1), -1.0, 1.0)),
-        ]
-        .iter()
-        .cloned()
-        .collect();
-        for i in 0..7 {
-            let values = table.get(&i).unwrap();
+        let expected = [
+            (point(5, 0.5, 0), vector(-1, 0, 0), 4.0, 6.0),
+            (point(-5, 0.5, 0), vector(1, 0, 0), 4.0, 6.0),
+            (point(0.5, 5, 0), vector(0, -1, 0), 4.0, 6.0),
+            (point(0.5, -5, 0), vector(0, 1, 0), 4.0, 6.0),
+            (point(0.5, 0, 5), vector(0, 0, -1), 4.0, 6.0),
+            (point(0.5, 0, 5), vector(0, 0, -1), 4.0, 6.0),
+            (point(0.5, 0, -5), vector(0, 0, 1), 4.0, 6.0),
+            (point(0, 0.5, 0), vector(0, 0, 1), -1.0, 1.0),
+        ];
+
+        for (p, v, t1, t2) in expected.iter() {
             let c = Cube::default();
-            let r = ray(values.0, values.1);
+            let r = ray(*p, *v);
             let xs = c.intersect(r).unwrap();
 
             assert!(xs.len() == 2);
-            assert!(xs[0].t == values.2);
-            assert!(xs[1].t == values.3);
+            assert!(xs[0].t == *t1);
+            assert!(xs[1].t == *t2);
+        }
+    }
+
+    #[test]
+    fn ray_misses_cube() {
+        let expected = [
+            ((point(-2, 0, 0), vector(0.2673, 0.5345, 0.8018))),
+            ((point(0, -2, 0), vector(0.8018, 0.2673, 0.5345))),
+            ((point(0, 0, -2), vector(0.5345, 0.8018, 0.2673))),
+            ((point(2, 0, 2), vector(0, 0, -1))),
+            ((point(0, 2, 2), vector(0, -1, 0))),
+            ((point(2, 2, 0), vector(-1, 0, 0))),
+        ];
+
+        for (p, v) in expected.iter() {
+            let cube = Cube::default();
+            let r = ray(*p, *v);
+            let xs = cube.intersect(r).unwrap();
+
+            assert!(xs.len() == 0);
         }
     }
 }
