@@ -76,6 +76,12 @@ impl World {
                     );
                 let reflected = self.reflected_color(&comps, remaining);
                 let refracted = self.refracted_color(&comps, remaining);
+
+                let material = comps.object.material();
+                if material.reflective > 0.0 && material.transparency > 0.0 {
+                    let reflectance = comps.schlick();
+                    return surface + reflected * reflectance + refracted * (1.0 - reflectance);
+                }
                 surface + reflected + refracted
             })
     }
@@ -507,5 +513,32 @@ mod tests {
 
         let c = w.shade_hit(comps, 5);
         assert!(c == color(0.93642, 0.68642, 0.68642));
+    }
+
+    #[test]
+    fn shade_hit_with_reflective_transparent_material() {
+        let mut w = World::default();
+        let r = ray(
+            point(0, 0, -3),
+            vector(0, -f64::sqrt(2.0) / 2.0, f64::sqrt(2.0) / 2.0),
+        );
+        let mut floor = Plane::default();
+        floor.material.reflective = 0.5;
+        floor.material.transparency = 0.5;
+        floor.material.refractive_index = 1.5;
+        floor.transform = translate(0, -1, 0);
+        w.objects.push(Box::new(floor));
+
+        let mut ball = Sphere::default();
+        ball.material.color = color(1, 0, 0);
+        ball.material.ambient = 0.5;
+        ball.transform = translate(0, -3.5, -0.5);
+        w.objects.push(Box::new(ball));
+
+        let xs = vec![intersection(f64::sqrt(2.0), w.objects[2].as_ref())];
+        let comps = xs[0].prepare(r, &xs);
+
+        let c = w.shade_hit(comps, 5);
+        assert!(c == color(0.93391, 0.69643, 0.69243));
     }
 }
