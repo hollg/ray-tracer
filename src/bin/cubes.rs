@@ -28,12 +28,16 @@ fn main() -> std::io::Result<()> {
     let mut brick3 = brick2.clone();
     brick3.transform = brick3.transform.translate(1.1, 0.0, 0.0);
 
+    let mut brick4 = brick1.clone();
+    brick4.transform = brick4.transform.translate(0.0, 0.5, 0.0).rotate_y(180.0);
+
     
     let world = World::new(
         vec![
             Box::new(brick1),
             Box::new(brick2),
             Box::new(brick3),
+            Box::new(brick4),
             Box::new(floor),
         ],
         vec![PointLight::new(point(-10, 10, -10), color(1, 1, 1))],
