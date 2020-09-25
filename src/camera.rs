@@ -3,6 +3,7 @@ use crate::matrix::Matrix;
 use crate::ray::{ray, Ray};
 use crate::tuple::point;
 use crate::world::World;
+use std::time::Instant;
 
 pub struct Camera {
     h_size: usize,
@@ -66,6 +67,7 @@ impl Camera {
     }
 
     pub fn render(&self, world: World) -> Canvas {
+        let time = Instant::now();
         let mut image = canvas(self.h_size, self.v_size);
 
         for y in 0..self.v_size {
@@ -75,6 +77,7 @@ impl Camera {
                 image.write_pixel(x, y, color);
             }
         }
+        println!("Renderd in {} seconds", time.elapsed().as_secs());
         image
     }
 }

@@ -4,7 +4,7 @@ use crate::material::Material;
 use crate::matrix::Matrix;
 use crate::object::Object;
 use crate::ray::Ray;
-use crate::tuple::{vector, Tuple};
+use crate::tuple::{point, vector, Tuple};
 use uuid::Uuid;
 
 #[macro_use]
@@ -74,15 +74,25 @@ impl Object for Cube {
     }
 
     fn normal_at(&self, p: Tuple) -> Tuple {
-        let max_c = max!(f64::abs(p.x), f64::abs(p.y), f64::abs(p.z));
+        let object_point = self.transform.inverse().unwrap() * p;
 
-        if max_c == p.x.abs() {
-            return vector(p.x, 0, 0);
-        } else if max_c == p.y.abs() {
-            vector(0, p.y, 0)
+        let max_c = max!(
+            f64::abs(object_point.x),
+            f64::abs(object_point.y),
+            f64::abs(object_point.z)
+        );
+        let v;
+        if max_c == object_point.x.abs() {
+            v = vector(object_point.x, 0, 0);
+        } else if max_c == object_point.y.abs() {
+            v = vector(0, object_point.y, 0);
         } else {
-            vector(0, 0, p.z)
+            v = vector(0, 0, object_point.z);
         }
+
+        let world_normal = self.transform.inverse().unwrap().transpose() * v;
+
+        world_normal.normalize()
     }
 
     fn transform(&self) -> Matrix {
