@@ -3,9 +3,8 @@ use crate::intersection::{intersection, Intersection};
 use crate::material::Material;
 use crate::matrix::Matrix;
 use crate::object::Object;
-use crate::ray::{ray, Ray};
+use crate::ray::Ray;
 use crate::tuple::{vector, Tuple};
-use std::collections::hash_map::HashMap;
 use uuid::Uuid;
 
 #[macro_use]
@@ -111,7 +110,9 @@ impl Object for Cube {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use crate::ray::ray;
     use crate::tuple::point;
+    use std::collections::HashMap;
     #[test]
     fn ray_intersects_cube() {
         let table: HashMap<i32, (Tuple, Tuple, f64, f64)> = [
