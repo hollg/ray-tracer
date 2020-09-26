@@ -357,7 +357,7 @@ mod tests {
 
         let comps = xs[0].prepare(r, &xs);
         let reflectance = comps.schlick();
-        assert!(reflectance == 0.04);
+        assert!(f64::abs(reflectance - 0.04) < EPSILON);
     }
 
     #[test]
@@ -367,7 +367,6 @@ mod tests {
         let xs = vec![intersection(1.8589, &shape)];
         let comps = xs[0].prepare(r, &xs);
         let reflectance = comps.schlick();
-        dbg!(reflectance);
         assert!(f64::abs(reflectance - 0.48873) < EPSILON);
     }
 
