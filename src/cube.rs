@@ -96,7 +96,7 @@ impl Object for Cube {
         world_normal.normalize()
     }
 
-    fn transform(&self) -> Matrix {
+    fn transformation(&self) -> Matrix {
         self.transform
     }
 
@@ -113,7 +113,7 @@ impl Object for Cube {
     }
 
     fn intersect(&self, ray: Ray) -> Result<Vec<Intersection>, ()> {
-        let ray2 = ray.transform(self.transform().inverse()?);
+        let ray2 = ray.transform(self.transformation().inverse()?);
 
         let (x_t_min, x_t_max) = Self::check_axis(ray2.origin.x, ray2.direction.x);
         let (y_t_min, y_t_max) = Self::check_axis(ray2.origin.y, ray2.direction.y);
@@ -134,7 +134,6 @@ mod tests {
     use super::*;
     use crate::ray::ray;
     use crate::tuple::point;
-    use std::collections::HashMap;
     #[test]
     fn ray_intersects_cube() {
         let expected = [

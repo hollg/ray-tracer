@@ -33,7 +33,7 @@ impl Object for Plane {
         vector(0, 1, 0)
     }
 
-    fn transform(&self) -> Matrix {
+    fn transformation(&self) -> Matrix {
         self.transform
     }
 
@@ -50,7 +50,7 @@ impl Object for Plane {
     }
 
     fn intersect(&self, ray: Ray) -> Result<Vec<Intersection>, ()> {
-        let ray2 = ray.transform(self.transform().inverse()?);
+        let ray2 = ray.transform(self.transformation().inverse()?);
         if f64::abs(ray2.direction.y) < EPSILON {
             return Ok(vec![]);
         }

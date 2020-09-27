@@ -8,7 +8,7 @@ use uuid::Uuid;
 pub trait Object {
     fn intersect(&self, ray: Ray) -> Result<Vec<Intersection>, ()>;
     fn normal_at(&self, p: Tuple) -> Tuple;
-    fn transform(&self) -> Matrix;
+    fn transformation(&self) -> Matrix;
     fn transform_mut(&mut self) -> &mut Matrix;
     fn material(&self) -> &Material;
     fn material_mut(&mut self) -> &mut Material;

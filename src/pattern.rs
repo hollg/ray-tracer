@@ -52,7 +52,7 @@ impl Pattern {
     }
 
     pub fn color_at_object(&self, object: &dyn Object, world_point: Tuple) -> Result<Color, ()> {
-        let object_point = object.transform().inverse()? * world_point;
+        let object_point = object.transformation().inverse()? * world_point;
         let pattern_point = self.transform.inverse()? * object_point;
 
         Ok(self.kind.color_at(pattern_point))

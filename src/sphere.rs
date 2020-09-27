@@ -35,7 +35,7 @@ impl Object for Sphere {
         &mut self.material
     }
 
-    fn transform(&self) -> Matrix {
+    fn transformation(&self) -> Matrix {
         self.transform
     }
 
@@ -170,9 +170,9 @@ mod tests {
         let xs = s.intersect(r).unwrap();
         assert!(xs.len() == 2);
         assert!(xs[0].object.material() == &s.material);
-        assert!(xs[0].object.transform() == s.transform);
+        assert!(xs[0].object.transformation() == s.transform);
         assert!(xs[1].object.material() == &s.material);
-        assert!(xs[1].object.transform() == s.transform);
+        assert!(xs[1].object.transformation() == s.transform);
     }
 
     #[test]

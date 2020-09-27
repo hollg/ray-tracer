@@ -151,7 +151,7 @@ mod tests {
         let i = intersection(3.5, &s);
         assert!(i.t == 3.5);
         assert!(i.object.material() == &s.material);
-        assert!(i.object.transform() == s.transform);
+        assert!(i.object.transformation() == s.transform);
     }
 
     #[test]
@@ -225,7 +225,7 @@ mod tests {
 
         assert!(comps.t == i.t);
         assert!(comps.object.material() == i.object.material());
-        assert!(comps.object.transform() == i.object.transform());
+        assert!(comps.object.transformation() == i.object.transformation());
         assert!(comps.point == point(0, 0, -1));
         assert!(comps.eye_v == vector(0, 0, -1));
         assert!(comps.normal_v == vector(0, 0, -1));
