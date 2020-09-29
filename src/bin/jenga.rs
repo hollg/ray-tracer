@@ -62,13 +62,15 @@ fn main() -> std::io::Result<()> {
     block_y_material.color = color(0, 0.4, 0);
 
     let mut block_z = Cube::default();
-    block_z.transform = scale(0.5, 0.25, 1.5).translate(-0.5, 0.25, 0.5);
+    block_z.transform(scale(0.5, 0.25, 1.5).translate(-0.5, 0.25, 0.5));
     block_z.material = block_x_material.clone();
 
     let mut block_x = Cube::default();
-    block_x.transform = scale(0.5, 0.25, 1.5)
-        .rotate_y(PI / 2.0)
-        .translate(0.5, 0.25, -0.5);
+    block_x.transform(
+        scale(0.5, 0.25, 1.5)
+            .rotate_y(PI / 2.0)
+            .translate(0.5, 0.25, -0.5),
+    );
     block_x.material = block_y_material.clone();
 
     fn build_row(of: &Cube, direction: RowDirection, level: i32) -> Vec<Box<dyn Object>> {
@@ -88,7 +90,7 @@ fn main() -> std::io::Result<()> {
                 RowDirection::Z => 0.0,
             };
 
-            new_block.transform = new_block.transform.translate(x_pos, y_pos, z_pos);
+            new_block.transform(translate(x_pos, y_pos, z_pos));
             row.push(Box::new(new_block))
         }
 
@@ -116,8 +118,8 @@ fn main() -> std::io::Result<()> {
     };
 
     let camera = Camera::new(
-        250,
-        500,
+        1000,
+        2000,
         PI / 3.0,
         view_transform(point(8.5, 1.0, -4), point(0, 5.5, 0), vector(0, 1, 0)),
     );

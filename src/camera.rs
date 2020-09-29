@@ -5,6 +5,7 @@ use crate::tuple::point;
 use crate::world::World;
 use pbr::ProgressBar;
 use std::time::Instant;
+#[allow(dead_code)]
 pub struct Camera {
     h_size: usize,
     v_size: usize,

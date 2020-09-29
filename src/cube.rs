@@ -34,7 +34,8 @@ macro_rules! min {
 #[derive(Clone)]
 pub struct Cube {
     pub material: Material,
-    pub transform: Matrix,
+    transform: Matrix,
+    inverse: Matrix,
     id: Uuid,
 }
 
@@ -43,8 +44,18 @@ impl Cube {
         Cube {
             material: Material::default(),
             transform: Matrix::identity(),
+            inverse: Matrix::identity(),
             id: Uuid::new_v4(),
         }
+    }
+
+    pub fn transform(&mut self, matrix: Matrix) {
+        self.transform = matrix * self.transform;
+        self.inverse = self.transform.inverse().unwrap();
+    }
+
+    pub fn inverse(&self) -> Matrix {
+        self.inverse
     }
 
     fn check_axis(origin: f64, direction: f64) -> (f64, f64) {
@@ -75,7 +86,7 @@ impl Object for Cube {
     }
 
     fn normal_at(&self, p: Tuple) -> Tuple {
-        let object_point = self.transform.inverse().unwrap() * p;
+        let object_point = self.inverse * p;
 
         let max_c = max!(
             f64::abs(object_point.x),
@@ -91,7 +102,7 @@ impl Object for Cube {
             v = vector(0, 0, object_point.z);
         }
 
-        let world_normal = self.transform.inverse().unwrap().transpose() * v;
+        let world_normal = self.inverse.transpose() * v;
 
         world_normal.normalize()
     }
@@ -113,7 +124,7 @@ impl Object for Cube {
     }
 
     fn intersect(&self, ray: Ray) -> Result<Vec<Intersection>, ()> {
-        let ray2 = ray.transform(self.transformation().inverse()?);
+        let ray2 = ray.transform(self.inverse);
 
         let (x_t_min, x_t_max) = Self::check_axis(ray2.origin.x, ray2.direction.x);
         let (y_t_min, y_t_max) = Self::check_axis(ray2.origin.y, ray2.direction.y);
