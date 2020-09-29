@@ -10,6 +10,8 @@ pub trait Object {
     fn normal_at(&self, p: Tuple) -> Tuple;
     fn transformation(&self) -> Matrix;
     fn transform_mut(&mut self) -> &mut Matrix;
+    fn transform(&mut self, matrix: Matrix);
+    fn inverse(&self) -> Matrix;
     fn material(&self) -> &Material;
     fn material_mut(&mut self) -> &mut Material;
     fn id(&self) -> Uuid;

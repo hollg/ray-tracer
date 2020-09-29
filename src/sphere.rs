@@ -10,6 +10,7 @@ use uuid::Uuid;
 pub struct Sphere {
     pub transform: Matrix,
     pub material: Material,
+    inverse: Matrix,
     id: Uuid,
 }
 
@@ -17,6 +18,7 @@ impl Sphere {
     pub fn default() -> Sphere {
         Sphere {
             transform: Matrix::identity(),
+            inverse: Matrix::identity(),
             material: Material::default(),
             id: Uuid::new_v4(),
         }
@@ -43,38 +45,42 @@ impl Object for Sphere {
         &mut self.transform
     }
 
+    fn transform(&mut self, matrix: Matrix) {
+        self.transform = matrix * self.transform;
+        self.inverse = self.transform.inverse().unwrap();
+    }
+
+    fn inverse(&self) -> Matrix {
+        self.inverse
+    }
+
     fn intersect(&self, ray: Ray) -> Result<Vec<Intersection>, ()> {
         // the vector from the sphere's center, to the ray origin
         // remember: the sphere is centered at the world origin
-        let matrix = self.transform.inverse();
+        let matrix = self.inverse;
 
-        match matrix {
-            Ok(matrix) => {
-                let ray2 = ray.transform(matrix);
-                let sphere_to_ray = ray2.origin - point(0.0, 0.0, 0.0);
+        let ray2 = ray.transform(matrix);
+        let sphere_to_ray = ray2.origin - point(0.0, 0.0, 0.0);
 
-                let a = ray2.direction.dot(ray2.direction);
-                let b = 2.0 * ray2.direction.dot(sphere_to_ray);
-                let c = sphere_to_ray.dot(sphere_to_ray) - 1.0;
+        let a = ray2.direction.dot(ray2.direction);
+        let b = 2.0 * ray2.direction.dot(sphere_to_ray);
+        let c = sphere_to_ray.dot(sphere_to_ray) - 1.0;
 
-                let discriminant = b.powi(2) - 4.0 * a * c;
+        let discriminant = b.powi(2) - 4.0 * a * c;
 
-                if discriminant < 0.0 {
-                    Ok(vec![])
-                } else {
-                    let t1 = intersection((-b - (discriminant).sqrt()) / (2.0 * a), self);
-                    let t2 = intersection((-b + (discriminant).sqrt()) / (2.0 * a), self);
-                    Ok(vec![t1, t2])
-                }
-            }
-            _ => Err(()),
+        if discriminant < 0.0 {
+            Ok(vec![])
+        } else {
+            let t1 = intersection((-b - (discriminant).sqrt()) / (2.0 * a), self);
+            let t2 = intersection((-b + (discriminant).sqrt()) / (2.0 * a), self);
+            Ok(vec![t1, t2])
         }
     }
 
     fn normal_at(&self, p: Tuple) -> Tuple {
-        let object_point = self.transform.inverse().unwrap() * p;
+        let object_point = self.inverse * p;
         let object_normal = object_point - point(0, 0, 0);
-        let world_normal_t = self.transform.inverse().unwrap().transpose() * object_normal;
+        let world_normal_t = self.inverse.transpose() * object_normal;
         let world_normal = Tuple {
             x: world_normal_t.x,
             y: world_normal_t.y,
@@ -89,7 +95,8 @@ pub fn sphere(transform: Matrix, material: Material) -> Sphere {
     Sphere {
         transform,
         material,
-        id: Uuid::new_v4()
+        id: Uuid::new_v4(),
+        inverse: transform.inverse().unwrap(),
     }
 }
 

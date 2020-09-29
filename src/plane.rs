@@ -11,6 +11,7 @@ use uuid::Uuid;
 pub struct Plane {
     pub material: Material,
     pub transform: Matrix,
+    inverse: Matrix,
     id: Uuid,
 }
 
@@ -19,6 +20,7 @@ impl Plane {
         Plane {
             material: Material::default(),
             transform: Matrix::identity(),
+            inverse: Matrix::identity(),
             id: Uuid::new_v4(),
         }
     }
@@ -27,6 +29,7 @@ impl Plane {
         Plane {
             material,
             transform,
+            inverse: transform.inverse().unwrap(),
             id: Uuid::new_v4(),
         }
     }
@@ -49,6 +52,15 @@ impl Object for Plane {
         &mut self.transform
     }
 
+    fn transform(&mut self, matrix: Matrix) {
+        self.transform = matrix * self.transform;
+        self.inverse = self.transform.inverse().unwrap();
+    }
+
+    fn inverse(&self) -> Matrix {
+        self.inverse
+    }
+
     fn material(&self) -> &Material {
         &self.material
     }
@@ -58,7 +70,7 @@ impl Object for Plane {
     }
 
     fn intersect(&self, ray: Ray) -> Result<Vec<Intersection>, ()> {
-        let ray2 = ray.transform(self.transformation().inverse()?);
+        let ray2 = ray.transform(self.inverse);
         if f64::abs(ray2.direction.y) < EPSILON {
             return Ok(vec![]);
         }

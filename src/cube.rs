@@ -49,15 +49,6 @@ impl Cube {
         }
     }
 
-    pub fn transform(&mut self, matrix: Matrix) {
-        self.transform = matrix * self.transform;
-        self.inverse = self.transform.inverse().unwrap();
-    }
-
-    pub fn inverse(&self) -> Matrix {
-        self.inverse
-    }
-
     fn check_axis(origin: f64, direction: f64) -> (f64, f64) {
         let t_min_numerator = -1.0 - origin;
         let t_max_numerator = 1.0 - origin;
@@ -113,6 +104,15 @@ impl Object for Cube {
 
     fn transform_mut(&mut self) -> &mut Matrix {
         &mut self.transform
+    }
+
+    fn transform(&mut self, matrix: Matrix) {
+        self.transform = matrix * self.transform;
+        self.inverse = self.transform.inverse().unwrap();
+    }
+
+    fn inverse(&self) -> Matrix {
+        self.inverse
     }
 
     fn material(&self) -> &Material {
