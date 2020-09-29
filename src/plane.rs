@@ -22,6 +22,14 @@ impl Plane {
             id: Uuid::new_v4(),
         }
     }
+
+    pub fn new(material: Material, transform: Matrix) -> Plane {
+        Plane {
+            material,
+            transform,
+            id: Uuid::new_v4(),
+        }
+    }
 }
 
 impl Object for Plane {

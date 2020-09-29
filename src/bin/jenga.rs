@@ -5,16 +5,20 @@ use std::fs::File;
 use std::io::prelude::*;
 
 fn main() -> std::io::Result<()> {
-    let mut floor = Plane::default();
-    let mut floor_material = Material::default();
-    floor_material.pattern = Some(checkers_pattern(WHITE, BLACK, None));
-    floor_material.pattern = None;
-    floor_material.color = BLACK;
-    floor_material.reflective = 0.6;
-    floor_material.diffuse = 0.7;
-    floor_material.specular = 0.3;
-    floor_material.shininess = 250.0;
-    floor.material = floor_material;
+    let floor = Plane::new(
+        Material {
+            color: BLACK,
+            ambient: 0.1,
+            diffuse: 0.7,
+            specular: 0.3,
+            shininess: 250.0,
+            reflective: 0.6,
+            transparency: 0.0,
+            refractive_index: 0.0,
+            pattern: Some(checkers_pattern(WHITE, BLACK, None)),
+        },
+        Matrix::identity(),
+    );
 
     let mut block_x_material = Material::default();
     block_x_material.color = color(0.4, 0, 0);
@@ -38,10 +42,14 @@ fn main() -> std::io::Result<()> {
 
     fn build_x_row(of: &Cube, level: i32) -> Vec<Box<dyn Object>> {
         let mut rng = rand::thread_rng();
-        let num = rng.gen_range(1, 4);
-        match num == 3 {
-            true => build_y_row_full(of, level),
-            false => build_y_row_edges(of, level),
+        let num = rng.gen_range(1, 5);
+
+        if num <= 2 {
+            build_z_row_edges(of, level)
+        } else if num == 3 {
+            build_z_row_full(of, level)
+        } else {
+            build_z_row_middle(of, level)
         }
     }
 
@@ -53,6 +61,21 @@ fn main() -> std::io::Result<()> {
             let y_pos = level as f64 * 0.5;
             new_block.transform = new_block.transform.translate(x_pos, y_pos, 0.0);
             row.push(Box::new(new_block))
+        }
+
+        row
+    }
+
+    fn build_x_row_middle(of: &Cube, level: i32) -> Vec<Box<dyn Object>> {
+        let mut row: Vec<Box<dyn Object>> = vec![];
+        for i in 0..3 {
+            if i == 1 {
+                let mut new_block = of.clone();
+                let x_pos = i as f64 * 1.1;
+                let y_pos = level as f64 * 0.5;
+                new_block.transform = new_block.transform.translate(x_pos, y_pos, 0.0);
+                row.push(Box::new(new_block))
+            }
         }
 
         row
@@ -73,16 +96,20 @@ fn main() -> std::io::Result<()> {
         row
     }
 
-    fn build_y_row(of: &Cube, level: i32) -> Vec<Box<dyn Object>> {
+    fn build_z_row(of: &Cube, level: i32) -> Vec<Box<dyn Object>> {
         let mut rng = rand::thread_rng();
-        let num = rng.gen_range(1, 4);
-        match num == 3 {
-            true => build_x_row_full(of, level),
-            false => build_x_row_edges(of, level),
+        let num = rng.gen_range(1, 5);
+
+        if num <= 2 {
+            build_x_row_edges(of, level)
+        } else if num == 3 {
+            build_x_row_full(of, level)
+        } else {
+            build_x_row_middle(of, level)
         }
     }
 
-    fn build_y_row_full(of: &Cube, level: i32) -> Vec<Box<dyn Object>> {
+    fn build_z_row_full(of: &Cube, level: i32) -> Vec<Box<dyn Object>> {
         let mut row: Vec<Box<dyn Object>> = vec![];
         for i in 0..3 {
             let mut new_block = of.clone();
@@ -95,7 +122,7 @@ fn main() -> std::io::Result<()> {
         row
     }
 
-    fn build_y_row_edges(of: &Cube, level: i32) -> Vec<Box<dyn Object>> {
+    fn build_z_row_edges(of: &Cube, level: i32) -> Vec<Box<dyn Object>> {
         let mut row: Vec<Box<dyn Object>> = vec![];
         for i in 0..3 {
             if i != 1 {
@@ -110,12 +137,27 @@ fn main() -> std::io::Result<()> {
         row
     }
 
+    fn build_z_row_middle(of: &Cube, level: i32) -> Vec<Box<dyn Object>> {
+        let mut row: Vec<Box<dyn Object>> = vec![];
+        for i in 0..3 {
+            if i == 1 {
+                let mut new_block = of.clone();
+                let z_pos = i as f64 * 1.1;
+                let y_pos = level as f64 * 0.5;
+                new_block.transform = new_block.transform.translate(0.0, y_pos, z_pos);
+                row.push(Box::new(new_block))
+            }
+        }
+
+        row
+    }
+
     let mut objects: Vec<Box<dyn Object>> = vec![Box::new(floor)];
     let mut rows = vec![];
 
-    for i in 0..12 {
+    for i in 0..21{
         rows.push(match i % 2 == 0 {
-            false => build_y_row(&block_x, i),
+            false => build_z_row(&block_x, i),
             true => build_x_row(&block_y, i),
         });
     }
@@ -126,14 +168,14 @@ fn main() -> std::io::Result<()> {
 
     let world = World {
         objects,
-        light_sources: vec![PointLight::new(point(0, 8, -10), color(1, 1, 1))],
+        light_sources: vec![PointLight::new(point(0, 5, -10), color(1, 1, 1))],
     };
 
     let camera = Camera::new(
-        2000,
-        3200,
+        250,
+        500,
         PI / 3.0,
-        view_transform(point(8.5, 6.0, -4), point(0, 1, 0), vector(0, 1, 0)),
+        view_transform(point(8.5, 1.0, -4), point(0, 5.5, 0), vector(0, 1, 0)),
     );
 
     let canvas = camera.render(world);

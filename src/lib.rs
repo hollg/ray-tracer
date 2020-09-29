@@ -22,6 +22,7 @@ pub use color::*;
 pub use cube::*;
 pub use light::*;
 pub use material::*;
+pub use matrix::*;
 pub use object::*;
 pub use pattern::*;
 pub use plane::*;
