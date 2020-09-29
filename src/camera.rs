@@ -3,8 +3,8 @@ use crate::matrix::Matrix;
 use crate::ray::{ray, Ray};
 use crate::tuple::point;
 use crate::world::World;
+use pbr::ProgressBar;
 use std::time::Instant;
-
 pub struct Camera {
     h_size: usize,
     v_size: usize,
@@ -69,15 +69,17 @@ impl Camera {
     pub fn render(&self, world: World) -> Canvas {
         let time = Instant::now();
         let mut image = canvas(self.h_size, self.v_size);
-
+        let mut pb = ProgressBar::new(self.h_size as u64 * self.v_size as u64);
+        pb.format("╢▌▌░╟");
         for y in 0..self.v_size {
             for x in 0..self.h_size {
                 let r = self.ray_for_pixel(x as f64, y as f64);
                 let color = world.color_at(r, 5);
                 image.write_pixel(x, y, color);
+                pb.inc();
             }
         }
-        println!("Renderd in {} seconds", time.elapsed().as_secs());
+        println!("\nRenderd in {} seconds", time.elapsed().as_secs());
         image
     }
 }

@@ -116,8 +116,8 @@ fn main() -> std::io::Result<()> {
     };
 
     let camera = Camera::new(
-        1000,
-        2000,
+        250,
+        500,
         PI / 3.0,
         view_transform(point(8.5, 1.0, -4), point(0, 5.5, 0), vector(0, 1, 0)),
     );

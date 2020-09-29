@@ -57,7 +57,6 @@ impl Canvas {
             writeln!(line).unwrap();
             write!(buf, "{}", line).unwrap();
         }
-        println!("finished writing");
 
         buf
     }
