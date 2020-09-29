@@ -9,6 +9,7 @@ pub struct Camera {
     h_size: usize,
     v_size: usize,
     transform: Matrix,
+    inverse: Matrix,
     half_width: f64,
     half_height: f64,
     pixel_size: f64,
@@ -34,15 +35,21 @@ impl Camera {
         }
         let pixel_size = (half_width * 2.0) / h_size as f64;
 
+        let t = transform.into();
+
         Camera {
             h_size,
             v_size,
             pixel_size,
             half_height,
             half_width,
-            transform: match transform.into() {
+            transform: match t {
                 None => Matrix::identity(),
-                Some(t) => t,
+                Some(m) => m,
+            },
+            inverse: match t {
+                None => Matrix::identity(),
+                Some(m) => m.inverse().unwrap(),
             },
         }
     }
@@ -60,8 +67,8 @@ impl Camera {
         let world_y = self.half_height - y_offset;
         // # using the camera matrix, transform the canvas point and the origin, # and then compute the ray's direction vector.
         // # (remember that the canvas is at z=-1)
-        let pixel = self.transform.inverse().unwrap() * point(world_x, world_y, -1);
-        let origin = self.transform.inverse().unwrap() * point(0, 0, 0);
+        let pixel = self.inverse * point(world_x, world_y, -1);
+        let origin = self.inverse * point(0, 0, 0);
         let direction = (pixel - origin).normalize();
         ray(origin, direction)
     }
