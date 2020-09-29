@@ -8,7 +8,7 @@ use uuid::Uuid;
 
 #[derive(PartialEq)]
 pub struct Sphere {
-    pub transform: Matrix,
+    transform: Matrix,
     pub material: Material,
     inverse: Matrix,
     id: Uuid,
@@ -57,9 +57,8 @@ impl Object for Sphere {
     fn intersect(&self, ray: Ray) -> Result<Vec<Intersection>, ()> {
         // the vector from the sphere's center, to the ray origin
         // remember: the sphere is centered at the world origin
-        let matrix = self.inverse;
 
-        let ray2 = ray.transform(matrix);
+        let ray2 = ray.transform(self.inverse);
         let sphere_to_ray = ray2.origin - point(0.0, 0.0, 0.0);
 
         let a = ray2.direction.dot(ray2.direction);
@@ -193,7 +192,7 @@ mod tests {
         let mut s = Sphere::default();
         let t = translate(2.0, 3.0, 4.0);
 
-        s.transform = t;
+        s.transform(t);
 
         assert!(s.transform == t)
     }
@@ -203,7 +202,7 @@ mod tests {
         let r = ray(point(0.0, 0.0, -5.0), vector(0.0, 0.0, 1.0));
         let mut s = Sphere::default();
 
-        s.transform = scale(2.0, 2.0, 2.0);
+        s.transform(scale(2.0, 2.0, 2.0));
         let xs = s.intersect(r).unwrap();
 
         assert!(xs.len() == 2);
@@ -216,7 +215,7 @@ mod tests {
         let r = ray(point(0.0, 0.0, -5.0), vector(0.0, 0.0, 1.0));
         let mut s = Sphere::default();
 
-        s.transform = translate(5.0, 0.0, 0.0);
+        s.transform(translate(5.0, 0.0, 0.0));
         let xs = s.intersect(r).unwrap();
 
         assert!(xs.len() == 0);
@@ -271,7 +270,7 @@ mod tests {
     #[test]
     fn compute_normal_on_translated_sphere() {
         let mut s = Sphere::default();
-        s.transform = translate(0, 1, 0);
+        s.transform(translate(0, 1, 0));
 
         let n = s.normal_at(point(0, 1.70711, -0.70711));
         assert!(n == vector(0, 0.70711, -0.70711));
@@ -281,7 +280,7 @@ mod tests {
     fn compute_normal_on_transformed_sphere() {
         let mut s = Sphere::default();
         let m = scale(1, 0.5, 1) * rotate_z(PI / 5.0);
-        s.transform = m;
+        s.transform(m);
 
         let root_2 = PI.sqrt();
         let n = s.normal_at(point(0, root_2 / 2.0, -root_2 / 2.0));

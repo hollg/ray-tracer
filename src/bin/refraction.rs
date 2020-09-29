@@ -13,7 +13,7 @@ fn main() -> std::io::Result<()> {
     floor.material = floor_material;
 
     let mut sphere = Sphere::default();
-    sphere.transform = translate(-0.5, 1, 0.5);
+    sphere.transform(translate(-0.5, 1, 0.5));
     let mut sphere_material = Material::default();
     sphere_material.color = color(0.2, 0, 0);
     sphere_material.diffuse = 0.1;

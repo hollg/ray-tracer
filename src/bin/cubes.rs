@@ -23,13 +23,13 @@ fn main() -> std::io::Result<()> {
     brick1.material = brick_material;
 
     let mut brick2 = brick1.clone();
-    // brick2.transform = brick2.transform.translate(1.1, 0.0, 0.0);
+    brick2.transform(translate(1.1, 0.0, 0.0));
 
     let mut brick3 = brick2.clone();
-    // brick3.transform = brick3.transform.translate(1.1, 0.0, 0.0);
+    brick3.transform(translate(1.1, 0.0, 0.0));
 
     let mut brick4 = brick1.clone();
-    // brick4.transform = brick4.transform.translate(0.0, 0.5, 0.0).rotate_y(180.0);
+    brick4.transform(translate(0.0, 0.5, 0.0).rotate_y(180.0));
 
     
     let world = World::new(

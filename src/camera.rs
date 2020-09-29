@@ -153,8 +153,12 @@ mod tests {
     }
     #[test]
     fn constructing_a_ray_when_the_camera_is_transformed() {
-        let mut c = camera(201, 101, PI / 2.0, None);
-        c.transform = rotate_y(PI / 4.0) * translate(0, -2, 5);
+        let c = camera(
+            201,
+            101,
+            PI / 2.0,
+            Some(rotate_y(PI / 4.0) * translate(0, -2, 5)),
+        );
         let r = c.ray_for_pixel(100, 50);
 
         let root_2 = f64::sqrt(2.0);

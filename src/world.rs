@@ -23,7 +23,7 @@ impl World {
 
     pub fn default() -> World {
         let mut inner_sphere = Sphere::default();
-        inner_sphere.transform = scale(0.5, 0.5, 0.5);
+        inner_sphere.transform(scale(0.5, 0.5, 0.5));
 
         let mut outer_sphere = Sphere::default();
         let mut m = Material::default();
@@ -163,7 +163,7 @@ mod tests {
         let w = World::default();
 
         let mut inner_sphere = Sphere::default();
-        inner_sphere.transform = scale(0.5, 0.5, 0.5);
+        inner_sphere.transform(scale(0.5, 0.5, 0.5));
 
         let mut outer_sphere = Sphere::default();
         let mut m = Material::default();
@@ -289,7 +289,7 @@ mod tests {
     fn shade_hit_given_an_intersection_in_shadow() {
         let s1 = Sphere::default();
         let mut s2 = Sphere::default();
-        s2.transform = translate(0, 0, 10);
+        s2.transform(translate(0, 0, 10));
         let w = World::new(
             vec![Box::new(s1), Box::new(s2)],
             vec![PointLight::new(point(0, 0, -10), color(1, 1, 1))],
@@ -321,7 +321,7 @@ mod tests {
         let mut w = World::default();
         let mut s = Plane::default();
         s.material_mut().reflective = 0.5;
-        s.transform = translate(0, -1, 0);
+        s.transform(translate(0, -1, 0));
         w.objects.append(&mut vec![Box::new(s)]);
 
         let root_2 = f64::sqrt(2.0);
@@ -339,7 +339,7 @@ mod tests {
         let mut w = World::default();
         let mut s = Plane::default();
         s.material_mut().reflective = 0.5;
-        s.transform = translate(0, -1, 0);
+        s.transform(translate(0, -1, 0));
         w.objects.append(&mut vec![Box::new(s)]);
 
         let root_2 = f64::sqrt(2.0);
@@ -357,7 +357,7 @@ mod tests {
         let mut w = World::default();
         let mut s = Plane::default();
         s.material_mut().reflective = 0.5;
-        s.transform = translate(0, -1, 0);
+        s.transform(translate(0, -1, 0));
         w.objects.append(&mut vec![Box::new(s)]);
 
         let root_2 = f64::sqrt(2.0);
@@ -388,7 +388,7 @@ mod tests {
     #[test]
     fn refracted_color_at_max_recursive_depth() {
         let mut inner_sphere = Sphere::default();
-        inner_sphere.transform = scale(0.5, 0.5, 0.5);
+        inner_sphere.transform(scale(0.5, 0.5, 0.5));
 
         let mut outer_sphere = Sphere::default();
         let mut m = Material::default();
@@ -423,7 +423,7 @@ mod tests {
         inner_material.transparency = 1.0;
         inner_material.refractive_index = 1.5;
         inner_sphere.material = inner_material;
-        inner_sphere.transform = scale(0.5, 0.5, 0.5);
+        inner_sphere.transform(scale(0.5, 0.5, 0.5));
 
         let mut outer_sphere = Sphere::default();
         let mut m = Material::default();
@@ -466,7 +466,7 @@ mod tests {
         outer_sphere.material = outer_material;
 
         let mut inner_sphere = Sphere::default();
-        inner_sphere.transform = scale(0.5, 0.5, 0.5);
+        inner_sphere.transform(scale(0.5, 0.5, 0.5));
         let mut inner_material = Material::default();
         inner_material.transparency = 1.0;
         inner_material.refractive_index = 1.5;
@@ -495,7 +495,7 @@ mod tests {
     fn shade_hit_with_refracted_color() {
         let mut w = World::default();
         let mut floor = Plane::default();
-        floor.transform = translate(0, -1, 0);
+        floor.transform(translate(0, -1, 0));
         floor.material.transparency = 0.5;
         floor.material.refractive_index = 1.5;
         w.objects.push(Box::new(floor));
@@ -503,7 +503,7 @@ mod tests {
         let mut ball = Sphere::default();
         ball.material.color = color(1, 0, 0);
         ball.material.ambient = 0.5;
-        ball.transform = translate(0, -3.5, -0.5);
+        ball.transform(translate(0, -3.5, -0.5));
         w.objects.push(Box::new(ball));
 
         let root_2: f64 = f64::sqrt(2.0);
@@ -526,13 +526,13 @@ mod tests {
         floor.material.reflective = 0.5;
         floor.material.transparency = 0.5;
         floor.material.refractive_index = 1.5;
-        floor.transform = translate(0, -1, 0);
+        floor.transform(translate(0, -1, 0));
         w.objects.push(Box::new(floor));
 
         let mut ball = Sphere::default();
         ball.material.color = color(1, 0, 0);
         ball.material.ambient = 0.5;
-        ball.transform = translate(0, -3.5, -0.5);
+        ball.transform(translate(0, -3.5, -0.5));
         w.objects.push(Box::new(ball));
 
         let xs = vec![intersection(f64::sqrt(2.0), w.objects[2].as_ref())];

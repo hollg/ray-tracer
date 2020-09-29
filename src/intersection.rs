@@ -151,7 +151,7 @@ mod tests {
         let i = intersection(3.5, &s);
         assert!(i.t == 3.5);
         assert!(i.object.material() == &s.material);
-        assert!(i.object.transformation() == s.transform);
+        assert!(i.object.transformation() == s.transformation());
     }
 
     #[test]
@@ -259,7 +259,7 @@ mod tests {
     fn the_hit_should_offset_the_point() {
         let r = ray(point(0, 0, -5), vector(0, 0, 1));
         let mut s = Sphere::default();
-        s.transform = translate(0, 0, 1);
+        s.transform(translate(0, 0, 1));
 
         let i = intersection(5, &s);
         let i2 = i.clone();
@@ -284,14 +284,14 @@ mod tests {
     #[test]
     fn find_n1_and_n2_at_various_intersections() {
         let mut a = glass_sphere();
-        a.transform = scale(2, 2, 2);
+        a.transform(scale(2, 2, 2));
 
         let mut b = glass_sphere();
         b.material.refractive_index = 2.0;
-        b.transform = translate(0, 0, -0.25);
+        b.transform(translate(0, 0, -0.25));
 
         let mut c = glass_sphere();
-        c.transform = translate(0, 0, 0.25);
+        c.transform(translate(0, 0, 0.25));
         c.material.refractive_index = 2.5;
 
         let r = ray(point(0, 0, -4), vector(0, 0, 1));
@@ -327,7 +327,7 @@ mod tests {
     fn under_point_is_offset_below_surface() {
         let r = ray(point(0, 0, -5), vector(0, 0, 1));
         let mut shape = glass_sphere();
-        shape.transform = translate(0, 0, 1);
+        shape.transform(translate(0, 0, 1));
         let i = intersection(5, &shape);
 
         let comps = i.prepare(r, &[i.clone()]);

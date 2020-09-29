@@ -44,6 +44,7 @@ impl Kind {
 pub struct Pattern {
     pub kind: Kind,
     pub transform: Matrix,
+    inverse: Matrix,
 }
 
 impl Pattern {
@@ -52,8 +53,8 @@ impl Pattern {
     }
 
     pub fn color_at_object(&self, object: &dyn Object, world_point: Tuple) -> Result<Color, ()> {
-        let object_point = object.transformation().inverse()? * world_point;
-        let pattern_point = self.transform.inverse()? * object_point;
+        let object_point = object.inverse() * world_point;
+        let pattern_point = self.inverse * object_point;
 
         Ok(self.kind.color_at(pattern_point))
     }
@@ -81,6 +82,7 @@ pub fn stripe_pattern<T: Into<Option<Matrix>>>(
     Pattern {
         kind: Kind::Stripe(color_a, color_b),
         transform: m,
+        inverse: m.inverse().unwrap(),
     }
 }
 
@@ -96,6 +98,7 @@ pub fn gradient_pattern<T: Into<Option<Matrix>>>(
     Pattern {
         kind: Kind::Gradient(color_a, color_b),
         transform: m,
+        inverse: m.inverse().unwrap(),
     }
 }
 
@@ -111,6 +114,7 @@ pub fn ring_pattern<T: Into<Option<Matrix>>>(
     Pattern {
         kind: Kind::Rings(color_a, color_b),
         transform: m,
+        inverse: m.inverse().unwrap(),
     }
 }
 
@@ -126,6 +130,7 @@ pub fn checkers_pattern<T: Into<Option<Matrix>>>(
     Pattern {
         kind: Kind::Checkers(color_a, color_b),
         transform: m,
+        inverse: m.inverse().unwrap(),
     }
 }
 
@@ -137,6 +142,7 @@ pub fn test_pattern<T: Into<Option<Matrix>>>(transform: T) -> Pattern {
     Pattern {
         kind: Kind::Test,
         transform: m,
+        inverse: m.inverse().unwrap(),
     }
 }
 
@@ -187,7 +193,7 @@ mod tests {
     #[test]
     fn stripes_with_object_transformation() {
         let mut object = Sphere::default();
-        object.transform = scale(2, 2, 2);
+        object.transform(scale(2, 2, 2));
         let pattern = stripe_pattern(WHITE, BLACK, None);
         let c = pattern.color_at_object(&object, point(1.5, 0, 0)).unwrap();
 
@@ -205,7 +211,7 @@ mod tests {
     #[test]
     fn stripes_with_both_pattern_and_object_transformation() {
         let mut object = Sphere::default();
-        object.transform = scale(2, 2, 2);
+        object.transform(scale(2, 2, 2));
         object.material.pattern = Some(stripe_pattern(WHITE, BLACK, translate(0.5, 0, 0)));
         let c = object
             .material()
