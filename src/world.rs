@@ -456,20 +456,21 @@ mod tests {
 
     #[test]
     fn refracted_color_with_refracted_ray() {
-        let mut inner_sphere = Sphere::default();
-        let mut inner_material = Material::default();
-        inner_material.ambient = 1.0;
-        inner_material.pattern = Some(test_pattern(None));
-        inner_sphere.transform = scale(0.5, 0.5, 0.5);
-
         let mut outer_sphere = Sphere::default();
-        let mut m = Material::default();
-        m.color = color(0.8, 1.0, 0.6);
-        m.diffuse = 0.7;
-        m.specular = 0.2;
-        m.transparency = 1.0;
-        m.refractive_index = 1.5;
-        outer_sphere.material = m;
+        let mut outer_material = Material::default();
+        outer_material.color = color(0.8, 1.0, 0.6);
+        outer_material.diffuse = 0.7;
+        outer_material.specular = 0.2;
+        outer_material.ambient = 1.0;
+        outer_material.pattern = Some(test_pattern(None));
+        outer_sphere.material = outer_material;
+
+        let mut inner_sphere = Sphere::default();
+        inner_sphere.transform = scale(0.5, 0.5, 0.5);
+        let mut inner_material = Material::default();
+        inner_material.transparency = 1.0;
+        inner_material.refractive_index = 1.5;
+        inner_sphere.material = inner_material;
 
         let w = World {
             light_sources: vec![PointLight::new(point(-10, 10, -10), color(1, 1, 1))],
@@ -487,7 +488,6 @@ mod tests {
 
         let comps = xs[2].prepare(r, &xs);
         let c = w.refracted_color(&comps, 5);
-        dbg!(c);
         assert!(c == color(0, 0.99888, 0.04725));
     }
 

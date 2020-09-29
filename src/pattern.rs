@@ -2,7 +2,7 @@ use crate::color::Color;
 use crate::matrix::Matrix;
 use crate::object::Object;
 use crate::tuple::Tuple;
-#[derive(Clone)]
+#[derive(Clone, Debug)]
 pub enum Kind {
     Test,
     Checkers(Color, Color),
@@ -40,7 +40,7 @@ impl Kind {
     }
 }
 
-#[derive(Clone)]
+#[derive(Clone, Debug)]
 pub struct Pattern {
     pub kind: Kind,
     pub transform: Matrix,
