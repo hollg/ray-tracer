@@ -5,6 +5,7 @@ use crate::tuple::Tuple;
 #[derive(Clone, Debug)]
 pub enum Kind {
     Test,
+    Solid(Color),
     Checkers(Color, Color),
     Gradient(Color, Color),
     Rings(Color, Color),
@@ -14,6 +15,7 @@ pub enum Kind {
 impl Kind {
     pub fn color_at(&self, point: Tuple) -> Color {
         match self {
+            Kind::Solid(c) => *c,
             Kind::Test => Color(point.x, point.y, point.z),
             Kind::Checkers(a, b) => {
                 match (point.x.floor() + point.y.floor() + point.z.floor()) % 2.0 == 0.0 {
@@ -131,6 +133,14 @@ pub fn checkers_pattern<T: Into<Option<Matrix>>>(
         kind: Kind::Checkers(color_a, color_b),
         transform: m,
         inverse: m.inverse().unwrap(),
+    }
+}
+
+pub fn solid_pattern(c: Color) -> Pattern {
+    Pattern {
+        kind: Kind::Solid(c),
+        transform: Matrix::identity(),
+        inverse: Matrix::identity(),
     }
 }
 
@@ -265,5 +275,13 @@ mod tests {
         assert!(pattern.color_at(point(0, 0, 0)) == WHITE);
         assert!(pattern.color_at(point(0, 0, 0.99)) == WHITE);
         assert!(pattern.color_at(point(0, 0, 1.01)) == BLACK);
+    }
+
+    #[test]
+    fn solid_is_solid() {
+        let pattern = solid_pattern(BLACK);
+
+        assert!(pattern.color_at(point(0, 0, 0)) == BLACK);
+        assert!(pattern.color_at(point(9, 1, 10)) == BLACK);
     }
 }
