@@ -1,9 +1,8 @@
 use crate::color::Color;
 use crate::matrix::Matrix;
-use crate::object::Object;
 use crate::tuple::Tuple;
-#[derive(Copy, Clone, Debug)]
-pub enum Kind {
+#[derive(Copy, Clone, Debug, PartialEq)]
+pub enum Template {
     Test,
     Solid(Color),
     Checkers(Color, Color),
@@ -12,27 +11,27 @@ pub enum Kind {
     Stripe(Color, Color),
 }
 
-impl Kind {
+impl Template {
     pub fn color_at(&self, point: Tuple) -> Color {
         match self {
-            Kind::Solid(c) => *c,
-            Kind::Test => Color(point.x, point.y, point.z),
-            Kind::Checkers(a, b) => {
+            Template::Solid(c) => *c,
+            Template::Test => Color(point.x, point.y, point.z),
+            Template::Checkers(a, b) => {
                 match (point.x.floor() + point.y.floor() + point.z.floor()) % 2.0 == 0.0 {
                     true => *a,
                     false => *b,
                 }
             }
-            Kind::Stripe(a, b) => match point.x.floor() % 2.0 == 0.0 {
+            Template::Stripe(a, b) => match point.x.floor() % 2.0 == 0.0 {
                 true => *a,
                 false => *b,
             },
-            Kind::Gradient(a, b) => {
+            Template::Gradient(a, b) => {
                 let distance = *b - *a;
                 let fraction = point.x - point.x.floor();
                 *a + distance * fraction
             }
-            Kind::Rings(a, b) => {
+            Template::Rings(a, b) => {
                 match (point.x * point.x + point.z * point.z).sqrt().floor() % 2.0 == 0.0 {
                     true => *a,
                     false => *b,
@@ -42,37 +41,16 @@ impl Kind {
     }
 }
 
-#[derive(Copy, Clone, Debug)]
+#[derive(Copy, Clone, Debug, PartialEq)]
 pub struct Pattern {
-    pub kind: Kind,
-    pub transform: Matrix,
+    template: Template,
+    transform: Matrix,
     inverse: Matrix,
 }
 
 impl Pattern {
     pub fn color_at(&self, point: Tuple) -> Color {
-        self.kind.color_at(point)
-    }
-
-    pub fn color_at_object(&self, object: &dyn Object, world_point: Tuple) -> Result<Color, ()> {
-        let object_point = object.inverse() * world_point;
-        let pattern_point = self.inverse * object_point;
-
-        Ok(self.kind.color_at(pattern_point))
-    }
-}
-
-impl PartialEq for Pattern {
-    fn eq(&self, other: &Self) -> bool {
-        match (&self.kind, &other.kind) {
-            (Kind::Stripe(a1, a2), Kind::Stripe(b1, b2)) => a1 == b1 && a2 == b2,
-            (Kind::Rings(a1, a2), Kind::Rings(b1, b2)) => a1 == b1 && a2 == b2,
-            (Kind::Checkers(a1, a2), Kind::Checkers(b1, b2)) => a1 == b1 && a2 == b2,
-            (Kind::Gradient(a1, a2), Kind::Gradient(b1, b2)) => a1 == b1 && a2 == b2,
-            (Kind::Solid(c1), Kind::Solid(c2)) => c1 == c2,
-            (Kind::Test, Kind::Test) => true,
-            _ => false
-        }
+        self.template.color_at(point)
     }
 }
 
@@ -86,7 +64,7 @@ pub fn stripe_pattern<T: Into<Option<Matrix>>>(
         None => Matrix::identity(),
     };
     Pattern {
-        kind: Kind::Stripe(color_a, color_b),
+        template: Template::Stripe(color_a, color_b),
         transform: m,
         inverse: m.inverse().unwrap(),
     }
@@ -102,7 +80,7 @@ pub fn gradient_pattern<T: Into<Option<Matrix>>>(
         None => Matrix::identity(),
     };
     Pattern {
-        kind: Kind::Gradient(color_a, color_b),
+        template: Template::Gradient(color_a, color_b),
         transform: m,
         inverse: m.inverse().unwrap(),
     }
@@ -118,7 +96,7 @@ pub fn ring_pattern<T: Into<Option<Matrix>>>(
         None => Matrix::identity(),
     };
     Pattern {
-        kind: Kind::Rings(color_a, color_b),
+        template: Template::Rings(color_a, color_b),
         transform: m,
         inverse: m.inverse().unwrap(),
     }
@@ -134,7 +112,7 @@ pub fn checkers_pattern<T: Into<Option<Matrix>>>(
         None => Matrix::identity(),
     };
     Pattern {
-        kind: Kind::Checkers(color_a, color_b),
+        template: Template::Checkers(color_a, color_b),
         transform: m,
         inverse: m.inverse().unwrap(),
     }
@@ -142,7 +120,7 @@ pub fn checkers_pattern<T: Into<Option<Matrix>>>(
 
 pub fn solid_pattern(c: Color) -> Pattern {
     Pattern {
-        kind: Kind::Solid(c),
+        template: Template::Solid(c),
         transform: Matrix::identity(),
         inverse: Matrix::identity(),
     }
@@ -154,7 +132,7 @@ pub fn test_pattern<T: Into<Option<Matrix>>>(transform: T) -> Pattern {
         None => Matrix::identity(),
     };
     Pattern {
-        kind: Kind::Test,
+        template: Template::Test,
         transform: m,
         inverse: m.inverse().unwrap(),
     }
@@ -164,15 +142,10 @@ pub fn test_pattern<T: Into<Option<Matrix>>>(transform: T) -> Pattern {
 mod tests {
     use super::*;
     use crate::color::{color, BLACK, WHITE};
+    use crate::object::Object;
     use crate::sphere::Sphere;
     use crate::transformations::{scale, translate};
     use crate::tuple::point;
-    // #[test]
-    // fn creating_a_stripe_pattern() {
-    //     let pattern = stripe_pattern(WHITE, BLACK);
-    //     assert!(pattern.kind. .0 == WHITE);
-    //     assert!(pattern.kind.1 == BLACK);
-    // }
 
     #[test]
     fn stripe_pattern_is_constant_in_y() {
@@ -209,7 +182,11 @@ mod tests {
         let mut object = Sphere::default();
         object.transform(scale(2, 2, 2));
         let pattern = stripe_pattern(WHITE, BLACK, None);
-        let c = pattern.color_at_object(&object, point(1.5, 0, 0)).unwrap();
+
+        let object_point = object.inverse() * point(1.5, 0, 0);
+        let pattern_point = pattern.inverse * object_point;
+
+        let c = pattern.color_at(pattern_point);
 
         assert!(c == WHITE);
     }
@@ -218,7 +195,9 @@ mod tests {
     fn stripes_with_pattern_transformation() {
         let object = Sphere::default();
         let pattern = stripe_pattern(WHITE, BLACK, scale(2, 2, 2));
-        let c = pattern.color_at_object(&object, point(1.5, 0, 0)).unwrap();
+        let object_point = object.inverse() * point(1.5, 0, 0);
+        let pattern_point = pattern.inverse * object_point;
+        let c = pattern.color_at(pattern_point);
         assert!(c == WHITE);
     }
 
@@ -227,11 +206,11 @@ mod tests {
         let mut object = Sphere::default();
         object.transform(scale(2, 2, 2));
         object.material.pattern = stripe_pattern(WHITE, BLACK, translate(0.5, 0, 0));
-        let c = object
-            .material()
-            .pattern()
-            .color_at_object(&object, point(2.5, 0, 0));
-        assert!(c.unwrap() == WHITE);
+        let object_point = object.inverse() * point(2.5, 0, 0);
+        let pattern_point = object.material().pattern().inverse * object_point;
+
+        let c = object.material().pattern().color_at(pattern_point);
+        assert!(c == WHITE);
     }
 
     #[test]
