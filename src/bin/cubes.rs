@@ -6,7 +6,7 @@ use std::io::prelude::*;
 fn main() -> std::io::Result<()> {
     let mut floor = Plane::default();
     let mut floor_material = Material::default();
-    floor_material.pattern = Some(checkers_pattern(WHITE, BLACK, None));
+    floor_material.pattern = checkers_pattern(WHITE, BLACK, None);
     floor_material.reflective = 0.4;
     floor_material.diffuse = 0.7;
     floor_material.specular = 0.3;
@@ -15,7 +15,7 @@ fn main() -> std::io::Result<()> {
     let mut brick1 = Cube::default();
     // brick1.transform = scale(0.5, 0.25, 1.5).translate(-1.0, 0.25, 1.0);
     let mut brick_material = Material::default();
-    brick_material.color = color(0.3, 0, 0);
+    brick_material.pattern = solid_pattern(color(0.3, 0, 0));
     brick_material.diffuse = 0.7;
     brick_material.ambient = 0.8;
     brick_material.specular = 0.7;

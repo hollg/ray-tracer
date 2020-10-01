@@ -37,7 +37,7 @@ fn gen_row_positions() -> Vec<i32> {
 fn main() -> std::io::Result<()> {
     let floor = Plane::new(
         Material {
-            color: BLACK,
+            // color: BLACK,
             ambient: 0.1,
             diffuse: 0.7,
             specular: 0.3,
@@ -45,13 +45,13 @@ fn main() -> std::io::Result<()> {
             reflective: 0.6,
             transparency: 0.0,
             refractive_index: 0.0,
-            pattern: Some(checkers_pattern(WHITE, BLACK, None)),
+            pattern: checkers_pattern(WHITE, BLACK, None),
         },
         Matrix::identity(),
     );
 
     let mut block_x_material = Material::default();
-    block_x_material.color = color(0.4, 0, 0);
+    block_x_material.pattern = solid_pattern(color(0.4, 0, 0));
     block_x_material.diffuse = 0.9;
     block_x_material.ambient = 0.7;
     block_x_material.specular = 0.4;
@@ -59,7 +59,7 @@ fn main() -> std::io::Result<()> {
     block_x_material.shininess = 200.0;
 
     let mut block_y_material = block_x_material.clone();
-    block_y_material.color = color(0, 0.4, 0);
+    block_y_material.pattern = solid_pattern(color(0, 0.4, 0));
 
     let mut block_z = Cube::default();
     block_z.transform(scale(0.5, 0.25, 1.5).translate(-0.5, 0.25, 0.5));

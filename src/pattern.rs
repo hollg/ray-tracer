@@ -2,7 +2,7 @@ use crate::color::Color;
 use crate::matrix::Matrix;
 use crate::object::Object;
 use crate::tuple::Tuple;
-#[derive(Clone, Debug)]
+#[derive(Copy, Clone, Debug)]
 pub enum Kind {
     Test,
     Solid(Color),
@@ -42,7 +42,7 @@ impl Kind {
     }
 }
 
-#[derive(Clone, Debug)]
+#[derive(Copy, Clone, Debug)]
 pub struct Pattern {
     pub kind: Kind,
     pub transform: Matrix,
@@ -66,8 +66,12 @@ impl PartialEq for Pattern {
     fn eq(&self, other: &Self) -> bool {
         match (&self.kind, &other.kind) {
             (Kind::Stripe(a1, a2), Kind::Stripe(b1, b2)) => a1 == b1 && a2 == b2,
+            (Kind::Rings(a1, a2), Kind::Rings(b1, b2)) => a1 == b1 && a2 == b2,
+            (Kind::Checkers(a1, a2), Kind::Checkers(b1, b2)) => a1 == b1 && a2 == b2,
             (Kind::Gradient(a1, a2), Kind::Gradient(b1, b2)) => a1 == b1 && a2 == b2,
-            _ => false,
+            (Kind::Solid(c1), Kind::Solid(c2)) => c1 == c2,
+            (Kind::Test, Kind::Test) => true,
+            _ => false
         }
     }
 }
@@ -222,12 +226,10 @@ mod tests {
     fn stripes_with_both_pattern_and_object_transformation() {
         let mut object = Sphere::default();
         object.transform(scale(2, 2, 2));
-        object.material.pattern = Some(stripe_pattern(WHITE, BLACK, translate(0.5, 0, 0)));
+        object.material.pattern = stripe_pattern(WHITE, BLACK, translate(0.5, 0, 0));
         let c = object
             .material()
             .pattern()
-            .as_ref()
-            .unwrap()
             .color_at_object(&object, point(2.5, 0, 0));
         assert!(c.unwrap() == WHITE);
     }

@@ -6,7 +6,7 @@ use std::io::prelude::*;
 fn main() -> std::io::Result<()> {
     let mut floor = Plane::default();
     let mut floor_material = Material::default();
-    floor_material.pattern = Some(checkers_pattern(WHITE, BLACK, None));
+    floor_material.pattern = checkers_pattern(WHITE, BLACK, None);
     floor_material.reflective = 0.4;
     floor_material.diffuse = 0.7;
     floor_material.specular = 0.3;
@@ -15,7 +15,7 @@ fn main() -> std::io::Result<()> {
     let mut sphere = Sphere::default();
     sphere.transform(translate(-0.5, 1, 0.5));
     let mut sphere_material = Material::default();
-    sphere_material.color = color(0.2, 0, 0);
+    sphere_material.pattern = solid_pattern(color(0.2, 0, 0));
     sphere_material.diffuse = 0.1;
     sphere_material.ambient = 0.1;
     sphere_material.specular = 0.1;

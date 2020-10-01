@@ -1,12 +1,12 @@
 use crate::color::{color, Color};
 use crate::consts::EPSILON;
 use crate::light::PointLight;
-use crate::pattern::Pattern;
+use crate::pattern::{solid_pattern, Pattern};
 use crate::tuple::Tuple;
 
-#[derive(Clone, Debug)]
+#[derive(Copy, Clone, Debug)]
 pub struct Material {
-    pub color: Color,
+    // pub color: Color,
     pub ambient: f64,
     pub diffuse: f64,
     pub specular: f64,
@@ -14,12 +14,11 @@ pub struct Material {
     pub reflective: f64,
     pub transparency: f64,
     pub refractive_index: f64,
-    pub pattern: Option<Pattern>,
+    pub pattern: Pattern,
 }
 
 impl Material {
-    pub fn new<T: Into<Option<Pattern>>>(
-        color: Color,
+    pub fn new(
         ambient: f64,
         diffuse: f64,
         specular: f64,
@@ -27,10 +26,9 @@ impl Material {
         reflective: f64,
         transparency: f64,
         refractive_index: f64,
-        pattern: T,
+        pattern: Pattern,
     ) -> Material {
         Material {
-            color,
             ambient,
             diffuse,
             specular,
@@ -38,12 +36,21 @@ impl Material {
             reflective,
             transparency,
             refractive_index,
-            pattern: pattern.into(),
+            pattern: pattern,
         }
     }
 
     pub fn default() -> Material {
-        Material::new(color(1, 1, 1), 0.1, 0.9, 0.9, 200.0, 0.0, 0.0, 1.0, None)
+        Material::new(
+            0.1,
+            0.9,
+            0.9,
+            200.0,
+            0.0,
+            0.0,
+            1.0,
+            solid_pattern(color(1, 1, 1)),
+        )
     }
 
     // TODO: don't calculate specular and diffuse if in shadow
@@ -55,10 +62,7 @@ impl Material {
         normal_v: Tuple,
         in_shadow: bool,
     ) -> Color {
-        let start_color = match &self.pattern {
-            Some(pattern) => pattern.kind.color_at(point),
-            None => self.color,
-        };
+        let start_color = self.pattern.color_at(point);
 
         let effective_color = start_color * light.intensity;
         let light_v = (light.position - point).normalize();
@@ -92,25 +96,22 @@ impl Material {
         }
     }
 
-    pub fn pattern(&self) -> &Option<Pattern> {
-        &self.pattern
+    pub fn pattern(&self) -> Pattern {
+        self.pattern
     }
 }
 
 pub fn material<T: Into<Option<Pattern>>>(
-    color: Color,
     ambient: f64,
     diffuse: f64,
     specular: f64,
     shininess: f64,
     reflective: f64,
-
     transparency: f64,
     refractive_index: f64,
-    pattern: T,
+    pattern: Pattern,
 ) -> Material {
     Material::new(
-        color,
         ambient,
         diffuse,
         specular,
@@ -124,16 +125,11 @@ pub fn material<T: Into<Option<Pattern>>>(
 
 impl PartialEq for Material {
     fn eq(&self, other: &Self) -> bool {
-        self.color == other.color
-            && f64::abs(self.ambient - other.ambient) < EPSILON
+        f64::abs(self.ambient - other.ambient) < EPSILON
             && f64::abs(self.diffuse - other.diffuse) < EPSILON
             && f64::abs(self.specular - other.specular) < EPSILON
             && f64::abs(self.shininess - other.shininess) < EPSILON
-            && match (&self.pattern, &other.pattern) {
-                (None, None) => true,
-                (Some(a), Some(b)) => a == b,
-                _ => false,
-            }
+            && self.pattern == other.pattern
     }
 }
 #[cfg(test)]
@@ -146,7 +142,9 @@ mod tests {
     #[test]
     fn default_material() {
         let m = Material::default();
-        assert!(m.color == color(1, 1, 1));
+        dbg!(&m.pattern);
+        dbg!(solid_pattern(color(1, 1, 1)));
+        assert!(m.pattern == solid_pattern(color(1, 1, 1)));
         assert!(m.ambient == 0.1);
         assert!(m.diffuse == 0.9);
         assert!(m.specular == 0.9);
@@ -237,7 +235,7 @@ mod tests {
     #[test]
     fn lighting_with_pattern_applied() {
         let mut m = Material::default();
-        m.pattern = Some(stripe_pattern(color(1, 1, 1), color(0, 0, 0), None));
+        m.pattern = stripe_pattern(color(1, 1, 1), color(0, 0, 0), None);
         m.ambient = 1.0;
         m.diffuse = 0.0;
         m.specular = 0.0;

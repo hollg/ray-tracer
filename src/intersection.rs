@@ -10,7 +10,7 @@ pub struct Intersection<'a> {
 
 impl<'a> PartialEq for Intersection<'a> {
     fn eq(&self, other: &Self) -> bool {
-        f64::abs(self.t - other.t) < EPSILON && self.object.material() == other.object.material()
+        f64::abs(self.t - other.t) < EPSILON && self.object == other.object
     }
 }
 
@@ -150,7 +150,7 @@ mod tests {
 
         let i = intersection(3.5, &s);
         assert!(i.t == 3.5);
-        assert!(i.object.material() == &s.material);
+        assert!(i.object == &s);
         assert!(i.object.transformation() == s.transformation());
     }
 
@@ -160,9 +160,9 @@ mod tests {
 
         let i1 = intersection(1.0, &s);
         let i2 = intersection(2.0, &s);
-
+        dbg!(i1.object.id());
         let xs = vec![&i1, &i2];
-
+        dbg!(xs[0].object.id());
         assert!(xs.len() == 2);
         assert!(xs[0] == &i1);
         assert!(xs[1] == &i2);
@@ -224,7 +224,7 @@ mod tests {
         let comps = i.prepare(r, &[i2]);
 
         assert!(comps.t == i.t);
-        assert!(comps.object.material() == i.object.material());
+        assert!(comps.object == i.object);
         assert!(comps.object.transformation() == i.object.transformation());
         assert!(comps.point == point(0, 0, -1));
         assert!(comps.eye_v == vector(0, 0, -1));
@@ -369,6 +369,4 @@ mod tests {
         let reflectance = comps.schlick();
         assert!(f64::abs(reflectance - 0.48873) < EPSILON);
     }
-
-    
 }

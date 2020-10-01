@@ -4,6 +4,7 @@ use crate::intersection::{ComputedIntersection, Intersection};
 use crate::light::PointLight;
 use crate::material::Material;
 use crate::object::Object;
+use crate::pattern::solid_pattern;
 use crate::ray::{ray, Ray};
 use crate::sphere::Sphere;
 use crate::transformations::scale;
@@ -27,7 +28,7 @@ impl World {
 
         let mut outer_sphere = Sphere::default();
         let mut m = Material::default();
-        m.color = color(0.8, 1.0, 0.6);
+        m.pattern = solid_pattern(color(0.8, 1.0, 0.6));
         m.diffuse = 0.7;
         m.specular = 0.2;
         outer_sphere.material = m;
@@ -167,7 +168,7 @@ mod tests {
 
         let mut outer_sphere = Sphere::default();
         let mut m = Material::default();
-        m.color = color(0.8, 1.0, 0.6);
+        m.pattern = solid_pattern(color(0.8, 1.0, 0.6));
         m.diffuse = 0.7;
         m.specular = 0.2;
         outer_sphere.material = m;
@@ -250,7 +251,7 @@ mod tests {
         w.objects = vec![outer, inner];
         let r = ray(point(0, 0, 0.75), vector(0, 0, -1));
         let c = w.color_at(r, 0);
-        assert!(c == w.objects[1].material().color);
+        assert!(solid_pattern(c) == w.objects[1].material().pattern);
     }
 
     #[test]
@@ -392,7 +393,7 @@ mod tests {
 
         let mut outer_sphere = Sphere::default();
         let mut m = Material::default();
-        m.color = color(0.8, 1.0, 0.6);
+        m.pattern = solid_pattern(color(0.8, 1.0, 0.6));
         m.diffuse = 0.7;
         m.specular = 0.2;
         m.transparency = 1.0;
@@ -427,13 +428,13 @@ mod tests {
 
         let mut outer_sphere = Sphere::default();
         let mut m = Material::default();
-        m.color = color(0.8, 1.0, 0.6);
+        // m.color = color(0.8, 1.0, 0.6);
         m.diffuse = 0.7;
         m.specular = 0.2;
         m.transparency = 1.0;
         m.refractive_index = 1.5;
         m.ambient = 1.0;
-        m.pattern = Some(test_pattern(None));
+        m.pattern = test_pattern(None);
         outer_sphere.material = m;
 
         let w = World {
@@ -458,11 +459,11 @@ mod tests {
     fn refracted_color_with_refracted_ray() {
         let mut outer_sphere = Sphere::default();
         let mut outer_material = Material::default();
-        outer_material.color = color(0.8, 1.0, 0.6);
+        // outer_material.color = color(0.8, 1.0, 0.6);
         outer_material.diffuse = 0.7;
         outer_material.specular = 0.2;
         outer_material.ambient = 1.0;
-        outer_material.pattern = Some(test_pattern(None));
+        outer_material.pattern = test_pattern(None);
         outer_sphere.material = outer_material;
 
         let mut inner_sphere = Sphere::default();
@@ -501,7 +502,7 @@ mod tests {
         w.objects.push(Box::new(floor));
 
         let mut ball = Sphere::default();
-        ball.material.color = color(1, 0, 0);
+        ball.material.pattern = solid_pattern(color(1, 0, 0));
         ball.material.ambient = 0.5;
         ball.transform(translate(0, -3.5, -0.5));
         w.objects.push(Box::new(ball));
@@ -530,7 +531,7 @@ mod tests {
         w.objects.push(Box::new(floor));
 
         let mut ball = Sphere::default();
-        ball.material.color = color(1, 0, 0);
+        ball.material.pattern = solid_pattern(color(1, 0, 0));
         ball.material.ambient = 0.5;
         ball.transform(translate(0, -3.5, -0.5));
         w.objects.push(Box::new(ball));

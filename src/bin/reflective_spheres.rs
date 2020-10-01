@@ -6,7 +6,7 @@ use std::io::prelude::*;
 fn main() -> std::io::Result<()> {
     let mut floor = Plane::default();
     let mut floor_material = Material::default();
-    floor_material.pattern = Some(checkers_pattern(WHITE, BLACK, None));
+    floor_material.pattern = checkers_pattern(WHITE, BLACK, None);
     floor_material.reflective = 0.4;
     floor_material.diffuse = 0.7;
     floor_material.specular = 0.3;
@@ -15,7 +15,7 @@ fn main() -> std::io::Result<()> {
     let mut middle = Sphere::default();
     middle.transform(translate(-0.5, 1, 0.5));
     let mut middle_material = Material::default();
-    middle_material.color = color(0.1, 1, 0.5);
+    middle_material.pattern = solid_pattern(color(0.1, 1, 0.5));
     middle_material.diffuse = 0.7;
     middle_material.specular = 0.3;
     middle_material.reflective = 0.1;
@@ -24,7 +24,7 @@ fn main() -> std::io::Result<()> {
     let mut right = Sphere::default();
     right.transform(translate(1.5, 0.5, 1.5) * scale(0.5, 0.5, 0.5));
     let mut right_material = Material::default();
-    right_material.color = WHITE;
+    right_material.pattern = solid_pattern(WHITE);
     right_material.diffuse = 0.7;
     right_material.specular = 0.2;
     right_material.reflective = 1.0;
@@ -34,15 +34,15 @@ fn main() -> std::io::Result<()> {
     let mut left = Sphere::default();
     left.transform(translate(-1.5, 0.33, -0.75) * scale(0.33, 0.33, 0.33));
     let mut left_material = Material::default();
-    left_material.color = color(1, 0.8, 0.1);
+    // left_material.color = color(1, 0.8, 0.1);
     left_material.diffuse = 0.7;
     left_material.specular = 0.3;
     left_material.reflective = 0.1;
-    left_material.pattern = Some(gradient_pattern(
+    left_material.pattern = gradient_pattern(
         color(1, 1, 0),
         color(1, 0, 1),
         rotate_x(30),
-    ));
+    );
     left.material = left_material;
 
     let world = World::new(
