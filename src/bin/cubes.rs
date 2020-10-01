@@ -13,7 +13,7 @@ fn main() -> std::io::Result<()> {
     floor.material = floor_material;
 
     let mut brick1 = Cube::default();
-    // brick1.transform = scale(0.5, 0.25, 1.5).translate(-1.0, 0.25, 1.0);
+    brick1.transform(scale(0.5, 0.25, 1.5).translate(-1.0, 0.25, 1.0));
     let mut brick_material = Material::default();
     brick_material.pattern = solid_pattern(color(0.3, 0, 0));
     brick_material.diffuse = 0.7;
@@ -44,8 +44,8 @@ fn main() -> std::io::Result<()> {
     );
 
     let camera = Camera::new(
-        500,
-        250,
+        2000,
+        1000,
         PI / 3.0,
         view_transform(point(0, 1.5, -5), point(0, 1, 0), vector(0, 1, 0)),
     );
