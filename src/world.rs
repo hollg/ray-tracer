@@ -6,7 +6,7 @@ use crate::material::Material;
 use crate::object::Object;
 use crate::pattern::solid_pattern;
 use crate::ray::{ray, Ray};
-use crate::sphere::Sphere;
+use crate::shapes::Sphere;
 use crate::transformations::scale;
 use crate::tuple::{point, Tuple};
 pub struct World {
@@ -145,8 +145,8 @@ mod tests {
     use crate::color::BLACK;
     use crate::intersection::intersection;
     use crate::pattern::test_pattern;
-    use crate::plane::Plane;
     use crate::ray::ray;
+    use crate::shapes::Plane;
     use crate::transformations::translate;
     use crate::tuple::vector;
     use std::f64::consts::PI;

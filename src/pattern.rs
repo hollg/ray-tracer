@@ -143,7 +143,7 @@ mod tests {
     use super::*;
     use crate::color::{color, BLACK, WHITE};
     use crate::object::Object;
-    use crate::sphere::Sphere;
+    use crate::shapes::Sphere;
     use crate::transformations::{scale, translate};
     use crate::tuple::point;
 

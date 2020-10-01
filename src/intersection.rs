@@ -138,9 +138,8 @@ impl<'a> ComputedIntersection<'a> {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::plane::Plane;
     use crate::ray::ray;
-    use crate::sphere::{glass_sphere, Sphere};
+    use crate::shapes::{glass_sphere, Plane, Sphere};
     use crate::transformations::{scale, translate};
     use crate::tuple::{point, vector};
     use std::collections::HashMap;
