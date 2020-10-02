@@ -189,9 +189,8 @@ mod tests {
         let pattern = stripe_pattern(WHITE, BLACK, None);
 
         let object_point = object.inverse() * point(1.5, 0, 0);
-        let pattern_point = pattern.inverse * object_point;
 
-        let c = pattern.color_at(pattern_point);
+        let c = pattern.color_at_object(object_point);
 
         assert!(c == WHITE);
     }
@@ -201,8 +200,7 @@ mod tests {
         let object = Sphere::default();
         let pattern = stripe_pattern(WHITE, BLACK, scale(2, 2, 2));
         let object_point = object.inverse() * point(1.5, 0, 0);
-        let pattern_point = pattern.inverse * object_point;
-        let c = pattern.color_at(pattern_point);
+        let c = pattern.color_at_object(object_point);
         assert!(c == WHITE);
     }
 
@@ -212,9 +210,8 @@ mod tests {
         object.transform(scale(2, 2, 2));
         object.material.pattern = stripe_pattern(WHITE, BLACK, translate(0.5, 0, 0));
         let object_point = object.inverse() * point(2.5, 0, 0);
-        let pattern_point = object.material().pattern().inverse * object_point;
 
-        let c = object.material().pattern().color_at(pattern_point);
+        let c = object.material().pattern.color_at_object(object_point);
         assert!(c == WHITE);
     }
 

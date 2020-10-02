@@ -80,6 +80,8 @@ impl World {
                 let refracted = self.refracted_color(&comps, remaining);
 
                 let material = comps.object.material();
+
+                // fresnel effect
                 if material.reflective > 0.0 && material.transparency > 0.0 {
                     let reflectance = comps.schlick();
                     return surface + reflected * reflectance + refracted * (1.0 - reflectance);
@@ -429,7 +431,6 @@ mod tests {
 
         let mut outer_sphere = Sphere::default();
         let mut m = Material::default();
-        // m.color = color(0.8, 1.0, 0.6);
         m.diffuse = 0.7;
         m.specular = 0.2;
         m.transparency = 1.0;

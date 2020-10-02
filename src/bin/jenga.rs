@@ -112,18 +112,7 @@ fn main() -> std::io::Result<()> {
         row
     }
 
-    let mut sphere = Sphere::default();
-    sphere.transform(translate(5.5, 0.5, 1.5).scale(0.5, 0.5, 0.5));
-    let mut sphere_material = Material::default();
-    sphere_material.pattern = solid_pattern(WHITE);
-    sphere_material.diffuse = 0.7;
-    sphere_material.specular = 0.2;
-    sphere_material.reflective = 1.0;
-    sphere_material.shininess = 1.0;
-    sphere.material = sphere_material;
-
-    let mut objects: Vec<Box<dyn Object>> =
-        vec![Box::new(floor), Box::new(mirror), Box::new(sphere)];
+    let mut objects: Vec<Box<dyn Object>> = vec![Box::new(floor)];
 
     for i in 0..21 {
         match i % 2 == 0 {
@@ -144,11 +133,11 @@ fn main() -> std::io::Result<()> {
     };
 
     let camera = Camera::new(
-        250,
-        500,
+        2000,
+        4000,
         PI / 3.0,
-        view_transform(point(8.5, 5.0, -13), point(0, 2.5, 3), vector(0, 1, 0)),
-        // view_transform(point(8.5, 1.0, -4), point(0, 5.5, 0), vector(0, 1, 0)),
+        // view_transform(point(8.5, 5.0, -13), point(0, 2.5, 3), vector(0, 1, 0)),
+        view_transform(point(8.5, 1.0, -4), point(0, 5.5, 0), vector(0, 1, 0)),
     );
 
     let canvas = camera.render(world);

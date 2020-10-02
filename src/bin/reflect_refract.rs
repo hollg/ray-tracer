@@ -38,7 +38,7 @@ fn main() -> std::io::Result<()> {
     );
     let east_wall = Plane::new(
         wall_material.clone(),
-        rotate_y(1.5708).rotate_z(1.5708).translate(5.0, 0.0, 0.0),
+        rotate_y(-1.5708).rotate_z(-1.5708).translate(5.0, 0.0, 0.0),
     );
 
     let north_wall = Plane::new(
@@ -102,29 +102,29 @@ fn main() -> std::io::Result<()> {
     let world = World::new(
         vec![
             Box::new(floor),
-            // Box::new(ceiling),
-            // Box::new(west_wall),
+            Box::new(ceiling),
+            Box::new(west_wall),
             Box::new(east_wall),
             Box::new(north_wall),
-            // Box::new(south_wall),
-            // Box::new(red_sphere),
-            // Box::new(blue_glass_sphere),
-            // Box::new(green_glass_sphere),
-            // Box::new(bg_sphere_1),
-            // Box::new(bg_sphere_2),
-            // Box::new(bg_sphere_3),
-            // Box::new(bg_sphere_4),
+            Box::new(south_wall),
+            Box::new(red_sphere),
+            Box::new(blue_glass_sphere),
+            Box::new(green_glass_sphere),
+            Box::new(bg_sphere_1),
+            Box::new(bg_sphere_2),
+            Box::new(bg_sphere_3),
+            Box::new(bg_sphere_4),
         ],
         vec![PointLight::new(point(-4.9, 4.9, -1), color(1, 1, 1))],
     );
 
     let camera = Camera::new(
-        400,
-        200,
+        1000,
+        750,
         1.152,
         view_transform(
-            point(-2.6, 1.5, -3.9),
-            point(-0.6, 2, -0.8),
+            point(-2.6, 1.5, -5.9),
+            point(-0.6, 2.5, -0.8),
             vector(0, 1, 0),
         ),
     );

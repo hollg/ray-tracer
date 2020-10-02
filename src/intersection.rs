@@ -16,12 +16,12 @@ impl<'a> PartialEq for Intersection<'a> {
 
 impl<'a> Intersection<'a> {
     pub fn prepare(&self, r: Ray, xs: &[Intersection]) -> ComputedIntersection {
-        let object = self.object;
-        let t = self.t;
-        let point = r.position(t);
-        let eye_v = -r.direction;
-        let mut normal_v = self.object.normal_at(r.position(self.t));
+        let point = r.position(self.t);
 
+        
+        let mut normal_v = self.object.normal_at(point);
+        let eye_v = -r.direction;
+        
         let mut is_inside = false;
         if normal_v.dot(eye_v) < 0.0 {
             is_inside = true;
@@ -63,8 +63,8 @@ impl<'a> Intersection<'a> {
         }
 
         ComputedIntersection {
-            object,
-            t,
+            object: self.object,
+            t: self.t,
             point,
             normal_v,
             eye_v,
