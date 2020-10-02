@@ -45,12 +45,17 @@ impl Template {
 pub struct Pattern {
     template: Template,
     transform: Matrix,
-    inverse: Matrix,
+    pub inverse: Matrix,
 }
 
 impl Pattern {
     pub fn color_at(&self, point: Tuple) -> Color {
         self.template.color_at(point)
+    }
+
+    pub fn color_at_object(&self, object_point: Tuple) -> Color {
+        let pattern_point = self.inverse * object_point;
+        self.color_at(pattern_point)
     }
 }
 

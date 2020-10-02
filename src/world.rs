@@ -69,6 +69,7 @@ impl World {
             .fold(color(0, 0, 0), |color, light_source| {
                 let surface = color
                     + comps.object.material().lighting(
+                        comps.object,
                         light_source,
                         comps.over_point,
                         comps.eye_v,
