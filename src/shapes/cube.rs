@@ -49,6 +49,15 @@ impl Cube {
         }
     }
 
+    pub fn new(material: Material, transform: Matrix) -> Cube {
+        Cube {
+            material,
+            transform,
+            inverse: transform.inverse().unwrap(),
+            id: Uuid::new_v4()
+        }
+    }
+
     fn check_axis(origin: f64, direction: f64) -> (f64, f64) {
         let t_min_numerator = -1.0 - origin;
         let t_max_numerator = 1.0 - origin;

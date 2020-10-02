@@ -35,23 +35,39 @@ fn gen_row_positions() -> Vec<i32> {
 }
 
 fn main() -> std::io::Result<()> {
-    let floor = Plane::new(
-        Material {
-            ambient: 0.1,
-            diffuse: 0.7,
-            specular: 0.3,
-            shininess: 250.0,
-            reflective: 0.6,
-            transparency: 0.0,
-            refractive_index: 0.0,
-            pattern: checkers_pattern(WHITE, BLACK, None),
-        },
-        Matrix::identity(),
+    let floor_material = Material {
+        ambient: 0.1,
+        diffuse: 0.7,
+        specular: 0.3,
+        shininess: 250.0,
+        reflective: 0.2,
+        transparency: 0.0,
+        refractive_index: 0.0,
+        pattern: checkers_pattern(WHITE, BLACK, None),
+    };
+    let floor = Plane::new(floor_material.clone(), Matrix::identity());
+
+    let mirror = Cube::new(
+        // Material {
+        //     ambient: 0.1,
+        //     diffuse: 0.7,
+        //     specular: 1.0,
+        //     shininess: 1.0,
+        //     reflective: 1.0,
+        //     transparency: 0.0,
+        //     refractive_index: 1.0,
+        //     pattern: solid_pattern(WHITE),
+        // },
+        floor_material.clone(),
+        scale(15, 15.0, 0.1)
+            // .rotate_x(PI / 2.0)
+            // .rotate_y(PI / 2.0)
+            .translate(0.0, 0.0, 6.0),
     );
 
     let mut block_x_material = Material::default();
     block_x_material.pattern = solid_pattern(color(0.4, 0, 0));
-    block_x_material.diffuse = 0.9;
+    block_x_material.diffuse = 0.7;
     block_x_material.ambient = 0.7;
     block_x_material.specular = 0.4;
     block_x_material.reflective = 0.01;
@@ -96,7 +112,18 @@ fn main() -> std::io::Result<()> {
         row
     }
 
-    let mut objects: Vec<Box<dyn Object>> = vec![Box::new(floor)];
+    let mut sphere = Sphere::default();
+    sphere.transform(translate(5.5, 0.5, 1.5).scale(0.5, 0.5, 0.5));
+    let mut sphere_material = Material::default();
+    sphere_material.pattern = solid_pattern(WHITE);
+    sphere_material.diffuse = 0.7;
+    sphere_material.specular = 0.2;
+    sphere_material.reflective = 1.0;
+    sphere_material.shininess = 1.0;
+    sphere.material = sphere_material;
+
+    let mut objects: Vec<Box<dyn Object>> =
+        vec![Box::new(floor), Box::new(mirror), Box::new(sphere)];
 
     for i in 0..21 {
         match i % 2 == 0 {
@@ -113,14 +140,15 @@ fn main() -> std::io::Result<()> {
 
     let world = World {
         objects,
-        light_sources: vec![PointLight::new(point(6, 9, -10), color(1, 1, 1))],
+        light_sources: vec![PointLight::new(point(9.5, 5.0, -14), color(1, 1, 1))],
     };
 
     let camera = Camera::new(
-        600,
-        1000,
+        250,
+        500,
         PI / 3.0,
-        view_transform(point(8.5, 1.0, -4), point(0, 5.5, 0), vector(0, 1, 0)),
+        view_transform(point(8.5, 5.0, -13), point(0, 2.5, 3), vector(0, 1, 0)),
+        // view_transform(point(8.5, 1.0, -4), point(0, 5.5, 0), vector(0, 1, 0)),
     );
 
     let canvas = camera.render(world);

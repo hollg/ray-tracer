@@ -6,7 +6,6 @@ use crate::tuple::Tuple;
 
 #[derive(Copy, Clone, Debug)]
 pub struct Material {
-    // pub color: Color,
     pub ambient: f64,
     pub diffuse: f64,
     pub specular: f64,
